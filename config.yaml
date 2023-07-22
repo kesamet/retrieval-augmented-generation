@@ -1,0 +1,17 @@
+DATA_PATH: "data/"
+CHUNK_SIZE: 500
+CHUNK_OVERLAP: 50
+DB_FAISS_PATH: "vectordb_faiss"
+
+DEVICE: "cpu"
+
+EMBEDDINGS: "sentence-transformers/all-MiniLM-L6-v2"
+
+MODEL_TYPE: "llama"
+MODEL_BIN_PATH: "./models/llama-2-7b-chat-ggml/llama-2-7b-chat.ggmlv3.q8_0.bin"
+
+MAX_NEW_TOKENS: 256
+TEMPERATURE: 0.01
+
+RETURN_SOURCE_DOCUMENTS: True
+VECTOR_COUNT: 2
