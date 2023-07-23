@@ -5,7 +5,6 @@ from langchain import PromptTemplate
 from langchain.chains import RetrievalQA
 
 from src import CFG
-from src.llm import build_llm
 
 qa_template = """Use the following pieces of information to answer the user's question.
 If you don't know the answer, just say that you don't know, don't try to make up an answer.

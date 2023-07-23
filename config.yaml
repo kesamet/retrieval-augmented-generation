@@ -1,4 +1,3 @@
-DATA_PATH: "./data/"
 CHUNK_SIZE: 500
 CHUNK_OVERLAP: 50
 VECTORDB_FAISS_PATH: "vectordb_faiss"
