@@ -1,0 +1,12 @@
+dependencies:
+  - python=3.10.12
+  - pip=23.1.2
+  - pip:
+    - ctransformers==0.2.14
+    - faiss-cpu==1.7.4
+    - fastapi==0.96.0
+    - langchain==0.0.231
+    - python-box==7.0.1
+    - sentence-transformers==2.2.2
+    - PyMuPDF==1.22.5
+    - streamlit==1.24.0

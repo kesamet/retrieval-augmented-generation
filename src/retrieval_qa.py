@@ -3,8 +3,6 @@ RetrievalQA
 """
 from langchain import PromptTemplate
 from langchain.chains import RetrievalQA
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
 
 from src import CFG
 from src.llm import build_llm
@@ -29,19 +27,8 @@ def build_retrieval_qa(llm, vectordb):
     retrieval_qa = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
-        retriever=vectordb.as_retriever(search_kwargs={"k": CFG.VECTOR_COUNT}),
+        retriever=vectordb.as_retriever(search_kwargs={"k": CFG.SEARCH_K}),
         return_source_documents=CFG.RETURN_SOURCE_DOCUMENTS,
         chain_type_kwargs={"prompt": prompt},
     )
-    return retrieval_qa
-
-
-def load_retrieval_qa():
-    embeddings = HuggingFaceEmbeddings(
-        model_name=CFG.EMBEDDINGS,
-        model_kwargs={"device": CFG.DEVICE},
-    )
-    vectordb = FAISS.load_local(CFG.DB_FAISS_PATH, embeddings)
-    llm = build_llm()
-    retrieval_qa = build_retrieval_qa(llm, vectordb)
     return retrieval_qa
