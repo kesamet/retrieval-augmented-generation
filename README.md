@@ -19,7 +19,7 @@ conda activate rag
 
 Download the LLM artefact. The model used in this demo is downloaded from [TheBloke](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/tree/main).
 ```bash
-wget https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/blob/main/llama-2-7b-chat.ggmlv3.q8_0.bin -P ./models/llama2-7b-chat-ggml
+wget https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/blob/main/llama-2-7b-chat.ggmlv3.q8_0.bin -P ./models/llama-2-7b-chat-ggml
 ```
 
 ## 💻 App
