@@ -57,7 +57,11 @@ def doc_qa():
         if st.session_state.uploaded_filename != "":
             st.info(f"Current document: {st.session_state.uploaded_filename}")
         else:
-            st.warning("Reading from existing VectorDB")
+            try:
+                _ = FAISS.load_local(CFG.VECTORDB_FAISS_PATH, EMBEDDINGS)
+                st.warning("Reading from existing VectorDB")
+            except Exception:
+                st.warning("No existing VectorDB found")
 
     retrieved = None
     with st.form("qa_form"):
