@@ -26,13 +26,31 @@ EMBEDDINGS = _load_embeddings()
 LLM = _load_llm()
 
 
-def retrieve(user_query, k):
+def retrieve(user_query: str, k: int) -> list:
+    """
+    Retrieve documents from vectordb by similarity search.
+
+    Args:
+        user_query (str): The user query.
+        k (int): The number of documents to retrieve.
+
+    Returns:
+        list: A list of retrieved documents.
+    """
     vectordb = FAISS.load_local(CFG.VECTORDB_FAISS_PATH, EMBEDDINGS)
     docs = vectordb.similarity_search(user_query, k=k)
     return docs
 
 
-def retrieve_qa(user_query):
+def retrieve_qa(user_query: str) -> dict:
+    """Retrieve from the vectordb and answer user query in a conversational manner.
+
+    Args:
+        user_query (str): The user query.
+
+    Returns:
+        dict: The response from the retrieval_qa model.
+    """
     vectordb = FAISS.load_local(CFG.VECTORDB_FAISS_PATH, EMBEDDINGS)
     retrieval_qa = build_retrieval_qa(LLM, vectordb)
     response = retrieval_qa({"query": user_query})

@@ -6,7 +6,8 @@ from langchain.llms import CTransformers
 from src import CFG
 
 
-def build_llm():
+def build_llm() -> CTransformers:
+    """Load language model."""
     llm = CTransformers(
         model=CFG.LLM_MODEL,
         model_type=CFG.LLM_MODEL_TYPE,

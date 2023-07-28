@@ -9,7 +9,12 @@ from langchain.vectorstores import FAISS
 from src import CFG
 
 
-def build_vectordb(filename: str):
+def build_vectordb(filename: str) -> None:
+    """Builds a vector database from a PDF file.
+
+    Args:
+        filename (str): Path to the PDF file.
+    """
     documents = PyMuPDFLoader(filename).load()
 
     text_splitter = RecursiveCharacterTextSplitter(

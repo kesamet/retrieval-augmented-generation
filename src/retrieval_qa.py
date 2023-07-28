@@ -3,6 +3,8 @@ RetrievalQA
 """
 from langchain import PromptTemplate
 from langchain.chains import RetrievalQA
+from langchain.llms import CTransformers
+from langchain.vectorstores import FAISS
 
 from src import CFG
 
@@ -17,7 +19,16 @@ Helpful answer:
 """
 
 
-def build_retrieval_qa(llm, vectordb):
+def build_retrieval_qa(llm: CTransformers, vectordb: FAISS):
+    """Builds a retrieval QA model.
+
+    Args:
+        llm (CTransformers): The language model to use.
+        vectordb (FAISS): The vector database to use.
+
+    Returns:
+        RetrievalQA: The retrieval QA model.
+    """
     prompt = PromptTemplate(
         template=qa_template,
         input_variables=["context", "question"],
