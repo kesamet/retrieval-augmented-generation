@@ -29,7 +29,3 @@ def build_vectordb(filename: str) -> None:
 
     vectorstore = FAISS.from_documents(texts, embeddings)
     vectorstore.save_local(CFG.VECTORDB_FAISS_PATH)
-
-
-if __name__ == "__main__":
-    build_vectordb()
