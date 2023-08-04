@@ -2,28 +2,17 @@ import streamlit as st
 from langchain.vectorstores import FAISS
 
 from src import CFG
-from src.embeddings import build_embeddings
-from src.llm import build_llm
+from src.app_utils import load_embeddings, load_llm, perform
 from src.retrieval_qa import build_retrieval_qa
-from src.utils import perform
 from src.vectordb import build_vectordb
+
+st.set_page_config(page_title="Retrieval QA")
 
 if "uploaded_filename" not in st.session_state:
     st.session_state["uploaded_filename"] = ""
 
-
-@st.cache_resource
-def _load_embeddings():
-    return build_embeddings()
-
-
-@st.cache_resource
-def _load_llm():
-    return build_llm()
-
-
-EMBEDDINGS = _load_embeddings()
-LLM = _load_llm()
+EMBEDDINGS = load_embeddings()
+LLM = load_llm()
 
 
 def retrieve(user_query: str, k: int) -> list:
@@ -85,12 +74,14 @@ def doc_qa():
     with st.form("qa_form"):
         user_query = st.text_area("Your query")
         mode = st.radio(
-            "mode", ["Retrieval QA", "Retrieve only"], label_visibility="hidden"
+            "mode", ["Retrieval QA", "Retrieval only"],
+            label_visibility="hidden",
+            help="Retrieval only will output extracts related to your query immediately, while Retrieval QA will output an answer to your query and will take a while on CPU."
         )
 
         submitted = st.form_submit_button("Query")
         if submitted:
-            if mode == "Retrieve only":
+            if mode == "Retrieval only":
                 retrieved = {"source_documents": retrieve(user_query, k=2)}
             else:
                 with st.spinner("Getting response. Please wait..."):

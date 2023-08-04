@@ -38,18 +38,23 @@ def build_retrieval_qa(llm: CTransformers, vectordb: FAISS):
         llm=llm,
         chain_type="stuff",
         retriever=vectordb.as_retriever(search_kwargs={"k": CFG.SEARCH_K}),
-        return_source_documents=CFG.RETURN_SOURCE_DOCUMENTS,
+        return_source_documents=True,
         chain_type_kwargs={"prompt": prompt},
     )
     return retrieval_qa
 
 
 def build_retrieval_chain(llm: CTransformers, vectordb: FAISS):
+    prompt = PromptTemplate(
+        template=QA_TEMPLATE,
+        input_variables=["context", "question"],
+    )
+
     retrieval_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         chain_type="stuff",
         retriever=vectordb.as_retriever(search_kwargs={"k": CFG.SEARCH_K}),
         return_source_documents=True,
-        return_generated_question=True,
+        combine_docs_chain_kwargs={"prompt": prompt},
     )
     return retrieval_chain

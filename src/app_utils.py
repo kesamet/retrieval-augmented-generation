@@ -1,6 +1,21 @@
 import os
 import tempfile
 
+import streamlit as st
+
+from src.embeddings import build_embeddings
+from src.llm import build_llm
+
+
+@st.cache_resource
+def load_embeddings():
+    return build_embeddings()
+
+
+@st.cache_resource
+def load_llm():
+    return build_llm()
+
 
 def perform(func, filebytes, **kwargs):
     """

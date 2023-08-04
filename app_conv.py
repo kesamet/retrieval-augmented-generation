@@ -1,32 +1,20 @@
 from typing import List
 
 import streamlit as st
-from langchain.chat_models import ChatGooglePalm
 from langchain.vectorstores import FAISS
 
 from src import CFG
-from src.embeddings import build_embeddings
-from src.llm import build_llm
+from src.app_utils import load_embeddings, load_llm, perform
 from src.retrieval_qa import build_retrieval_chain
-from src.utils import perform
 from src.vectordb import build_vectordb
+
+st.set_page_config(page_title="Conversational Retrieval QA")
 
 if "uploaded_filename" not in st.session_state:
     st.session_state["uploaded_filename"] = ""
 
-
-@st.cache_resource
-def _load_embeddings():
-    return build_embeddings()
-
-
-@st.cache_resource
-def _load_llm():
-    return build_llm()
-
-
-EMBEDDINGS = _load_embeddings()
-LLM = ChatGooglePalm(temperature=0.0)
+EMBEDDINGS = load_embeddings()
+LLM = load_llm()
 
 
 def init_chat_history() -> None:
@@ -81,7 +69,7 @@ def main():
 
     result = None
     if user_query := st.chat_input("Your input"):
-        with st.spinner("Responding ..."):
+        with st.spinner("Getting response. Please wait ..."):
             result = retrieve_qa(user_query, st.session_state.chat_history)
 
     # Display chat history

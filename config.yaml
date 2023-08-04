@@ -7,10 +7,8 @@ DEVICE: "cpu"
 EMBEDDINGS_MODEL: "sentence-transformers/all-MiniLM-L6-v2"
 
 LLM_MODEL_TYPE: "llama"
-LLM_MODEL: "./models/llama-2-7b-chat-ggml/llama-2-7b-chat.ggmlv3.q8_0.bin"
-
+LLM_MODEL: "./models/llama-2-7b-chat-ggml/llama-2-7b-chat.ggmlv3.q2_K.bin"
 MAX_NEW_TOKENS: 256
 TEMPERATURE: 0.01
 
-RETURN_SOURCE_DOCUMENTS: True
 SEARCH_K: 2
