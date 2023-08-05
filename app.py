@@ -74,9 +74,11 @@ def doc_qa():
     with st.form("qa_form"):
         user_query = st.text_area("Your query")
         mode = st.radio(
-            "mode", ["Retrieval QA", "Retrieval only"],
+            "mode",
+            ["Retrieval QA", "Retrieval only"],
             label_visibility="hidden",
-            help="Retrieval only will output extracts related to your query immediately, while Retrieval QA will output an answer to your query and will take a while on CPU."
+            help="""Retrieval only will output extracts related to your query immediately, \
+while Retrieval QA will output an answer to your query and will take a while on CPU.""",
         )
 
         submitted = st.form_submit_button("Query")

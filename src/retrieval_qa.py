@@ -19,7 +19,7 @@ Helpful answer:
 """
 
 
-def build_retrieval_qa(llm: CTransformers, vectordb: FAISS):
+def build_retrieval_qa(llm: CTransformers, vectordb: FAISS) -> RetrievalQA:
     """Builds a retrieval QA model.
 
     Args:
@@ -44,7 +44,18 @@ def build_retrieval_qa(llm: CTransformers, vectordb: FAISS):
     return retrieval_qa
 
 
-def build_retrieval_chain(llm: CTransformers, vectordb: FAISS):
+def build_retrieval_chain(
+    llm: CTransformers, vectordb: FAISS
+) -> ConversationalRetrievalChain:
+    """Builds a conversational retrieval chain model.
+
+    Args:
+        llm (CTransformers): The language model to use.
+        vectordb (FAISS): The vector database to use.
+
+    Returns:
+        ConversationalRetrievalChain: The conversational retrieval chain model.
+    """
     prompt = PromptTemplate(
         template=QA_TEMPLATE,
         input_variables=["context", "question"],

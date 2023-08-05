@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import streamlit as st
 from langchain.vectorstores import FAISS
@@ -25,11 +25,12 @@ def init_chat_history() -> None:
         st.session_state.source_documents = []
 
 
-def retrieve_qa(user_query: str, chat_history: List[str]) -> dict:
+def retrieve_qa(user_query: str, chat_history: List[Tuple[str, str]]) -> dict:
     """Retrieve from the vectordb and answer user query in a conversational manner.
 
     Args:
         user_query (str): The user query.
+        chat_history (List[Tuple[str, str]]): chat history of (question, answer)
 
     Returns:
         dict: The response from retrieval_chain.
@@ -40,7 +41,7 @@ def retrieve_qa(user_query: str, chat_history: List[str]) -> dict:
     return result
 
 
-def main():
+def doc_conv_qa():
     with st.sidebar:
         st.title("Document Question Answering")
 
@@ -74,12 +75,13 @@ def main():
 
     # Display chat history
     if result is not None:
-        st.session_state.chat_history.extend(
-            [(user_query, result["answer"], result["source_documents"])]
-        )
-        for query, answer, source_documents in st.session_state.chat_history:
+        st.session_state.chat_history.append((result["question"], result["answer"]))
+        st.session_state.source_documents.append(result["source_documents"])
+        for (question, answer), source_documents in zip(
+            st.session_state.chat_history, st.session_state.source_documents
+        ):
             with st.chat_message("user"):
-                st.markdown(query)
+                st.markdown(question)
             with st.chat_message("assistant"):
                 st.markdown(answer)
 
@@ -92,4 +94,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    doc_conv_qa()
