@@ -1,6 +1,6 @@
 dependencies:
-  - python=3.10.12
-  - pip=23.1.2
+  - python=3.11.4
+  - pip=23.2.1
   - pip:
     - ctransformers==0.2.15
     - faiss-cpu==1.7.4
