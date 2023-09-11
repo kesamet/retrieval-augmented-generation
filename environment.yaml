@@ -9,4 +9,4 @@ dependencies:
     - PyMuPDF==1.22.5
     - python-box==7.0.1
     - sentence-transformers==2.2.2
-    - streamlit==1.25.0
+    - streamlit==1.26.0

@@ -1,55 +1,40 @@
 import streamlit as st
+from langchain.chains import RetrievalQA
 from langchain.vectorstores import FAISS
 
 from src import CFG
-from src.app_utils import load_embeddings, load_llm, perform
+from src.app_utils import perform
+from src.embeddings import build_embeddings
+from src.llm import build_llm
 from src.retrieval_qa import build_retrieval_qa
 from src.vectordb import build_vectordb
 
 st.set_page_config(page_title="Retrieval QA")
 
 if "uploaded_filename" not in st.session_state:
-    st.session_state["uploaded_filename"] = ""
+    st.session_state["uploaded_filename"] = None
 
-EMBEDDINGS = load_embeddings()
-LLM = load_llm()
-
-
-def retrieve(user_query: str, k: int) -> list:
-    """
-    Retrieve documents from vectordb by similarity search.
-
-    Args:
-        user_query (str): The user query.
-        k (int): The number of documents to retrieve.
-
-    Returns:
-        list: A list of retrieved documents.
-    """
-    vectordb = FAISS.load_local(CFG.VECTORDB_FAISS_PATH, EMBEDDINGS)
-    docs = vectordb.similarity_search(user_query, k=k)
-    return docs
+if "last_response" not in st.session_state:
+    st.session_state["last_response"] = None
 
 
-def retrieve_qa(user_query: str) -> dict:
-    """Retrieve from the vectordb and answer user query in a conversational manner.
+@st.cache_resource
+def load_vectordb() -> FAISS:
+    embeddings = build_embeddings()
+    return FAISS.load_local(CFG.VECTORDB_FAISS_PATH, embeddings)
 
-    Args:
-        user_query (str): The user query.
 
-    Returns:
-        dict: The response from the retrieval_qa model.
-    """
-    vectordb = FAISS.load_local(CFG.VECTORDB_FAISS_PATH, EMBEDDINGS)
-    retrieval_qa = build_retrieval_qa(LLM, vectordb)
-    response = retrieval_qa({"query": user_query})
-    return response
+@st.cache_resource
+def load_retrieval_qa() -> RetrievalQA:
+    embeddings = build_embeddings()
+    llm = build_llm()
+    vectordb = FAISS.load_local(CFG.VECTORDB_FAISS_PATH, embeddings)
+    return build_retrieval_qa(llm, vectordb)
 
 
 def doc_qa():
     with st.sidebar:
-        st.header("Document Question Answering")
-
+        st.header("Document Question Answering using quantized LLM on CPU")
         uploaded_file = st.file_uploader(
             "Upload a PDF and build VectorDB", type=["pdf"]
         )
@@ -61,16 +46,21 @@ def doc_qa():
                     perform(build_vectordb, uploaded_file.read())
                 st.session_state.uploaded_filename = uploaded_file.name
 
-        if st.session_state.uploaded_filename != "":
+        if st.session_state.uploaded_filename is not None:
             st.info(f"Current document: {st.session_state.uploaded_filename}")
-        else:
-            try:
-                _ = FAISS.load_local(CFG.VECTORDB_FAISS_PATH, EMBEDDINGS)
-                st.warning("Reading from existing VectorDB")
-            except Exception:
-                st.warning("No existing VectorDB found")
 
-    retrieved = None
+        try:
+            with st.status("Load retrieval_qa", expanded=False) as status:
+                st.write("Loading vectordb...")
+                vectordb = load_vectordb()
+                st.write("Loading retrieval_qa...")
+                retrieval_qa = load_retrieval_qa()
+                status.update(label="Loading complete!", state="complete", expanded=False)
+
+            st.success("Reading from existing VectorDB")
+        except Exception:
+            st.error("No existing VectorDB found")
+
     with st.form("qa_form"):
         user_query = st.text_area("Your query")
         mode = st.radio(
@@ -84,17 +74,22 @@ while Retrieval QA will output an answer to your query and will take a while on 
         submitted = st.form_submit_button("Query")
         if submitted:
             if mode == "Retrieval only":
-                retrieved = {"source_documents": retrieve(user_query, k=2)}
+                st.session_state.last_response = {
+                    "query": user_query,
+                    "source_documents": vectordb.similarity_search(user_query, k=2)
+                }
             else:
-                with st.spinner("Getting response. Please wait..."):
-                    retrieved = retrieve_qa(user_query)
+                with st.spinner("Getting response..."):
+                    st.session_state.last_response = retrieval_qa(user_query)
 
-    if retrieved is not None:
-        if retrieved.get("result") is not None:
-            st.info(retrieved["result"])
+    if st.session_state.last_response is not None:
+        st.success(st.session_state.last_response["query"])
+
+        if st.session_state.last_response.get("result") is not None:
+            st.info(st.session_state.last_response["result"])
 
         st.write("#### Retrieved extracts")
-        for row in retrieved["source_documents"]:
+        for row in st.session_state.last_response["source_documents"]:
             page_content = row.page_content
             page = row.metadata["page"]
 
