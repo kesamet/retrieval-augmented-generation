@@ -2,10 +2,10 @@ dependencies:
   - python=3.11.4
   - pip=23.2.1
   - pip:
-    - ctransformers==0.2.15
+    - ctransformers==0.2.27
     - faiss-cpu==1.7.4
     - fastapi==0.99.1
-    - langchain==0.0.247
+    - langchain==0.0.286
     - PyMuPDF==1.22.5
     - python-box==7.0.1
     - sentence-transformers==2.2.2
