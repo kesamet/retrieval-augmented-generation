@@ -1,6 +1,7 @@
 import streamlit as st
 from langchain.chains import RetrievalQA
 from langchain.vectorstores import FAISS
+from langchain.callbacks import StreamlitCallbackHandler
 
 from src import CFG
 from src.app_utils import perform
@@ -9,10 +10,12 @@ from src.llm import build_llm
 from src.retrieval_qa import build_retrieval_qa
 from src.vectordb import build_vectordb
 
-st.set_page_config(page_title="Retrieval QA")
 
 if "uploaded_filename" not in st.session_state:
     st.session_state["uploaded_filename"] = None
+
+if "last_query" not in st.session_state:
+    st.session_state["last_query"] = None
 
 if "last_response" not in st.session_state:
     st.session_state["last_response"] = None
@@ -33,6 +36,8 @@ def load_retrieval_qa() -> RetrievalQA:
 
 
 def doc_qa():
+    st.set_page_config(page_title="Retrieval QA")
+
     with st.sidebar:
         st.header("Document Question Answering using quantized LLM on CPU")
         uploaded_file = st.file_uploader(
@@ -55,7 +60,9 @@ def doc_qa():
                 vectordb = load_vectordb()
                 st.write("Loading retrieval_qa...")
                 retrieval_qa = load_retrieval_qa()
-                status.update(label="Loading complete!", state="complete", expanded=False)
+                status.update(
+                    label="Loading complete!", state="complete", expanded=False
+                )
 
             st.success("Reading from existing VectorDB")
         except Exception:
@@ -73,17 +80,27 @@ while Retrieval QA will output an answer to your query and will take a while on 
 
         submitted = st.form_submit_button("Query")
         if submitted:
-            if mode == "Retrieval only":
-                st.session_state.last_response = {
-                    "query": user_query,
-                    "source_documents": vectordb.similarity_search(user_query, k=2)
-                }
-            else:
-                with st.spinner("Getting response..."):
-                    st.session_state.last_response = retrieval_qa(user_query)
+            st.session_state.last_query = user_query
 
-    if st.session_state.last_response is not None:
-        st.success(st.session_state.last_response["query"])
+    if st.session_state.last_query is not None:
+        st.success(st.session_state.last_query)
+
+        if mode == "Retrieval only":
+            response = {
+                "query": user_query,
+                "source_documents": vectordb.similarity_search(user_query, k=2),
+            }
+        else:
+            st_callback = StreamlitCallbackHandler(
+                parent_container=st.container(),
+                expand_new_thoughts=True,
+                collapse_completed_thoughts=True,
+            )
+            response = retrieval_qa(user_query, callbacks=[st_callback])
+            st_callback._complete_current_thought()
+            # with st.spinner("Thinking..."):
+            #     response = retrieval_qa(user_query)
+        st.session_state.last_response = response
 
         if st.session_state.last_response.get("result") is not None:
             st.info(st.session_state.last_response["result"])
