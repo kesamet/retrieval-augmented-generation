@@ -7,6 +7,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
 
 from src import CFG
+from src.embeddings import build_base_embeddings
 
 
 def build_vectordb(filename: str) -> None:
@@ -22,10 +23,6 @@ def build_vectordb(filename: str) -> None:
     )
     texts = text_splitter.split_documents(documents)
 
-    embeddings = HuggingFaceEmbeddings(
-        model_name=CFG.EMBEDDINGS_MODEL,
-        model_kwargs={"device": CFG.DEVICE},
-    )
-
+    embeddings = build_base_embeddings()
     vectorstore = FAISS.from_documents(texts, embeddings)
     vectorstore.save_local(CFG.VECTORDB_FAISS_PATH)

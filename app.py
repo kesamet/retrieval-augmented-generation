@@ -104,15 +104,16 @@ def doc_qa():
                     "source_documents": vectordb.similarity_search(user_query, k=2),
                 }
             else:
+                if mode == "Retrieval QA":
+                    retrieval_qa = build_retrieval_qa(LLM, vectordb)
+                else:
+                    retrieval_qa = build_retrieval_qa(LLM, vectordb_hyde)
+
                 st_callback = StreamlitCallbackHandler(
                     parent_container=st.container(),
                     expand_new_thoughts=True,
                     collapse_completed_thoughts=True,
                 )
-                if mode == "Retrieval QA":
-                    retrieval_qa = build_retrieval_qa(LLM, vectordb)
-                else:
-                    retrieval_qa = build_retrieval_qa(LLM, vectordb_hyde)
                 st.session_state.last_response = retrieval_qa(
                     user_query, callbacks=[st_callback]
                 )
