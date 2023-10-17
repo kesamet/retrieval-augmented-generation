@@ -49,7 +49,7 @@ def search_for_phrase(
             )
             if slen / len(cleaned_phrase) > cutoff or slen / len(cleaned_text) > cutoff:
                 instances.append(fitz.Rect(x0, x1, y0, y1))
-        
+
         if instances:
             all_instances[i] = instances
     return all_instances

@@ -42,7 +42,7 @@ def load_vectordb_hyde():
 
 def doc_qa():
     with st.sidebar:
-        st.header("Document Question Answering using quantized LLM on CPU")
+        st.header("DocQA using quantized LLM on CPU")
         uploaded_file = st.file_uploader(
             "Upload a PDF and build VectorDB", type=["pdf"]
         )
@@ -138,7 +138,9 @@ def doc_qa():
             i = st.selectbox("Select extract", list(range(1, n + 1))) - 1
             row = st.session_state.last_response["source_documents"][i]
             try:
-                extracted_doc, page_nums = get_doc_highlighted(row.metadata["source"], row.page_content)
+                extracted_doc, page_nums = get_doc_highlighted(
+                    row.metadata["source"], row.page_content
+                )
                 if extracted_doc is None:
                     st.error("No page found")
                 else:
