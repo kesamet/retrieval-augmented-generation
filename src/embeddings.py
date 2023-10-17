@@ -6,7 +6,6 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, HypotheticalDocumentEmbedder
 
 from src import CFG
-from src.llm import build_llm
 
 
 def build_base_embeddings() -> HuggingFaceEmbeddings:

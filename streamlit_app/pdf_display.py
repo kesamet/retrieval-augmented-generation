@@ -70,7 +70,8 @@ def display_pdf(extracted_doc: fitz.Document, page_num: int = 1) -> None:
         extracted_doc.save(temp_filename, garbage=4, deflate=True, clean=True)
         with open(temp_filename, "rb") as f:
             base64_pdf = base64.b64encode(f.read()).decode("utf-8")
-            pdf_display = f"""<iframe src="data:application/pdf;base64,{base64_pdf}#page={page_num}" width="100%" height="950" type="application/pdf"></iframe>"""
+            pdf_display = f"""<iframe src="data:application/pdf;base64,{base64_pdf}#page={page_num}" \
+width="100%" height="950" type="application/pdf"></iframe>"""
     finally:
         os.close(fh)
         os.remove(temp_filename)
