@@ -1,9 +1,9 @@
 """
 RetrievalQA
 """
-from langchain.prompts import PromptTemplate
-from langchain.chains import RetrievalQA, ConversationalRetrievalChain
+from langchain.chains import ConversationalRetrievalChain, RetrievalQA
 from langchain.llms import CTransformers
+from langchain.prompts import PromptTemplate
 from langchain.vectorstores import FAISS
 
 from src import CFG

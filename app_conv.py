@@ -1,5 +1,4 @@
 import streamlit as st
-from langchain.chains import ConversationalRetrievalChain
 from langchain.vectorstores import FAISS
 from langchain.callbacks import StreamlitCallbackHandler
 
@@ -16,7 +15,7 @@ if "uploaded_filename" not in st.session_state:
     st.session_state["uploaded_filename"] = None
 
 
-def init_chat_history() -> None:
+def init_chat_history():
     """Initialise chat history."""
     clear_button = st.sidebar.button("Clear Conversation", key="clear")
     if clear_button or "chat_history" not in st.session_state:
@@ -25,7 +24,7 @@ def init_chat_history() -> None:
 
 
 @st.cache_resource
-def load_retrieval_chain() -> ConversationalRetrievalChain:
+def load_retrieval_chain():
     embeddings = build_base_embeddings()
     llm = build_llm()
     vectordb = FAISS.load_local(CFG.VECTORDB_FAISS_PATH, embeddings)

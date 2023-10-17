@@ -10,6 +10,15 @@ import streamlit as st
 
 
 def get_doc_highlighted(filename: str, phrase: str) -> Tuple[fitz.Document, list]:
+    """Gets the highlighted document and the page numbers.
+
+    Args:
+        filename (str): The path to the PDF file.
+        phrase (str): The phrase to search for.
+
+    Returns:
+        Tuple[fitz.Document, list]
+    """
     doc = fitz.Document(filename)
 
     all_instances = search_for_phrase(doc, phrase)
@@ -27,6 +36,17 @@ def search_for_phrase(
     page_nums: list = None,
     cutoff: float = 0.8,
 ) -> List[fitz.Rect]:
+    """Search for a phrase in a PDF document.
+
+    Args:
+        doc (fitz.Document): The PDF document to search.
+        phrase (str): The phrase to search for.
+        page_nums (list): A list of page numbers to search. If None, all pages are searched.
+        cutoff (float): The minimum similarity score required to return a match.
+
+    Returns:
+        A list of rectangles representing the bounding boxes of the matches.
+    """
     if page_nums is None:
         page_nums = range(len(doc))
 
@@ -56,7 +76,16 @@ def search_for_phrase(
 
 
 def highlight_phrase(filename: str, all_instances: List[fitz.Rect]) -> fitz.Document:
-    """Extract pages by page numbers with highlighted text."""
+    """Highlights a phrase in a PDF document.
+
+    Args:
+        filename (str): The path to the PDF document.
+        all_instances (List[fitz.Rect]): A list of rectangles that represent the
+            locations of the phrase in the document.
+
+    Returns:
+        fitz.Document: The highlighted PDF document.
+    """
     doc = fitz.Document(filename)
     for page_num, rects in all_instances.items():
         for rect in rects:
@@ -65,6 +94,12 @@ def highlight_phrase(filename: str, all_instances: List[fitz.Rect]) -> fitz.Docu
 
 
 def display_pdf(extracted_doc: fitz.Document, page_num: int = 1) -> None:
+    """Displays a PDF page in a new window.
+
+    Args:
+        extracted_doc (fitz.Document): The PDF document to display.
+        page_num (int): The page number to display.
+    """
     fh, temp_filename = tempfile.mkstemp()
     try:
         extracted_doc.save(temp_filename, garbage=4, deflate=True, clean=True)

@@ -6,8 +6,8 @@ from src import CFG
 from src.embeddings import build_hyde_embeddings
 from src.retrieval_qa import build_retrieval_qa
 from src.vectordb import build_vectordb
-from streamlit_app.utils import load_base_embeddings, load_llm
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
+from streamlit_app.utils import load_base_embeddings, load_llm
 
 st.set_page_config(page_title="Retrieval QA", layout="wide")
 
@@ -84,7 +84,7 @@ def doc_qa():
                 MODE_LIST,
                 index=INDEX,
                 help="""Retrieval only will output extracts related to your query immediately, \
-    while Retrieval QA will output an answer to your query and will take a while on CPU.""",
+while Retrieval QA will output an answer to your query and will take a while on CPU.""",
             )
 
             submitted = st.form_submit_button("Query")
@@ -93,7 +93,7 @@ def doc_qa():
                     st.error("Please enter your query.")
 
     if user_query != "" and (
-        st.session_state.last_mode != mode and st.session_state.last_query != user_query
+        st.session_state.last_mode != mode or st.session_state.last_query != user_query
     ):
         st.session_state.last_mode = mode
         st.session_state.last_query = user_query
