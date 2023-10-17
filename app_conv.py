@@ -4,11 +4,13 @@ from langchain.vectorstores import FAISS
 from langchain.callbacks import StreamlitCallbackHandler
 
 from src import CFG
-from src.app_utils import perform
-from src.embeddings import build_embeddings
+from src.embeddings import build_base_embeddings
 from src.llm import build_llm
 from src.retrieval_qa import build_retrieval_chain
 from src.vectordb import build_vectordb
+from streamlit_app.utils import perform
+
+st.set_page_config(page_title="Conversational Retrieval QA")
 
 if "uploaded_filename" not in st.session_state:
     st.session_state["uploaded_filename"] = None
@@ -22,16 +24,15 @@ def init_chat_history() -> None:
         st.session_state["source_documents"] = list()
 
 
+@st.cache_resource
 def load_retrieval_chain() -> ConversationalRetrievalChain:
-    embeddings = build_embeddings()
+    embeddings = build_base_embeddings()
     llm = build_llm()
     vectordb = FAISS.load_local(CFG.VECTORDB_FAISS_PATH, embeddings)
     return build_retrieval_chain(llm, vectordb)
 
 
 def doc_conv_qa():
-    st.set_page_config(page_title="Conversational Retrieval QA")
-
     with st.sidebar:
         st.title("Conversational DocQA using quantized LLM on CPU")
 
@@ -82,7 +83,7 @@ def doc_conv_qa():
         with st.chat_message("user"):
             st.markdown(user_query)
 
-    if user_query != "":
+    if user_query is not None:
         with st.chat_message("assistant"):
             st_callback = StreamlitCallbackHandler(
                 parent_container=st.container(),
@@ -101,10 +102,8 @@ def doc_conv_qa():
 
             with st.expander("Retrieved extracts"):
                 for row in response["source_documents"]:
-                    page_content = row.page_content
-                    page = row.metadata["page"]
-                    st.write(f"**Page {page}**")
-                    st.info(page_content)
+                    st.write("**Page {}**".format(row.metadata["page"] + 1))
+                    st.info(row.page_content)
 
             st.session_state.chat_history.append(
                 (response["question"], response["answer"])

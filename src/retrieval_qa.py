@@ -1,22 +1,21 @@
 """
 RetrievalQA
 """
-from langchain import PromptTemplate
+from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA, ConversationalRetrievalChain
 from langchain.llms import CTransformers
 from langchain.vectorstores import FAISS
 
 from src import CFG
 
-QA_TEMPLATE = """Use the following pieces of information to answer the user's question. \
-If you don't know the answer, just say that you don't know, don't try to make up an answer.
+QA_TEMPLATE = """<s>[INST] <<SYS>> Use the following pieces of information to answer the user's question. \
+If you don't know the answer, just say that you don't know, don't try to make up an answer. <</SYS>>
 
 Context: {context}
 Question: {question}
 
 Only return the helpful answer below and nothing else.
-Helpful answer:
-"""
+Answer:[/INST]"""
 
 
 def build_retrieval_qa(llm: CTransformers, vectordb: FAISS) -> RetrievalQA:

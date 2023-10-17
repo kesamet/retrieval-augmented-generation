@@ -3,13 +3,13 @@ import tempfile
 
 import streamlit as st
 
-from src.embeddings import build_embeddings
+from src.embeddings import build_base_embeddings
 from src.llm import build_llm
 
 
 @st.cache_resource
-def load_embeddings():
-    return build_embeddings()
+def load_base_embeddings():
+    return build_base_embeddings()
 
 
 @st.cache_resource

@@ -7,7 +7,7 @@ from src import CFG
 
 
 def build_llm() -> CTransformers:
-    """Load language model."""
+    """Builds language model defined in config."""
     llm = CTransformers(
         model=CFG.LLM_MODEL,
         model_type=CFG.LLM_MODEL_TYPE,
