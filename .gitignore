@@ -164,5 +164,4 @@ cython_debug/
 *.pdf
 *.faiss
 *.pkl
-models/llama-2-7b-chat-ggml/
-models/llama-2-7b-chat-hf/
+models/*

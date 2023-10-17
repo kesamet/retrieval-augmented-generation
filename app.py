@@ -1,43 +1,46 @@
 import streamlit as st
-from langchain.chains import RetrievalQA
-from langchain.vectorstores import FAISS
 from langchain.callbacks import StreamlitCallbackHandler
+from langchain.vectorstores import FAISS
 
 from src import CFG
-from src.app_utils import perform
-from src.embeddings import build_embeddings
-from src.llm import build_llm
+from src.embeddings import build_hyde_embeddings
 from src.retrieval_qa import build_retrieval_qa
 from src.vectordb import build_vectordb
+from streamlit_app.utils import load_base_embeddings, load_llm
+from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 
+st.set_page_config(page_title="Retrieval QA", layout="wide")
 
 if "uploaded_filename" not in st.session_state:
     st.session_state["uploaded_filename"] = None
 
+MODE_LIST = ["Retrieval only", "Retrieval QA", "Retrieval QA with HyDE"]
+INDEX = 1
+if "last_mode" not in st.session_state:
+    st.session_state["last_mode"] = MODE_LIST[INDEX]
+
 if "last_query" not in st.session_state:
-    st.session_state["last_query"] = None
+    st.session_state["last_query"] = ""
 
 if "last_response" not in st.session_state:
     st.session_state["last_response"] = None
 
-
-@st.cache_resource
-def load_vectordb() -> FAISS:
-    embeddings = build_embeddings()
-    return FAISS.load_local(CFG.VECTORDB_FAISS_PATH, embeddings)
+LLM = load_llm()
+BASE_EMBEDDINGS = load_base_embeddings()
+HYDE_EMBEDDINGS = build_hyde_embeddings(LLM, BASE_EMBEDDINGS)
 
 
 @st.cache_resource
-def load_retrieval_qa() -> RetrievalQA:
-    embeddings = build_embeddings()
-    llm = build_llm()
-    vectordb = FAISS.load_local(CFG.VECTORDB_FAISS_PATH, embeddings)
-    return build_retrieval_qa(llm, vectordb)
+def load_vectordb():
+    return FAISS.load_local(CFG.VECTORDB_FAISS_PATH, BASE_EMBEDDINGS)
+
+
+@st.cache_resource
+def load_vectordb_hyde():
+    return FAISS.load_local(CFG.VECTORDB_FAISS_PATH, HYDE_EMBEDDINGS)
 
 
 def doc_qa():
-    st.set_page_config(page_title="Retrieval QA")
-
     with st.sidebar:
         st.header("Document Question Answering using quantized LLM on CPU")
         uploaded_file = st.file_uploader(
@@ -47,19 +50,22 @@ def doc_qa():
             if uploaded_file is None:
                 st.error("No PDF uploaded")
             else:
+                uploaded_filename = f"./data/{uploaded_file.name}"
+                with open(uploaded_filename, "wb") as f:
+                    f.write(uploaded_file.getvalue())
                 with st.spinner("Building VectorDB..."):
-                    perform(build_vectordb, uploaded_file.read())
-                st.session_state.uploaded_filename = uploaded_file.name
+                    build_vectordb(uploaded_filename)
+                st.session_state.uploaded_filename = uploaded_filename
 
         if st.session_state.uploaded_filename is not None:
             st.info(f"Current document: {st.session_state.uploaded_filename}")
 
         try:
-            with st.status("Load retrieval_qa", expanded=False) as status:
-                st.write("Loading vectordb...")
+            with st.status("Load VectorDB", expanded=False) as status:
+                st.write("Loading VectorDB ...")
                 vectordb = load_vectordb()
-                st.write("Loading retrieval_qa...")
-                retrieval_qa = load_retrieval_qa()
+                st.write("Loading HyDE VectorDB ...")
+                vectordb_hyde = load_vectordb_hyde()
                 status.update(
                     label="Loading complete!", state="complete", expanded=False
                 )
@@ -68,50 +74,77 @@ def doc_qa():
         except Exception:
             st.error("No existing VectorDB found")
 
-    with st.form("qa_form"):
-        user_query = st.text_area("Your query")
-        mode = st.radio(
-            "mode",
-            ["Retrieval QA", "Retrieval only"],
-            label_visibility="hidden",
-            help="""Retrieval only will output extracts related to your query immediately, \
-while Retrieval QA will output an answer to your query and will take a while on CPU.""",
-        )
+    c0, c1 = st.columns(2)
 
-        submitted = st.form_submit_button("Query")
-        if submitted:
-            st.session_state.last_query = user_query
-
-    if st.session_state.last_query is not None:
-        st.success(st.session_state.last_query)
-
-        if mode == "Retrieval only":
-            response = {
-                "query": user_query,
-                "source_documents": vectordb.similarity_search(user_query, k=2),
-            }
-        else:
-            st_callback = StreamlitCallbackHandler(
-                parent_container=st.container(),
-                expand_new_thoughts=True,
-                collapse_completed_thoughts=True,
+    with c0:
+        with st.form("qa_form"):
+            user_query = st.text_area("Your query")
+            mode = st.radio(
+                "Mode",
+                MODE_LIST,
+                index=INDEX,
+                help="""Retrieval only will output extracts related to your query immediately, \
+    while Retrieval QA will output an answer to your query and will take a while on CPU.""",
             )
-            response = retrieval_qa(user_query, callbacks=[st_callback])
-            st_callback._complete_current_thought()
-            # with st.spinner("Thinking..."):
-            #     response = retrieval_qa(user_query)
-        st.session_state.last_response = response
 
-        if st.session_state.last_response.get("result") is not None:
-            st.info(st.session_state.last_response["result"])
+            submitted = st.form_submit_button("Query")
+            if submitted:
+                if user_query == "":
+                    st.error("Please enter your query.")
 
-        st.write("#### Retrieved extracts")
-        for row in st.session_state.last_response["source_documents"]:
-            page_content = row.page_content
-            page = row.metadata["page"]
+    if user_query != "" and (
+        st.session_state.last_mode != mode and st.session_state.last_query != user_query
+    ):
+        st.session_state.last_mode = mode
+        st.session_state.last_query = user_query
+        with c0:
+            if mode == "Retrieval only":
+                st.session_state.last_response = {
+                    "query": user_query,
+                    "source_documents": vectordb.similarity_search(user_query, k=2),
+                }
+            else:
+                st_callback = StreamlitCallbackHandler(
+                    parent_container=st.container(),
+                    expand_new_thoughts=True,
+                    collapse_completed_thoughts=True,
+                )
+                if mode == "Retrieval QA":
+                    retrieval_qa = build_retrieval_qa(LLM, vectordb)
+                else:
+                    retrieval_qa = build_retrieval_qa(LLM, vectordb_hyde)
+                st.session_state.last_response = retrieval_qa(
+                    user_query, callbacks=[st_callback]
+                )
+                st_callback._complete_current_thought()
+                # with st.spinner("Thinking..."):
+                #     response = retrieval_qa(user_query)
 
-            st.write(f"**Page {page}**")
-            st.info(page_content)
+    if st.session_state.last_response is not None:
+        with c0:
+            st.warning(f"Query: {st.session_state.last_query}")
+            if st.session_state.last_response.get("result") is not None:
+                st.success(st.session_state.last_response["result"])
+
+        with c1:
+            st.write("#### Retrieved extracts")
+            for row in st.session_state.last_response["source_documents"]:
+                st.write("**Page {}**".format(row.metadata["page"] + 1))
+                st.info(row.page_content)
+
+            # Display PDF
+            st.write("---")
+            n = len(st.session_state.last_response["source_documents"])
+            i = st.selectbox("Select extract", list(range(1, n + 1))) - 1
+            row = st.session_state.last_response["source_documents"][i]
+            try:
+                extracted_doc, page_nums = get_doc_highlighted(row.metadata["source"], row.page_content)
+                if extracted_doc is None:
+                    st.error("No page found")
+                else:
+                    display_pdf(extracted_doc, page_nums[0] + 1)
+            except Exception as e:
+                st.error(e)
 
 
 if __name__ == "__main__":
