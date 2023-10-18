@@ -2,7 +2,6 @@
 Build vectordb
 """
 from langchain.document_loaders import PyMuPDFLoader
-from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
 
@@ -16,12 +15,12 @@ def build_vectordb(filename: str) -> None:
     Args:
         filename (str): Path to the PDF file.
     """
-    documents = PyMuPDFLoader(filename).load()
+    doc = PyMuPDFLoader(filename).load()
 
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CFG.CHUNK_SIZE, chunk_overlap=CFG.CHUNK_OVERLAP
     )
-    texts = text_splitter.split_documents(documents)
+    texts = text_splitter.split_documents(doc)
 
     embeddings = build_base_embeddings()
     vectorstore = FAISS.from_documents(texts, embeddings)

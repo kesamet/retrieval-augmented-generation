@@ -1,14 +1,14 @@
 """
 Embeddings
 """
+from langchain.chains import HypotheticalDocumentEmbedder, LLMChain
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain, HypotheticalDocumentEmbedder
 
 from src import CFG
 
 
-def build_base_embeddings() -> HuggingFaceEmbeddings:
+def build_base_embeddings():
     """Builds base embeddings defined in config."""
     base_embeddings = HuggingFaceEmbeddings(
         model_name=CFG.EMBEDDINGS_MODEL,
