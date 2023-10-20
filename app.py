@@ -15,9 +15,9 @@ if "uploaded_filename" not in st.session_state:
     st.session_state["uploaded_filename"] = None
 
 MODE_LIST = ["Retrieval only", "Retrieval QA", "Retrieval QA with HyDE"]
-INDEX = 1
+DEFAULT_MODE = 1
 if "last_mode" not in st.session_state:
-    st.session_state["last_mode"] = MODE_LIST[INDEX]
+    st.session_state["last_mode"] = MODE_LIST[DEFAULT_MODE]
 
 if "last_query" not in st.session_state:
     st.session_state["last_query"] = ""
@@ -82,17 +82,17 @@ def doc_qa():
             mode = st.radio(
                 "Mode",
                 MODE_LIST,
-                index=INDEX,
+                index=DEFAULT_MODE,
                 help="""Retrieval only will output extracts related to your query immediately, \
-while Retrieval QA will output an answer to your query and will take a while on CPU.""",
+                while Retrieval QA will output an answer to your query and will take a while on CPU.""",
             )
 
             submitted = st.form_submit_button("Query")
             if submitted:
-                if user_query == "":
-                    st.error("Please enter your query.")
+                if user_query == "" or user_query is None:
+                    st.error("Please enter a query.")
 
-    if user_query != "" and (
+    if (user_query != "" or user_query is None) and (
         st.session_state.last_mode != mode or st.session_state.last_query != user_query
     ):
         st.session_state.last_mode = mode
@@ -118,8 +118,6 @@ while Retrieval QA will output an answer to your query and will take a while on 
                     user_query, callbacks=[st_callback]
                 )
                 st_callback._complete_current_thought()
-                # with st.spinner("Thinking..."):
-                #     response = retrieval_qa(user_query)
 
     if st.session_state.last_response is not None:
         with c0:
@@ -136,7 +134,7 @@ while Retrieval QA will output an answer to your query and will take a while on 
             # Display PDF
             st.write("---")
             n = len(st.session_state.last_response["source_documents"])
-            i = st.selectbox("Select extract", list(range(1, n + 1))) - 1
+            i = st.radio("View in PDF", list(range(n)), format_func=lambda x: f"Extract {x + 1}")
             row = st.session_state.last_response["source_documents"][i]
             try:
                 extracted_doc, page_nums = get_doc_highlighted(

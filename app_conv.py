@@ -73,10 +73,8 @@ def doc_conv_qa():
 
             with st.expander("Retrieved extracts"):
                 for row in source_documents:
-                    page_content = row.page_content
-                    page = row.metadata["page"]
-                    st.write(f"**Page {page}**")
-                    st.info(page_content)
+                    st.write("**Page {}**".format(row.metadata["page"] + 1))
+                    st.info(row.page_content)
 
     if user_query := st.chat_input("Your query"):
         with st.chat_message("user"):
