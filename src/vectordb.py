@@ -3,7 +3,7 @@ Build vectordb
 """
 from langchain.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import FAISS
+from langchain.vectorstores.faiss import FAISS
 
 from src import CFG
 from src.embeddings import build_base_embeddings

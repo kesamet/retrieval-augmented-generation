@@ -1,7 +1,7 @@
 """
 LLM
 """
-from langchain.llms import CTransformers
+from langchain.llms.ctransformers import CTransformers
 
 from src import CFG
 
@@ -15,6 +15,7 @@ def build_llm():
             "max_new_tokens": CFG.MAX_NEW_TOKENS,
             "temperature": CFG.TEMPERATURE,
             "repetition_penalty": CFG.REPETITION_PENALTY,
+            "context_length": CFG.CONTEXT_LENGTH,
         },
     )
     return llm

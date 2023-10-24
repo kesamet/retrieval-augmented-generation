@@ -1,6 +1,6 @@
 import streamlit as st
 from langchain.callbacks import StreamlitCallbackHandler
-from langchain.vectorstores import FAISS
+from langchain.vectorstores.faiss import FAISS
 
 from src import CFG
 from src.embeddings import build_hyde_embeddings
