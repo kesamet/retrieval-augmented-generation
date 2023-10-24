@@ -15,7 +15,7 @@ if "uploaded_filename" not in st.session_state:
     st.session_state["uploaded_filename"] = None
 
 MODE_LIST = ["Retrieval only", "Retrieval QA", "Retrieval QA with HyDE"]
-DEFAULT_MODE = 1
+DEFAULT_MODE = 0
 if "last_mode" not in st.session_state:
     st.session_state["last_mode"] = MODE_LIST[DEFAULT_MODE]
 
@@ -101,7 +101,7 @@ def doc_qa():
         if mode == "Retrieval only":
             st.session_state.last_response = {
                 "query": user_query,
-                "source_documents": vectordb.similarity_search(user_query, k=2),
+                "source_documents": vectordb.similarity_search(user_query, k=4),
             }
         else:
             if mode == "Retrieval QA":
