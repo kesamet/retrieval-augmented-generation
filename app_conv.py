@@ -1,12 +1,11 @@
 import streamlit as st
-from langchain.vectorstores import FAISS
 from langchain.callbacks import StreamlitCallbackHandler
 
 from src import CFG
 from src.embeddings import build_base_embeddings
-from src.llm import build_llm
+from src.llms import build_llm
 from src.retrieval_qa import build_retrieval_chain
-from src.vectordb import build_vectordb
+from src.vectordb import build_vectordb, load_faiss
 from streamlit_app.utils import perform
 
 st.set_page_config(page_title="Conversational Retrieval QA")
@@ -27,7 +26,7 @@ def init_chat_history():
 def load_retrieval_chain():
     embeddings = build_base_embeddings()
     llm = build_llm()
-    vectordb = FAISS.load_local(CFG.VECTORDB_FAISS_PATH, embeddings)
+    vectordb = load_faiss(CFG.VECTORDB_PATH, embeddings)
     return build_retrieval_chain(llm, vectordb)
 
 

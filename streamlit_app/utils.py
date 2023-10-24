@@ -4,7 +4,7 @@ import tempfile
 import streamlit as st
 
 from src.embeddings import build_base_embeddings
-from src.llm import build_llm
+from src.llms import build_llm
 
 
 @st.cache_resource

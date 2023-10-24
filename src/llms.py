@@ -1,7 +1,7 @@
 """
 LLM
 """
-from langchain.llms.ctransformers import CTransformers
+from langchain.llms import CTransformers
 
 from src import CFG
 

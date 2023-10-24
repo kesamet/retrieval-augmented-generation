@@ -1,11 +1,10 @@
 import streamlit as st
 from langchain.callbacks import StreamlitCallbackHandler
-from langchain.vectorstores.faiss import FAISS
 
 from src import CFG
 from src.embeddings import build_hyde_embeddings
 from src.retrieval_qa import build_retrieval_qa
-from src.vectordb import build_vectordb
+from src.vectordb import build_vectordb, load_faiss
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 from streamlit_app.utils import load_base_embeddings, load_llm
 
@@ -32,12 +31,12 @@ HYDE_EMBEDDINGS = build_hyde_embeddings(LLM, BASE_EMBEDDINGS)
 
 @st.cache_resource
 def load_vectordb():
-    return FAISS.load_local(CFG.VECTORDB_FAISS_PATH, BASE_EMBEDDINGS)
+    return load_faiss(CFG.VECTORDB_PATH, BASE_EMBEDDINGS)
 
 
 @st.cache_resource
 def load_vectordb_hyde():
-    return FAISS.load_local(CFG.VECTORDB_FAISS_PATH, HYDE_EMBEDDINGS)
+    return load_faiss(CFG.VECTORDB_PATH, HYDE_EMBEDDINGS)
 
 
 def doc_qa():
