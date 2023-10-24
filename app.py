@@ -15,7 +15,7 @@ if "uploaded_filename" not in st.session_state:
     st.session_state["uploaded_filename"] = None
 
 MODE_LIST = ["Retrieval only", "Retrieval QA", "Retrieval QA with HyDE"]
-DEFAULT_MODE = 1
+DEFAULT_MODE = 0
 if "last_mode" not in st.session_state:
     st.session_state["last_mode"] = MODE_LIST[DEFAULT_MODE]
 
@@ -97,27 +97,27 @@ def doc_qa():
     ):
         st.session_state.last_mode = mode
         st.session_state.last_query = user_query
-        with c0:
-            if mode == "Retrieval only":
-                st.session_state.last_response = {
-                    "query": user_query,
-                    "source_documents": vectordb.similarity_search(user_query, k=2),
-                }
-            else:
-                if mode == "Retrieval QA":
-                    retrieval_qa = build_retrieval_qa(LLM, vectordb)
-                else:
-                    retrieval_qa = build_retrieval_qa(LLM, vectordb_hyde)
 
-                st_callback = StreamlitCallbackHandler(
-                    parent_container=st.container(),
-                    expand_new_thoughts=True,
-                    collapse_completed_thoughts=True,
-                )
-                st.session_state.last_response = retrieval_qa(
-                    user_query, callbacks=[st_callback]
-                )
-                st_callback._complete_current_thought()
+        if mode == "Retrieval only":
+            st.session_state.last_response = {
+                "query": user_query,
+                "source_documents": vectordb.similarity_search(user_query, k=4),
+            }
+        else:
+            if mode == "Retrieval QA":
+                retrieval_qa = build_retrieval_qa(LLM, vectordb)
+            else:
+                retrieval_qa = build_retrieval_qa(LLM, vectordb_hyde)
+
+            st_callback = StreamlitCallbackHandler(
+                parent_container=c0.container(),
+                expand_new_thoughts=True,
+                collapse_completed_thoughts=True,
+            )
+            st.session_state.last_response = retrieval_qa(
+                user_query, callbacks=[st_callback]
+            )
+            st_callback._complete_current_thought()
 
     if st.session_state.last_response is not None:
         with c0:
@@ -134,7 +134,9 @@ def doc_qa():
             # Display PDF
             st.write("---")
             n = len(st.session_state.last_response["source_documents"])
-            i = st.radio("View in PDF", list(range(n)), format_func=lambda x: f"Extract {x + 1}")
+            i = st.radio(
+                "View in PDF", list(range(n)), format_func=lambda x: f"Extract {x + 1}"
+            )
             row = st.session_state.last_response["source_documents"][i]
             try:
                 extracted_doc, page_nums = get_doc_highlighted(
