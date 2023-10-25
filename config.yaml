@@ -2,7 +2,7 @@ CHUNK_SIZE: 500
 CHUNK_OVERLAP: 50
 
 VECTORDB_TYPE: "faiss"
-VECTORDB_PATH: "vectordb_faiss3"
+VECTORDB_PATH: "vectordb_faiss"
 # VECTORDB_TYPE: "chroma"
 # VECTORDB_PATH: "vectordb_chroma"
 
