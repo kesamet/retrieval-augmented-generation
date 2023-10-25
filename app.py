@@ -4,7 +4,7 @@ from langchain.callbacks import StreamlitCallbackHandler
 from src import CFG
 from src.embeddings import build_hyde_embeddings
 from src.retrieval_qa import build_retrieval_qa
-from src.vectordb import build_vectordb, load_faiss
+from src.vectordb import build_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 from streamlit_app.utils import load_base_embeddings, load_llm
 
@@ -31,12 +31,18 @@ HYDE_EMBEDDINGS = build_hyde_embeddings(LLM, BASE_EMBEDDINGS)
 
 @st.cache_resource
 def load_vectordb():
-    return load_faiss(CFG.VECTORDB_PATH, BASE_EMBEDDINGS)
+    if CFG.VECTORDB_TYPE == "faiss":
+        return load_faiss(BASE_EMBEDDINGS)
+    if CFG.VECTORDB_TYPE == "chroma":
+        return load_chroma(BASE_EMBEDDINGS)
 
 
 @st.cache_resource
 def load_vectordb_hyde():
-    return load_faiss(CFG.VECTORDB_PATH, HYDE_EMBEDDINGS)
+    if CFG.VECTORDB_TYPE == "faiss":
+        return load_faiss(HYDE_EMBEDDINGS)
+    if CFG.VECTORDB_TYPE == "chroma":
+        return load_chroma(HYDE_EMBEDDINGS)
 
 
 def doc_qa():
@@ -70,8 +76,8 @@ def doc_qa():
                 )
 
             st.success("Reading from existing VectorDB")
-        except Exception:
-            st.error("No existing VectorDB found")
+        except Exception as e:
+            st.error(f"No existing VectorDB found: {e}")
 
     c0, c1 = st.columns(2)
 

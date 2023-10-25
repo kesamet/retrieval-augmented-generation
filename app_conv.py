@@ -5,7 +5,7 @@ from src import CFG
 from src.embeddings import build_base_embeddings
 from src.llms import build_llm
 from src.retrieval_qa import build_retrieval_chain
-from src.vectordb import build_vectordb, load_faiss
+from src.vectordb import build_vectordb, load_faiss, load_chroma
 from streamlit_app.utils import perform
 
 st.set_page_config(page_title="Conversational Retrieval QA")
@@ -25,8 +25,11 @@ def init_chat_history():
 @st.cache_resource
 def load_retrieval_chain():
     embeddings = build_base_embeddings()
+    if CFG.VECTORDB_TYPE == "faiss":
+        vectordb = load_faiss(embeddings)
+    elif CFG.VECTORDB_TYPE == "chroma":
+        vectordb = load_chroma(embeddings)
     llm = build_llm()
-    vectordb = load_faiss(CFG.VECTORDB_PATH, embeddings)
     return build_retrieval_chain(llm, vectordb)
 
 

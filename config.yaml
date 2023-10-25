@@ -2,7 +2,7 @@ CHUNK_SIZE: 500
 CHUNK_OVERLAP: 50
 
 VECTORDB_TYPE: "faiss"
-VECTORDB_PATH: "vectordb_faiss"
+VECTORDB_PATH: "vectordb_faiss3"
 # VECTORDB_TYPE: "chroma"
 # VECTORDB_PATH: "vectordb_chroma"
 
@@ -14,6 +14,7 @@ LLM_MODEL_TYPE: "mistral"
 LLM_MODEL: "./models/openhermes-2-mistral-7b.Q3_K_L.gguf"
 # LLM_MODEL_TYPE: "llama"
 # LLM_MODEL: "./models/llama-2-7b-chat.ggmlv3.q2_K.bin"
+
 MAX_NEW_TOKENS: 256
 TEMPERATURE: 0.2
 REPETITION_PENALTY: 1.1
