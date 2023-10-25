@@ -18,7 +18,10 @@ def build_vectordb(filename: str) -> None:
     doc = PyMuPDFLoader(filename).load()
 
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CFG.CHUNK_SIZE, chunk_overlap=CFG.CHUNK_OVERLAP
+        chunk_size=CFG.CHUNK_SIZE,
+        chunk_overlap=CFG.CHUNK_OVERLAP,
+        separators=CFG.SEPARATORS,
+        length_function=len,
     )
     texts = text_splitter.split_documents(doc)
 

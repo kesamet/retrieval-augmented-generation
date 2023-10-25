@@ -1,12 +1,11 @@
 CHUNK_SIZE: 500
 CHUNK_OVERLAP: 50
+SEPARATORS: ["\n\n", "\n", ""]
 
 VECTORDB_TYPE: "faiss"
 VECTORDB_PATH: "vectordb_faiss"
 # VECTORDB_TYPE: "chroma"
 # VECTORDB_PATH: "vectordb_chroma"
-
-DEVICE: "cpu"
 
 EMBEDDINGS_MODEL: "sentence-transformers/all-MiniLM-L6-v2"
 
