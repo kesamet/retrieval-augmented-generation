@@ -22,7 +22,7 @@ if "last_query" not in st.session_state:
     st.session_state["last_query"] = ""
 
 if "last_response" not in st.session_state:
-    st.session_state["last_response"] = None
+    st.session_state["last_response"] = dict()
 
 LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
@@ -99,7 +99,7 @@ def doc_qa():
                 if user_query == "" or user_query is None:
                     st.error("Please enter a query.")
 
-    if (user_query != "" or user_query is None) and (
+    if user_query != "" and user_query is not None and (
         st.session_state.last_mode != mode or st.session_state.last_query != user_query
     ):
         st.session_state.last_mode = mode
@@ -126,7 +126,7 @@ def doc_qa():
             )
             st_callback._complete_current_thought()
 
-    if st.session_state.last_response is not None:
+    if st.session_state.last_response:
         with c0:
             st.warning(f"Query: {st.session_state.last_query}")
             if st.session_state.last_response.get("result") is not None:
