@@ -10,19 +10,8 @@ from streamlit_app.utils import load_base_embeddings, load_llm
 
 st.set_page_config(page_title="Retrieval QA", layout="wide")
 
-if "uploaded_filename" not in st.session_state:
-    st.session_state["uploaded_filename"] = None
-
 MODE_LIST = ["Retrieval only", "Retrieval QA", "Retrieval QA with HyDE"]
 DEFAULT_MODE = 0
-if "last_mode" not in st.session_state:
-    st.session_state["last_mode"] = MODE_LIST[DEFAULT_MODE]
-
-if "last_query" not in st.session_state:
-    st.session_state["last_query"] = ""
-
-if "last_response" not in st.session_state:
-    st.session_state["last_response"] = dict()
 
 LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
@@ -45,7 +34,23 @@ def load_vectordb_hyde():
         return load_chroma(HYDE_EMBEDDINGS)
 
 
+def init_sess_state():
+    if "uploaded_filename" not in st.session_state:
+        st.session_state["uploaded_filename"] = ""
+
+    if "last_mode" not in st.session_state:
+        st.session_state["last_mode"] = MODE_LIST[DEFAULT_MODE]
+
+    if "last_query" not in st.session_state:
+        st.session_state["last_query"] = ""
+
+    if "last_response" not in st.session_state:
+        st.session_state["last_response"] = dict()
+
+
 def doc_qa():
+    init_sess_state()
+
     with st.sidebar:
         st.header("DocQA using quantized LLM on CPU")
         st.info(f"Running on {CFG.DEVICE}")
@@ -99,8 +104,13 @@ def doc_qa():
                 if user_query == "" or user_query is None:
                     st.error("Please enter a query.")
 
-    if user_query != "" and user_query is not None and (
-        st.session_state.last_mode != mode or st.session_state.last_query != user_query
+    if (
+        user_query != ""
+        and user_query is not None
+        and (
+            st.session_state.last_mode != mode
+            or st.session_state.last_query != user_query
+        )
     ):
         st.session_state.last_mode = mode
         st.session_state.last_query = user_query
