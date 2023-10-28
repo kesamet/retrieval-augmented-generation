@@ -1,29 +1,17 @@
 import streamlit as st
 from langchain.callbacks import StreamlitCallbackHandler
-from langchain.vectorstores import FAISS
 
 from src import CFG
 from src.embeddings import build_hyde_embeddings
 from src.retrieval_qa import build_retrieval_qa
-from src.vectordb import build_vectordb
+from src.vectordb import build_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 from streamlit_app.utils import load_base_embeddings, load_llm
 
 st.set_page_config(page_title="Retrieval QA", layout="wide")
 
-if "uploaded_filename" not in st.session_state:
-    st.session_state["uploaded_filename"] = None
-
 MODE_LIST = ["Retrieval only", "Retrieval QA", "Retrieval QA with HyDE"]
 DEFAULT_MODE = 0
-if "last_mode" not in st.session_state:
-    st.session_state["last_mode"] = MODE_LIST[DEFAULT_MODE]
-
-if "last_query" not in st.session_state:
-    st.session_state["last_query"] = ""
-
-if "last_response" not in st.session_state:
-    st.session_state["last_response"] = None
 
 LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
@@ -32,17 +20,41 @@ HYDE_EMBEDDINGS = build_hyde_embeddings(LLM, BASE_EMBEDDINGS)
 
 @st.cache_resource
 def load_vectordb():
-    return FAISS.load_local(CFG.VECTORDB_FAISS_PATH, BASE_EMBEDDINGS)
+    if CFG.VECTORDB_TYPE == "faiss":
+        return load_faiss(BASE_EMBEDDINGS)
+    if CFG.VECTORDB_TYPE == "chroma":
+        return load_chroma(BASE_EMBEDDINGS)
 
 
 @st.cache_resource
 def load_vectordb_hyde():
-    return FAISS.load_local(CFG.VECTORDB_FAISS_PATH, HYDE_EMBEDDINGS)
+    if CFG.VECTORDB_TYPE == "faiss":
+        return load_faiss(HYDE_EMBEDDINGS)
+    if CFG.VECTORDB_TYPE == "chroma":
+        return load_chroma(HYDE_EMBEDDINGS)
+
+
+def init_sess_state():
+    if "uploaded_filename" not in st.session_state:
+        st.session_state["uploaded_filename"] = ""
+
+    if "last_mode" not in st.session_state:
+        st.session_state["last_mode"] = MODE_LIST[DEFAULT_MODE]
+
+    if "last_query" not in st.session_state:
+        st.session_state["last_query"] = ""
+
+    if "last_response" not in st.session_state:
+        st.session_state["last_response"] = dict()
 
 
 def doc_qa():
+    init_sess_state()
+
     with st.sidebar:
         st.header("DocQA using quantized LLM on CPU")
+        st.info(f"Running on {CFG.DEVICE}")
+
         uploaded_file = st.file_uploader(
             "Upload a PDF and build VectorDB", type=["pdf"]
         )
@@ -71,8 +83,8 @@ def doc_qa():
                 )
 
             st.success("Reading from existing VectorDB")
-        except Exception:
-            st.error("No existing VectorDB found")
+        except Exception as e:
+            st.error(f"No existing VectorDB found: {e}")
 
     c0, c1 = st.columns(2)
 
@@ -92,8 +104,13 @@ def doc_qa():
                 if user_query == "" or user_query is None:
                     st.error("Please enter a query.")
 
-    if (user_query != "" or user_query is None) and (
-        st.session_state.last_mode != mode or st.session_state.last_query != user_query
+    if (
+        user_query != ""
+        and user_query is not None
+        and (
+            st.session_state.last_mode != mode
+            or st.session_state.last_query != user_query
+        )
     ):
         st.session_state.last_mode = mode
         st.session_state.last_query = user_query
@@ -119,7 +136,7 @@ def doc_qa():
             )
             st_callback._complete_current_thought()
 
-    if st.session_state.last_response is not None:
+    if st.session_state.last_response:
         with c0:
             st.warning(f"Query: {st.session_state.last_query}")
             if st.session_state.last_response.get("result") is not None:

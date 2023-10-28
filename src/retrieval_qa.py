@@ -2,9 +2,9 @@
 RetrievalQA
 """
 from langchain.chains import ConversationalRetrievalChain, RetrievalQA
-from langchain.llms import CTransformers
+from langchain.llms.base import LLM
 from langchain.prompts import PromptTemplate
-from langchain.vectorstores import FAISS
+from langchain.vectorstores import VectorStore
 
 from src import CFG
 
@@ -30,7 +30,7 @@ else:
     raise NotImplementedError
 
 
-def build_retrieval_qa(llm: CTransformers, vectordb: FAISS) -> RetrievalQA:
+def build_retrieval_qa(llm: LLM, vectordb: VectorStore) -> RetrievalQA:
     """Builds a retrieval QA model.
 
     Args:
@@ -56,7 +56,7 @@ def build_retrieval_qa(llm: CTransformers, vectordb: FAISS) -> RetrievalQA:
 
 
 def build_retrieval_chain(
-    llm: CTransformers, vectordb: FAISS
+    llm: LLM, vectordb: VectorStore
 ) -> ConversationalRetrievalChain:
     """Builds a conversational retrieval chain model.
 
