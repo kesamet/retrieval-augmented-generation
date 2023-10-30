@@ -4,14 +4,14 @@ from langchain.callbacks import StreamlitCallbackHandler
 from src import CFG
 from src.embeddings import build_base_embeddings
 from src.llms import build_llm
-from src.retrieval_qa import build_retrieval_chain
+from src.retriever import build_retrieval_chain
 from src.vectordb import build_vectordb, load_faiss, load_chroma
 from streamlit_app.utils import perform
 
 st.set_page_config(page_title="Conversational Retrieval QA")
 
 if "uploaded_filename" not in st.session_state:
-    st.session_state["uploaded_filename"] = None
+    st.session_state["uploaded_filename"] = ""
 
 
 def init_chat_history():
@@ -48,6 +48,9 @@ def doc_conv_qa():
                 with st.spinner("Building VectorDB..."):
                     perform(build_vectordb, uploaded_file.read())
                 st.session_state.uploaded_filename = uploaded_file.name
+
+        if st.session_state.uploaded_filename != "":
+            st.info(f"Current document: {st.session_state.uploaded_filename}")
 
         try:
             with st.status("Load retrieval_chain", expanded=False) as status:

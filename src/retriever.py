@@ -1,6 +1,8 @@
 """
-RetrievalQA
+Retriever
 """
+from typing import Optional
+
 from langchain.chains import ConversationalRetrievalChain, RetrievalQA
 from langchain.embeddings.base import Embeddings
 from langchain.llms.base import LLM
@@ -32,19 +34,38 @@ else:
     raise NotImplementedError
 
 
-def build_retrieval_qa(vectordb: VectorStore, llm: LLM, embeddings: Embeddings) -> RetrievalQA:
+def build_base_retriever(
+    vectordb: VectorStore,
+    use_compression: bool = False,
+    embeddings: Optional[Embeddings] = None,
+):
+    _retriever = vectordb.as_retriever(search_kwargs={"k": CFG.SEARCH_K})
+    if use_compression:
+        return build_compression_retriever(embeddings, _retriever)
+    return _retriever
+
+
+def build_retrieval_qa(
+    vectordb: VectorStore,
+    llm: LLM,
+    use_compression: bool = False,
+    embeddings: Optional[Embeddings] = None,
+) -> RetrievalQA:
     """Builds a retrieval QA model.
 
     Args:
         vectordb (VectorStore): The vector database to use.
         llm (LLM): The language model to use.
-        embeddings (Embeddings): The embeddings model to use.
+        use_compression (bool): To use contextual compression.
+        embeddings (Embeddings): The embeddings model to use, if use_compression is True.
 
     Returns:
         RetrievalQA: The retrieval QA model.
     """
-    retriever = vectordb.as_retriever(search_kwargs={"k": CFG.SEARCH_K})
-    compression_retriever = build_compression_retriever(embeddings, retriever)
+    retriever = build_base_retriever(
+        vectordb, use_compression=use_compression, embeddings=embeddings
+    )
+
     prompt = PromptTemplate(
         template=QA_TEMPLATE,
         input_variables=["context", "question"],
@@ -53,7 +74,7 @@ def build_retrieval_qa(vectordb: VectorStore, llm: LLM, embeddings: Embeddings) 
     retrieval_qa = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
-        retriever=compression_retriever,
+        retriever=retriever,
         return_source_documents=True,
         chain_type_kwargs={"prompt": prompt},
     )
@@ -72,7 +93,7 @@ def build_retrieval_chain(
     Returns:
         ConversationalRetrievalChain: The conversational retrieval chain model.
     """
-    retriever = vectordb.as_retriever(search_kwargs={"k": CFG.SEARCH_K})
+    retriever = build_base_retriever(vectordb)
     prompt = PromptTemplate(
         template=QA_TEMPLATE,
         input_variables=["context", "question"],
