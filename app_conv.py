@@ -30,7 +30,7 @@ def load_retrieval_chain():
     elif CFG.VECTORDB_TYPE == "chroma":
         vectordb = load_chroma(embeddings)
     llm = build_llm()
-    return build_retrieval_chain(llm, vectordb)
+    return build_retrieval_chain(vectordb, llm)
 
 
 def doc_conv_qa():

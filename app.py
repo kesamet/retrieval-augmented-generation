@@ -122,9 +122,9 @@ def doc_qa():
             }
         else:
             if mode == "Retrieval QA":
-                retrieval_qa = build_retrieval_qa(LLM, vectordb)
+                retrieval_qa = build_retrieval_qa(vectordb, LLM, BASE_EMBEDDINGS)
             else:
-                retrieval_qa = build_retrieval_qa(LLM, vectordb_hyde)
+                retrieval_qa = build_retrieval_qa(vectordb_hyde, LLM, BASE_EMBEDDINGS)
 
             st_callback = StreamlitCallbackHandler(
                 parent_container=c0.container(),
