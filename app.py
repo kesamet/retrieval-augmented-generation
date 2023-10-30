@@ -3,7 +3,7 @@ from langchain.callbacks import StreamlitCallbackHandler
 
 from src import CFG
 from src.embeddings import build_hyde_embeddings
-from src.retriever import build_base_retriever, build_retrieval_qa
+from src.retrieval_qa import build_base_retriever, build_retrieval_qa
 from src.vectordb import build_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 from streamlit_app.utils import load_base_embeddings, load_llm

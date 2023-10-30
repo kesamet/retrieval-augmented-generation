@@ -1,1 +1,1 @@
-from .tart import TARTReranker
+from .tart import TARTReranker  # noqa: F401

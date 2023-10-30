@@ -1,5 +1,5 @@
 """
-Retriever
+Retrieval QA
 """
 from typing import Optional
 
@@ -8,9 +8,15 @@ from langchain.embeddings.base import Embeddings
 from langchain.llms.base import LLM
 from langchain.prompts import PromptTemplate
 from langchain.vectorstores import VectorStore
+from langchain.document_transformers import EmbeddingsRedundantFilter
+from langchain.retrievers import ContextualCompressionRetriever
+from langchain.retrievers.document_compressors import (
+    DocumentCompressorPipeline,
+    EmbeddingsFilter,
+)
+from langchain.text_splitter import CharacterTextSplitter
 
 from src import CFG
-from src.compressor import build_compression_retriever
 
 if CFG.LLM_MODEL_TYPE == "llama":
     QA_TEMPLATE = """<s>[INST] <<SYS>> Use the following pieces of information to answer the user's question. \
@@ -43,6 +49,21 @@ def build_base_retriever(
     if use_compression:
         return build_compression_retriever(embeddings, _retriever)
     return _retriever
+
+
+def build_compression_retriever(embeddings, retriever):
+    splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=0, separator=". ")
+    redundant_filter = EmbeddingsRedundantFilter(embeddings=embeddings)
+    relevant_filter = EmbeddingsFilter(
+        embeddings=embeddings, similarity_threshold=CFG.SIMILARITY_THRESHOLD
+    )
+    pipeline_compressor = DocumentCompressorPipeline(
+        transformers=[splitter, redundant_filter, relevant_filter]
+    )
+    compression_retriever = ContextualCompressionRetriever(
+        base_compressor=pipeline_compressor, base_retriever=retriever
+    )
+    return compression_retriever
 
 
 def build_retrieval_qa(

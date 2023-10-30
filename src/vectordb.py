@@ -1,5 +1,5 @@
 """
-Build vectordb
+VectorDB
 """
 from langchain.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter

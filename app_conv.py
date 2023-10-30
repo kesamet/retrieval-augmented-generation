@@ -4,7 +4,7 @@ from langchain.callbacks import StreamlitCallbackHandler
 from src import CFG
 from src.embeddings import build_base_embeddings
 from src.llms import build_llm
-from src.retriever import build_retrieval_chain
+from src.retrieval_qa import build_retrieval_chain
 from src.vectordb import build_vectordb, load_faiss, load_chroma
 from streamlit_app.utils import perform
 
