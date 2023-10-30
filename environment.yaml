@@ -10,4 +10,5 @@ dependencies:
     - PyMuPDF==1.22.5
     - python-box==7.0.1
     - sentence-transformers==2.2.2
+    - simsimd==3.3.0
     - streamlit==1.27.2

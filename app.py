@@ -35,6 +35,9 @@ def init_sess_state():
     if "uploaded_filename" not in st.session_state:
         st.session_state["uploaded_filename"] = ""
 
+    if "last_form" not in st.session_state:
+        st.session_state["last_form"] = list()
+
     if "last_query" not in st.session_state:
         st.session_state["last_query"] = ""
 
@@ -82,34 +85,28 @@ def doc_qa():
 
     c0, c1 = st.columns(2)
 
-    with c0:
-        with st.form("qa_form"):
-            user_query = st.text_area("Your query")
-            mode = st.radio(
-                "Mode",
-                ["Retrieval only", "Retrieval QA"],
-                help="""Retrieval only will output extracts related to your query immediately, \
-                while Retrieval QA will output an answer to your query and will take a while on CPU.""",
-            )
-            use_compression = (
-                st.radio(
-                    "Retrieval strategy",
-                    ["Simple", "Contextual compression"],
-                )
-                == "Contextual compression"
-            )
-            is_hyde = st.radio(
-                "Use HyDE (only for 'Retrieval QA')",
-                ["No", "Yes"],
-            )
+    with c0.form("qa_form"):
+        user_query = st.text_area("Your query")
+        mode = st.radio(
+            "Mode",
+            ["Retrieval only", "Retrieval QA"],
+            help="""Retrieval only will output extracts related to your query immediately, \
+            while Retrieval QA will output an answer to your query and will take a while on CPU.""",
+        )
+        use_compression = st.radio("Use Contextual compression", ["No", "Yes"]) == "Yes"
+        use_hyde = st.radio("Use HyDE ('Retrieval QA' only)", ["No", "Yes"]) == "Yes"
 
-            submitted = st.form_submit_button("Query")
-            if submitted:
-                if user_query == "" or user_query is None:
-                    st.error("Please enter a query.")
+        submitted = st.form_submit_button("Query")
+        if submitted:
+            if user_query == "":
+                st.error("Please enter a query.")
 
-    if user_query != "" and user_query is not None:
+    if user_query != "" and (
+        st.session_state.last_query != user_query
+        or st.session_state.last_form != [mode, use_compression, use_hyde]
+    ):
         st.session_state.last_query = user_query
+        st.session_state.last_form = [mode, use_compression, use_hyde]
 
         if mode == "Retrieval only":
             retriever = build_base_retriever(vectordb, use_compression, BASE_EMBEDDINGS)
@@ -118,15 +115,8 @@ def doc_qa():
                 "source_documents": retriever.get_relevant_documents(user_query),
             }
         else:
-            if mode == "Retrieval QA":
-                if is_hyde == "No":
-                    retrieval_qa = build_retrieval_qa(
-                        vectordb, LLM, use_compression, BASE_EMBEDDINGS
-                    )
-                else:
-                    retrieval_qa = build_retrieval_qa(
-                        vectordb_hyde, LLM, use_compression, BASE_EMBEDDINGS
-                    )
+            db = vectordb_hyde if use_hyde else vectordb
+            retrieval_qa = build_retrieval_qa(db, LLM, use_compression, BASE_EMBEDDINGS)
 
             st_callback = StreamlitCallbackHandler(
                 parent_container=c0.container(),

@@ -7,7 +7,7 @@ from langchain.chains import ConversationalRetrievalChain, RetrievalQA
 from langchain.embeddings.base import Embeddings
 from langchain.llms.base import LLM
 from langchain.prompts import PromptTemplate
-from langchain.vectorstores import VectorStore
+from langchain.vectorstores.base import VectorStore
 from langchain.document_transformers import EmbeddingsRedundantFilter
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import (
