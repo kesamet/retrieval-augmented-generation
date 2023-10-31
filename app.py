@@ -3,15 +3,12 @@ from langchain.callbacks import StreamlitCallbackHandler
 
 from src import CFG
 from src.embeddings import build_hyde_embeddings
-from src.retrieval_qa import build_retrieval_qa
+from src.retrieval_qa import build_base_retriever, build_retrieval_qa
 from src.vectordb import build_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 from streamlit_app.utils import load_base_embeddings, load_llm
 
 st.set_page_config(page_title="Retrieval QA", layout="wide")
-
-MODE_LIST = ["Retrieval only", "Retrieval QA", "Retrieval QA with HyDE"]
-DEFAULT_MODE = 0
 
 LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
@@ -38,8 +35,8 @@ def init_sess_state():
     if "uploaded_filename" not in st.session_state:
         st.session_state["uploaded_filename"] = ""
 
-    if "last_mode" not in st.session_state:
-        st.session_state["last_mode"] = MODE_LIST[DEFAULT_MODE]
+    if "last_form" not in st.session_state:
+        st.session_state["last_form"] = list()
 
     if "last_query" not in st.session_state:
         st.session_state["last_query"] = ""
@@ -69,7 +66,7 @@ def doc_qa():
                     build_vectordb(uploaded_filename)
                 st.session_state.uploaded_filename = uploaded_filename
 
-        if st.session_state.uploaded_filename is not None:
+        if st.session_state.uploaded_filename != "":
             st.info(f"Current document: {st.session_state.uploaded_filename}")
 
         try:
@@ -88,43 +85,38 @@ def doc_qa():
 
     c0, c1 = st.columns(2)
 
-    with c0:
-        with st.form("qa_form"):
-            user_query = st.text_area("Your query")
-            mode = st.radio(
-                "Mode",
-                MODE_LIST,
-                index=DEFAULT_MODE,
-                help="""Retrieval only will output extracts related to your query immediately, \
-                while Retrieval QA will output an answer to your query and will take a while on CPU.""",
-            )
-
-            submitted = st.form_submit_button("Query")
-            if submitted:
-                if user_query == "" or user_query is None:
-                    st.error("Please enter a query.")
-
-    if (
-        user_query != ""
-        and user_query is not None
-        and (
-            st.session_state.last_mode != mode
-            or st.session_state.last_query != user_query
+    with c0.form("qa_form"):
+        user_query = st.text_area("Your query")
+        mode = st.radio(
+            "Mode",
+            ["Retrieval only", "Retrieval QA"],
+            help="""Retrieval only will output extracts related to your query immediately, \
+            while Retrieval QA will output an answer to your query and will take a while on CPU.""",
         )
+        use_compression = st.radio("Use Contextual compression", ["No", "Yes"]) == "Yes"
+        use_hyde = st.radio("Use HyDE ('Retrieval QA' only)", ["No", "Yes"]) == "Yes"
+
+        submitted = st.form_submit_button("Query")
+        if submitted:
+            if user_query == "":
+                st.error("Please enter a query.")
+
+    if user_query != "" and (
+        st.session_state.last_query != user_query
+        or st.session_state.last_form != [mode, use_compression, use_hyde]
     ):
-        st.session_state.last_mode = mode
         st.session_state.last_query = user_query
+        st.session_state.last_form = [mode, use_compression, use_hyde]
 
         if mode == "Retrieval only":
+            retriever = build_base_retriever(vectordb, use_compression, BASE_EMBEDDINGS)
             st.session_state.last_response = {
                 "query": user_query,
-                "source_documents": vectordb.similarity_search(user_query, k=4),
+                "source_documents": retriever.get_relevant_documents(user_query),
             }
         else:
-            if mode == "Retrieval QA":
-                retrieval_qa = build_retrieval_qa(LLM, vectordb)
-            else:
-                retrieval_qa = build_retrieval_qa(LLM, vectordb_hyde)
+            db = vectordb_hyde if use_hyde else vectordb
+            retrieval_qa = build_retrieval_qa(db, LLM, use_compression, BASE_EMBEDDINGS)
 
             st_callback = StreamlitCallbackHandler(
                 parent_container=c0.container(),
