@@ -87,8 +87,7 @@ def doc_qa():
     c0, c1 = st.columns(2)
 
     with c0.form("qa_form"):
-        # user_query = st.text_area("Your query")
-        user_query = st.text_area("Your query", "what is direct preference optimization?") # HACK
+        user_query = st.text_area("Your query")
         mode = st.radio(
             "Mode",
             ["Retrieval only", "Retrieval QA"],
@@ -99,7 +98,7 @@ def doc_qa():
         use_tart = st.radio("Use TART", ["No", "Yes"]) == "Yes"
         use_hyde = False
         if mode == "Retrieval QA":
-            use_hyde = st.radio("Use HyDE ('Retrieval QA' only)", ["No", "Yes"]) == "Yes"
+            use_hyde = st.radio("Use HyDE", ["No", "Yes"]) == "Yes"
 
         submitted = st.form_submit_button("Query")
         if submitted:
