@@ -13,7 +13,7 @@ from .modeling_enc_t5 import EncT5ForSequenceClassification
 from .tokenization_enc_t5 import EncT5Tokenizer
 
 # TART model
-MODEL_NAME = "facebook/tart-full-flan-t5-xl"
+MODEL_NAME = "./models/tart-full-flan-t5-xl"
 
 
 class TARTReranker(BaseReranker):
@@ -45,11 +45,3 @@ class TARTReranker(BaseReranker):
         )
         sorted_passages = [passage for passage, _ in sorted_pairs]
         return sorted_passages
-
-
-# reranker = TARTReranker(instruction="Find passage to answer given question")
-# query = "What is query decomposition?"
-# passages =[...list_of_passages...] # Assume we have list_of_passages retrieved earlier
-
-# reranked_passages = reranker.rerank(query, passages)
-# print(reranked_passages)
