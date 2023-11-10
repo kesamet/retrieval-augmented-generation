@@ -50,7 +50,7 @@ def doc_qa():
     init_sess_state()
 
     with st.sidebar:
-        st.header("DocQA using quantized LLM on CPU")
+        st.header("DocQA using quantized LLM")
         st.info(f"Running on {CFG.DEVICE}")
 
         uploaded_file = st.file_uploader(
@@ -94,11 +94,9 @@ def doc_qa():
             help="""Retrieval only will output extracts related to your query immediately, \
             while Retrieval QA will output an answer to your query and will take a while on CPU.""",
         )
-        use_compression = st.radio("Use Contextual compression", ["No", "Yes"]) == "Yes"
-        use_tart = st.radio("Use TART", ["No", "Yes"]) == "Yes"
-        use_hyde = False
-        if mode == "Retrieval QA":
-            use_hyde = st.radio("Use HyDE", ["No", "Yes"]) == "Yes"
+        use_compression = st.checkbox("Use Contextual compression")
+        use_tart = st.checkbox("Use TART")
+        use_hyde = st.checkbox("Use HyDE (for Retrieval QA only)")
 
         submitted = st.form_submit_button("Query")
         if submitted:
