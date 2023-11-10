@@ -35,7 +35,7 @@ def load_retrieval_chain():
 
 def doc_conv_qa():
     with st.sidebar:
-        st.title("Conversational DocQA using quantized LLM on CPU")
+        st.title("Conversational DocQA using quantized LLM")
         st.info(f"Running on {CFG.DEVICE}")
 
         uploaded_file = st.file_uploader(

@@ -23,6 +23,8 @@ Download the LLM model and save it in `./models`. The models used in this demo a
 
 You can also use another model of your choice. Ensure that it can be loaded by `langchain.llms.ctransformers.CTransformers` and update `config.yaml`.
 
+To use TART, we shall use [facebook/tart-full-flan-t5-xl"](https://huggingface.co/facebook/tart-full-flan-t5-xl). Download the artefacts and store them in `./models/tart-full-flan-t5-xl`.
+
 
 ## 💻 App
 
