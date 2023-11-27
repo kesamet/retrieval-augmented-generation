@@ -1,7 +1,3 @@
-"""
-TARTReranker is a reranker based on TART (https://github.com/facebookresearch/tart).
-Rerank the passages with the instruction using TARTReranker.
-"""
 from typing import List
 
 import torch
@@ -17,6 +13,8 @@ MODEL_NAME = "./models/tart-full-flan-t5-xl"
 
 
 class TARTReranker(BaseReranker):
+    """Reranker based on TART (https://github.com/facebookresearch/tart)."""
+
     def __init__(self, instruction: str):
         self.tokenizer = EncT5Tokenizer.from_pretrained(MODEL_NAME)
         self.model = EncT5ForSequenceClassification.from_pretrained(MODEL_NAME)
