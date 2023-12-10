@@ -18,8 +18,8 @@ conda activate rag
 ```
 
 Download the LLM model and save it in `./models`. The models used in this demo are downloaded from [TheBloke](https://huggingface.co/TheBloke):
-- [Llama-2-7B-Chat-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/tree/main)
-- [OpenHermes-2-Mistral-7B-GGUF](https://huggingface.co/TheBloke/OpenHermes-2-Mistral-7B-GGUF/tree/main)
+- [Llama-2-7B-Chat-GGUF](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF)
+- [OpenHermes-2-Mistral-7B-GGUF](https://huggingface.co/TheBloke/OpenHermes-2-Mistral-7B-GGUF)
 
 You can also use another model of your choice. Ensure that it can be loaded by `langchain.llms.ctransformers.CTransformers` and update `config.yaml`.
 
