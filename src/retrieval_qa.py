@@ -101,10 +101,7 @@ def build_retrieval_qa(
         vectordb, use_compression=use_compression, embeddings=embeddings
     )
 
-    prompt = PromptTemplate(
-        template=QA_TEMPLATE,
-        input_variables=["context", "question"],
-    )
+    prompt = PromptTemplate.from_template(template=QA_TEMPLATE)
 
     retrieval_qa = RetrievalQA.from_chain_type(
         llm=llm,
@@ -129,10 +126,7 @@ def build_retrieval_chain(
         ConversationalRetrievalChain: The conversational retrieval chain model.
     """
     retriever = build_base_retriever(vectordb)
-    prompt = PromptTemplate(
-        template=QA_TEMPLATE,
-        input_variables=["context", "question"],
-    )
+    prompt = PromptTemplate.from_template(template=QA_TEMPLATE)
 
     retrieval_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
