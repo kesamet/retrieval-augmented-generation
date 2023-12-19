@@ -19,7 +19,7 @@ class TARTReranker(BaseReranker):
 
     def __init__(self, instruction: str):
         self.tokenizer = EncT5Tokenizer.from_pretrained(MODEL_NAME)
-        self.model = EncT5ForSequenceClassification.from_pretrained(MODEL_NAME)
+        self.model = EncT5ForSequenceClassification.from_pretrained(MODEL_NAME).to(CFG.DEVICE)
         self.model.eval()
         self.instruct_template = instruction + " [SEP] {query}"
 
