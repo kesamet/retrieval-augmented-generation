@@ -2,22 +2,21 @@ CHUNK_SIZE: 500
 CHUNK_OVERLAP: 50
 SEPARATORS: ["\n\n", "\n", ""]
 
-# VECTORDB_TYPE: "faiss"
-# VECTORDB_PATH: "vectordb_faiss"
-VECTORDB_TYPE: "chroma"
-VECTORDB_PATH: "vectordb_chroma"
+# VECTORDB_TYPE: faiss
+# VECTORDB_PATH: vectordb_faiss
+VECTORDB_TYPE: chroma
+VECTORDB_PATH: vectordb_chroma
 
-EMBEDDINGS_MODEL: "sentence-transformers/all-MiniLM-L6-v2"
+MODELS_DIR: ./
 
-LLM_MODEL: "./models/llama-2-7b-chat.Q4_K_M.gguf"
-LLM_MODEL_TYPE: "llama"
+EMBEDDINGS_MODEL: sentence-transformers/all-MiniLM-L6-v2
+
+LLM_MODEL: ./models/llama-2-7b-chat.Q4_K_M.gguf
+LLM_MODEL_TYPE: llama
 PROMPT_TYPE: "llama"
-# LLM_MODEL: "./models/openhermes-2-mistral-7b.Q3_K_L.gguf"
-# LLM_MODEL_TYPE: "mistral"
-# PROMPT_TYPE: "mistral"
-# LLM_MODEL: "./models/openbuddy-zephyr-7b-v14.1.Q2_K.gguf"
-# LLM_MODEL_TYPE: "mistral"
-# PROMPT_TYPE: "zephyr"
+# LLM_MODEL: ./models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+# LLM_MODEL_TYPE: mistral
+# PROMPT_TYPE: mistral
 
 MAX_NEW_TOKENS: 256
 TEMPERATURE: 0.2
