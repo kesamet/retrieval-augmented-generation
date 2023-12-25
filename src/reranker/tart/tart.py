@@ -1,15 +1,17 @@
+import os
 from typing import List
 
 import torch
 import torch.nn.functional as F
 from langchain.schema import Document
 
+from src import CFG
 from src.reranker.base import BaseReranker
 from .modeling_enc_t5 import EncT5ForSequenceClassification
 from .tokenization_enc_t5 import EncT5Tokenizer
 
 # TART model
-MODEL_NAME = "./models/tart-full-flan-t5-xl"
+MODEL_NAME = os.path.join(CFG.MODELS_DIR, "./models/tart-full-flan-t5-xl")
 
 
 class TARTReranker(BaseReranker):
@@ -17,7 +19,9 @@ class TARTReranker(BaseReranker):
 
     def __init__(self, instruction: str):
         self.tokenizer = EncT5Tokenizer.from_pretrained(MODEL_NAME)
-        self.model = EncT5ForSequenceClassification.from_pretrained(MODEL_NAME)
+        self.model = EncT5ForSequenceClassification.from_pretrained(MODEL_NAME).to(
+            CFG.DEVICE
+        )
         self.model.eval()
         self.instruct_template = instruction + " [SEP] {query}"
 

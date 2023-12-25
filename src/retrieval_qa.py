@@ -19,37 +19,21 @@ from langchain.text_splitter import CharacterTextSplitter
 from src import CFG
 
 if CFG.PROMPT_TYPE == "llama":
-    QA_TEMPLATE = """<s>[INST] <<SYS>>You are a helpful, respectful and honest INTP-T AI Assistant. \
+    QA_TEMPLATE = """<s>[INST] <<SYS>>You are a helpful, respectful and honest AI Assistant. \
 Use the following pieces of information to answer the user's question. \
 If you don't know the answer, just say that you don't know, don't try to make up an answer. <</SYS>>
-
 Context: {context}
 Question: {question}
-
 Only return the helpful answer below and nothing else.
-Answer:[/INST]"""
+Answer: [/INST]"""
 elif CFG.PROMPT_TYPE == "mistral":
-    QA_TEMPLATE = """<|im_start|>system
-You are a helpful, respectful and honest INTP-T AI Assistant. \
+    QA_TEMPLATE = """<s>[INST] You are a helpful, respectful and honest AI Assistant. \
 Use the following pieces of information to answer the user's question. \
-If you don't know the answer, just say that you don't know, don't try to make up an answer.<|im_end|>
-<|im_start|>user
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
 Context: {context}
 Question: {question}
-Only return the helpful answer and nothing else.<|im_end|>
-<|im_start|>assistant"""
-elif CFG.PROMPT_TYPE == "zephyr":  # TODO
-    QA_TEMPLATE = """You are a helpful, respectful and honest INTP-T AI Assistant. \
-Use the context below to answer the user's question. Always answer as helpfully and logically as possible, \
-while being safe. Your answers should not include any harmful, political, religious, unethical, racist, \
-sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased \
-and positive in nature. If a question does not make any sense, or is not factually coherent, \
-explain why instead of answering something not correct. If you don't know the answer, just say that you don't know, \
-don't try to make up an answer.
-
-Context: {context}
-Question: {question}
-Assistant:"""
+Only return the helpful answer and nothing else.
+Answer: [/INST]"""
 else:
     raise NotImplementedError
 
