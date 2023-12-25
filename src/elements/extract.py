@@ -53,7 +53,7 @@ def extract_tables(filename: str) -> List[Document]:
             try:
                 df = tab.to_pandas()
                 if df.shape == (1, 1):
-                    logging.info(f"  [!] dataframe shape is (1, 1)")
+                    logging.info("  [!] dataframe shape is (1, 1)")
                     continue
                 d = Document(
                     page_content=df.to_json(),
@@ -61,5 +61,5 @@ def extract_tables(filename: str) -> List[Document]:
                 )
                 table_docs.append(d)
             except Exception:
-                logging.info(f"  [!] unable to convert to dataframe")
+                logging.info("  [!] unable to convert to dataframe")
     return table_docs
