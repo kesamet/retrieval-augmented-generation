@@ -7,14 +7,14 @@ VECTORDB_PATH: vectordb_faiss2
 # VECTORDB_TYPE: chroma
 # VECTORDB_PATH: vectordb_chroma
 
-MODELS_DIR: ./
-
 EMBEDDINGS_MODEL: sentence-transformers/all-MiniLM-L6-v2
 
-LLM_MODEL: ./models/llama-2-7b-chat.Q4_K_M.gguf
+MODELS_DIR: ./
+
+LLM_MODEL: models/llama-2-7b-chat.Q4_K_M.gguf
 LLM_MODEL_TYPE: llama
 PROMPT_TYPE: llama
-# LLM_MODEL: ./models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+# LLM_MODEL: models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
 # LLM_MODEL_TYPE: mistral
 # PROMPT_TYPE: mistral
 

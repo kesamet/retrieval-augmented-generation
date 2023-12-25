@@ -38,5 +38,7 @@ class Propositionizer:
             Document(page_content=x, metadata=metadata) for x in json.loads(output_text)
         ]
 
-    def batch(self, title: str, section: str, passages: List[Document]) -> List[Document]:
+    def batch(
+        self, title: str, section: str, passages: List[Document]
+    ) -> List[Document]:
         pass
