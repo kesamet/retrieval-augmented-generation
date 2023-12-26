@@ -17,13 +17,19 @@ Activate the environment.
 conda activate rag
 ```
 
-Download the LLM model and save it in `./models`. The models used in this demo are downloaded from:
-- [TheBloke/Llama-2-7B-Chat-GGUF](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF)
-- [TheBloke/Mistral-7B-Instruct-v0.2-GGUF](https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF)
+Download and save the models in `./models` and update `config.yaml`. The models used in this demo are:
+- Embeddings
+    - [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+    - [BAAI/bge-small-en-v1.5](https://huggingface.co/BAAI/bge-small-en-v1.5)
+- LLMs
+    - [TheBloke/Llama-2-7B-Chat-GGUF](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF)
+    - [TheBloke/Mistral-7B-Instruct-v0.2-GGUF](https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF)
+- TART
+    - [facebook/tart-full-flan-t5-xl](https://huggingface.co/facebook/tart-full-flan-t5-xl): save in `models/tart-full-flan-t5-xl/`
+- Propositionizer
+    - [chentong00/propositionizer-wiki-flan-t5-large](https://huggingface.co/chentong00/propositionizer-wiki-flan-t5-large) save in `models/propositionizer-wiki-flan-t5-large/`
 
-You can also use another model of your choice. Ensure that it can be loaded by `langchain.llms.ctransformers.CTransformers` and update `config.yaml`.
-
-To use TART, we shall use [facebook/tart-full-flan-t5-xl"](https://huggingface.co/facebook/tart-full-flan-t5-xl). Download the artefacts and save them in `./models/tart-full-flan-t5-xl`.
+Ensure that the LLM can be loaded by `langchain.llms.ctransformers.CTransformers`.
 
 
 ## 💻 App
