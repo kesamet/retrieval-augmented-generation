@@ -66,7 +66,7 @@ class Propositionizer:
                             for x in json.loads(output_text)
                         ]
                     )
-                except:
+                except json.JSONDecodeError:
                     prop_texts.append(
                         Document(page_content=input_text, metadata={"source": source})
                     )
