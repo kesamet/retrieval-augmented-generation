@@ -14,11 +14,11 @@ class Propositionizer:
     """Based on https://github.com/chentong0/factoid-wiki."""
 
     def __init__(self):
-        model_name = os.path.join(
-            CFG.MODELS_DIR, "./models/propositionizer-wiki-flan-t5-large"
+        model_path = os.path.join(
+            CFG.MODELS_DIR, "models/propositionizer-wiki-flan-t5-large"
         )
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(CFG.DEVICE)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(model_path).to(CFG.DEVICE)
         self.model.eval()
 
     def _predict(self, texts: Union[str, List[str]]) -> List[str]:
