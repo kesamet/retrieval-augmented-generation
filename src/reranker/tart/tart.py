@@ -10,16 +10,14 @@ from src.reranker.base import BaseReranker
 from .modeling_enc_t5 import EncT5ForSequenceClassification
 from .tokenization_enc_t5 import EncT5Tokenizer
 
-# TART model
-MODEL_NAME = os.path.join(CFG.MODELS_DIR, "./models/tart-full-flan-t5-xl")
-
 
 class TARTReranker(BaseReranker):
     """Reranker based on TART (https://github.com/facebookresearch/tart)."""
 
     def __init__(self, instruction: str):
-        self.tokenizer = EncT5Tokenizer.from_pretrained(MODEL_NAME)
-        self.model = EncT5ForSequenceClassification.from_pretrained(MODEL_NAME).to(
+        model_path = os.path.join(CFG.MODELS_DIR, "models/tart-full-flan-t5-xl")
+        self.tokenizer = EncT5Tokenizer.from_pretrained(model_path)
+        self.model = EncT5ForSequenceClassification.from_pretrained(model_path).to(
             CFG.DEVICE
         )
         self.model.eval()

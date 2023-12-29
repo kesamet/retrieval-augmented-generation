@@ -5,7 +5,7 @@ import streamlit as st
 
 from src.embeddings import build_base_embeddings
 from src.llms import build_llm
-from src.reranker import TARTReranker
+from src.reranker import TARTReranker, BGEReranker
 
 
 @st.cache_resource
@@ -21,6 +21,11 @@ def load_llm():
 @st.cache_resource
 def load_tart_reranker():
     return TARTReranker(instruction="Find passage to answer given question")
+
+
+@st.cache_resource
+def load_bge_reranker():
+    return BGEReranker()
 
 
 def perform(func, filebytes, **kwargs):
