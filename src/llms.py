@@ -11,7 +11,7 @@ from src import CFG
 def build_llm():
     """Builds language model defined in config."""
     llm = CTransformers(
-        model=os.path.join(CFG.MODELS_DIR, CFG.LLM_MODEL),
+        model=os.path.join(CFG.MODELS_DIR, CFG.LLM_MODEL_PATH),
         model_type=CFG.LLM_MODEL_TYPE,
         config={
             "max_new_tokens": CFG.MAX_NEW_TOKENS,

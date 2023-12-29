@@ -81,6 +81,7 @@ def build_retrieval_qa(
     Returns:
         RetrievalQA: The retrieval QA model.
     """
+    # TODO: add reranker
     retriever = build_base_retriever(
         vectordb, use_compression=use_compression, embeddings=embeddings
     )

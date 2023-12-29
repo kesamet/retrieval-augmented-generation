@@ -6,14 +6,24 @@ from src.embeddings import build_hyde_embeddings
 from src.retrieval_qa import build_base_retriever, build_retrieval_qa
 from src.vectordb import build_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
-from streamlit_app.utils import load_base_embeddings, load_llm, load_tart_reranker
+from streamlit_app.utils import (
+    load_base_embeddings,
+    load_llm,
+    load_tart_reranker,
+    load_bge_reranker,
+)
 
 st.set_page_config(page_title="Retrieval QA", layout="wide")
 
 LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
 HYDE_EMBEDDINGS = build_hyde_embeddings(LLM, BASE_EMBEDDINGS)
-RERANKER = load_tart_reranker()
+
+if CFG.RERANKER_NAME == "TART":
+    RERANKER = load_tart_reranker()
+else:
+    # default reranker
+    RERANKER = load_bge_reranker()
 
 
 @st.cache_resource
@@ -95,7 +105,7 @@ def doc_qa():
             while Retrieval QA will output an answer to your query and will take a while on CPU.""",
         )
         use_compression = st.checkbox("Use Contextual compression")
-        use_tart = st.checkbox("Use TART")
+        use_reranker = st.checkbox("Use Reranker")
         use_hyde = st.checkbox("Use HyDE (for Retrieval QA only)")
 
         submitted = st.form_submit_button("Query")
@@ -105,15 +115,15 @@ def doc_qa():
 
     if user_query != "" and (
         st.session_state.last_query != user_query
-        or st.session_state.last_form != [mode, use_compression, use_tart, use_hyde]
+        or st.session_state.last_form != [mode, use_compression, use_reranker, use_hyde]
     ):
         st.session_state.last_query = user_query
-        st.session_state.last_form = [mode, use_compression, use_tart, use_hyde]
+        st.session_state.last_form = [mode, use_compression, use_reranker, use_hyde]
 
         if mode == "Retrieval only":
             retriever = build_base_retriever(vectordb, use_compression, BASE_EMBEDDINGS)
             relevant_docs = retriever.get_relevant_documents(user_query)
-            if use_tart:
+            if use_reranker:
                 with c0:
                     with st.spinner("Reranking ..."):
                         reranked_docs = RERANKER.rerank(user_query, relevant_docs)
