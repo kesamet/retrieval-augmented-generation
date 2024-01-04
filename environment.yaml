@@ -12,4 +12,4 @@ dependencies:
   - rank-bm25==0.2.2
   - sentence-transformers==2.2.2
   - simsimd==3.3.0
-  - streamlit==1.28.2
+  - streamlit==1.29.0
