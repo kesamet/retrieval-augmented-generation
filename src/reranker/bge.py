@@ -1,45 +1,64 @@
-import os
-from typing import List
+from __future__ import annotations
 
-import torch
+import os
+from typing import Optional, Sequence, Tuple
+
 from langchain.schema import Document
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from langchain.pydantic_v1 import Extra
+
+from langchain.callbacks.manager import Callbacks
+from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
+from sentence_transformers import CrossEncoder
 
 from src import CFG
-from src.reranker.base import BaseReranker
 
 
-class BGEReranker(BaseReranker):
+class BGEReranker(BaseDocumentCompressor):
     """Reranker based on BGE-reranker (https://huggingface.co/BAAI/bge-reranker-base)."""
 
-    def __init__(self):
-        model_path = os.path.join(CFG.MODELS_DIR, "models/bge-reranker-base")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_path).to(
-            CFG.DEVICE
-        )
-        self.model.eval()
+    model_path: str = os.path.join(CFG.MODELS_DIR, CFG.BGE_PATH)
+    top_n: int = 4
+    """Number of documents to return."""
+    model: CrossEncoder = CrossEncoder(model_path)
+    """CrossEncoder instance to use for reranking."""
 
-    def rerank(self, query: str, passages: List[Document]) -> List[Document]:
-        pairs: List[str] = [[query, passage.page_content] for passage in passages]
+    class Config:
+        """Configuration for this pydantic object."""
 
-        with torch.no_grad():
-            inputs = self.tokenizer(
-                pairs,
-                padding=True,
-                truncation=True,
-                return_tensors="pt",
-                max_length=512,
-            )
-            scores = (
-                self.model(**inputs, return_dict=True)
-                .logits.view(
-                    -1,
-                )
-                .float()
-                .numpy()
-            )
+        extra = Extra.forbid
+        arbitrary_types_allowed = True
 
-        sorted_pairs = sorted(zip(passages, scores), key=lambda x: x[1], reverse=True)
-        sorted_passages = [passage for passage, _ in sorted_pairs]
-        return sorted_passages
+    def compress_documents(
+        self,
+        documents: Sequence[Document],
+        query: str,
+        callbacks: Optional[Callbacks] = None,
+    ) -> Sequence[Document]:
+        """
+        Compress documents using BAAI/bge-reranker models.
+
+        Args:
+            documents: A sequence of documents to compress.
+            query: The query to use for compressing the documents.
+            callbacks: Callbacks to run during the compression process.
+
+        Returns:
+            A sequence of compressed documents.
+        """
+        if len(documents) == 0:  # to avoid empty api call
+            return []
+        doc_list = list(documents)
+        _docs = [d.page_content for d in doc_list]
+        results = self.rerank(query, _docs)
+        final_results = []
+        for r in results:
+            doc = doc_list[r[0]]
+            doc.metadata["relevance_score"] = r[1]
+            final_results.append(doc)
+        return final_results
+
+    def rerank(self, query: str, docs: Sequence[str]) -> Sequence[Tuple[int, float]]:
+        model_inputs = [[query, doc] for doc in docs]
+        scores = self.model.predict(model_inputs)
+        results = sorted(enumerate(scores), key=lambda x: x[1], reverse=True)
+        return results[: self.top_n]
