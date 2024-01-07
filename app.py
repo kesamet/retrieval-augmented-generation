@@ -55,8 +55,8 @@ def doc_qa():
     with st.sidebar:
         st.header("DocQA using quantized LLM")
         st.info(f"Running on {CFG.DEVICE}")
-        st.info(f"LLM: {CFG.LLM_MODEL_PATH}")
-        st.info(f"Embeddings: {CFG.EMBEDDINGS_MODEL_PATH}")
+        st.info(f"LLM: {CFG.LLM_PATH}")
+        st.info(f"Embeddings: {CFG.EMBEDDINGS_PATH}")
         st.info(f"Reranker: {CFG.RERANKER_NAME}")
 
         uploaded_file = st.file_uploader(
