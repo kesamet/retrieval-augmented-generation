@@ -1,26 +1,19 @@
-from __future__ import annotations
-
-import os
 from typing import Optional, Sequence, Tuple
 
+from rank_bm25 import BM25Okapi
+from transformers import AutoTokenizer
 from langchain.schema import Document
 from langchain.pydantic_v1 import Extra
 
 from langchain.callbacks.manager import Callbacks
 from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
-from sentence_transformers import CrossEncoder
-
-from src import CFG
 
 
-class BGEReranker(BaseDocumentCompressor):
-    """Reranker based on BGE-reranker (https://huggingface.co/BAAI/bge-reranker-base)."""
+class BM25Reranker(BaseDocumentCompressor):
+    """Reranker based on BM25."""
 
-    model_path: str = os.path.join(CFG.MODELS_DIR, CFG.BGE_PATH)
+    tokenizer: AutoTokenizer = AutoTokenizer.from_pretrained("gpt2")
     top_n: int = 4
-    """Number of documents to return."""
-    model: CrossEncoder = CrossEncoder(model_path)
-    """CrossEncoder instance to use for reranking."""
 
     class Config:
         """Configuration for this pydantic object."""
@@ -35,7 +28,7 @@ class BGEReranker(BaseDocumentCompressor):
         callbacks: Optional[Callbacks] = None,
     ) -> Sequence[Document]:
         """
-        Compress documents using BAAI/bge-reranker models.
+        Compress documents using gpt2 and BM25.
 
         Args:
             documents: A sequence of documents to compress.
@@ -68,7 +61,13 @@ class BGEReranker(BaseDocumentCompressor):
         Returns:
             A list of tuples containing the index of the document and its reranked score.
         """
-        model_inputs = [[query, doc] for doc in docs]
-        scores = self.model.predict(model_inputs)
+        # tokenize content for bm25 instance
+        tokenized_content = self.tokenizer(docs).input_ids
+
+        # tokenize query
+        tokenized_query = self.tokenizer([query]).input_ids[0]
+
+        bm25 = BM25Okapi(tokenized_content)
+        scores = bm25.get_scores(tokenized_query)
         results = sorted(enumerate(scores), key=lambda x: x[1], reverse=True)
         return results[: self.top_n]

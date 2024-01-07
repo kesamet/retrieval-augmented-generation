@@ -1,37 +1,83 @@
 import os
-from typing import List
+from typing import Optional, Sequence, Tuple
 
 import torch
 import torch.nn.functional as F
 from langchain.schema import Document
+from langchain.pydantic_v1 import Extra
+from langchain.callbacks.manager import Callbacks
+from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
 
 from src import CFG
-from src.reranker.base import BaseReranker
 from .modeling_enc_t5 import EncT5ForSequenceClassification
 from .tokenization_enc_t5 import EncT5Tokenizer
 
 
-class TARTReranker(BaseReranker):
+class TARTReranker(BaseDocumentCompressor):
     """Reranker based on TART (https://github.com/facebookresearch/tart)."""
 
-    def __init__(self, instruction: str):
-        model_path = os.path.join(CFG.MODELS_DIR, "models/tart-full-flan-t5-xl")
-        self.tokenizer = EncT5Tokenizer.from_pretrained(model_path)
-        self.model = EncT5ForSequenceClassification.from_pretrained(model_path).to(
-            CFG.DEVICE
-        )
-        self.model.eval()
-        self.instruct_template = instruction + " [SEP] {query}"
+    model_path: str = os.path.join(CFG.MODELS_DIR, CFG.TART_PATH)
+    tokenizer = EncT5Tokenizer.from_pretrained(model_path)
+    model = EncT5ForSequenceClassification.from_pretrained(model_path).to(CFG.DEVICE)
+    """Model to use for reranking."""
+    instruction: str = "Find passage to answer given question"
+    """Instruction."""
+    top_n: int = 4
+    """Number of documents to return."""
 
-    def rerank(self, query: str, passages: List[Document]) -> List[Document]:
-        contents: List[str] = [passage.page_content for passage in passages]
-        instruction_queries: List[str] = [
-            self.instruct_template.format(query=query) for _ in range(len(contents))
+    class Config:
+        """Configuration for this pydantic object."""
+
+        extra = Extra.forbid
+        arbitrary_types_allowed = True
+
+    def compress_documents(
+        self,
+        documents: Sequence[Document],
+        query: str,
+        callbacks: Optional[Callbacks] = None,
+    ) -> Sequence[Document]:
+        """
+        Compress documents using TART model.
+
+        Args:
+            documents: A sequence of documents to compress.
+            query: The query to use for compressing the documents.
+            callbacks: Callbacks to run during the compression process.
+
+        Returns:
+            A sequence of compressed documents.
+        """
+        if len(documents) == 0:  # to avoid empty api call
+            return []
+        doc_list = list(documents)
+        _docs = [d.page_content for d in doc_list]
+        results = self.rerank(query, _docs)
+        final_results = []
+        for r in results:
+            doc = doc_list[r[0]]
+            doc.metadata["relevance_score"] = r[1]
+            final_results.append(doc)
+        return final_results
+
+    def rerank(self, query: str, docs: Sequence[str]) -> Sequence[Tuple[int, float]]:
+        """
+        Reranks a list of documents based on a given query using a pre-trained model.
+
+        Args:
+            query: The query string.
+            docs: The list of documents to be reranked.
+
+        Returns:
+            A list of tuples containing the index of the document and its reranked score.
+        """
+        instruction_queries: Sequence[str] = [
+            f"{self.instruction} [SEP] {query}" for _ in range(len(docs))
         ]
 
         features = self.tokenizer(
             instruction_queries,
-            contents,
+            docs,
             padding=True,
             truncation=True,
             return_tensors="pt",
@@ -40,8 +86,5 @@ class TARTReranker(BaseReranker):
             scores = self.model(**features).logits
             normalized_scores = [float(score[1]) for score in F.softmax(scores, dim=1)]
 
-        sorted_pairs = sorted(
-            zip(passages, normalized_scores), key=lambda x: x[1], reverse=True
-        )
-        sorted_passages = [passage for passage, _ in sorted_pairs]
-        return sorted_passages
+        results = sorted(enumerate(normalized_scores), key=lambda x: x[1], reverse=True)
+        return results[: self.top_n]

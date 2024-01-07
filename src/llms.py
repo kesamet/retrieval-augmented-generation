@@ -11,13 +11,13 @@ from src import CFG
 def build_llm():
     """Builds language model defined in config."""
     llm = CTransformers(
-        model=os.path.join(CFG.MODELS_DIR, CFG.LLM_MODEL_PATH),
-        model_type=CFG.LLM_MODEL_TYPE,
+        model=os.path.join(CFG.MODELS_DIR, CFG.LLM_PATH),
+        model_type=CFG.LLM_TYPE,
         config={
-            "max_new_tokens": CFG.MAX_NEW_TOKENS,
-            "temperature": CFG.TEMPERATURE,
-            "repetition_penalty": CFG.REPETITION_PENALTY,
-            "context_length": CFG.CONTEXT_LENGTH,
+            "max_new_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
+            "temperature": CFG.LLM_CONFIG.TEMPERATURE,
+            "repetition_penalty": CFG.LLM_CONFIG.REPETITION_PENALTY,
+            "context_length": CFG.LLM_CONFIG.CONTEXT_LENGTH,
         },
     )
     return llm
