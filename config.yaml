@@ -10,8 +10,7 @@ VECTORDB_PATH: vectordb_faiss
 EMBEDDINGS_MODEL_PATH: ./all-mpnet-base-v2
 # EMBEDDINGS_MODEL_PATH: ./bge-small-en-v1.5
 
-# MODELS_DIR: ./models
-MODELS_DIR: /home/kokmeng/Desktop/Dvorak/expts/models
+MODELS_DIR: ./models
 
 # LLM_MODEL_PATH: ./llama-2-7b-chat.Q4_K_M.gguf
 # LLM_MODEL_TYPE: llama

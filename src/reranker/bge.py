@@ -58,6 +58,16 @@ class BGEReranker(BaseDocumentCompressor):
         return final_results
 
     def rerank(self, query: str, docs: Sequence[str]) -> Sequence[Tuple[int, float]]:
+        """
+        Reranks a list of documents based on a given query using a pre-trained model.
+
+        Args:
+            query: The query string.
+            docs: The list of documents to be reranked.
+
+        Returns:
+            A list of tuples containing the index of the document and its reranked score.
+        """
         model_inputs = [[query, doc] for doc in docs]
         scores = self.model.predict(model_inputs)
         results = sorted(enumerate(scores), key=lambda x: x[1], reverse=True)

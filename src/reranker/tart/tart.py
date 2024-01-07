@@ -38,7 +38,7 @@ class TARTReranker(BaseDocumentCompressor):
         callbacks: Optional[Callbacks] = None,
     ) -> Sequence[Document]:
         """
-        Compress documents using BAAI/bge-reranker models.
+        Compress documents using TART model.
 
         Args:
             documents: A sequence of documents to compress.
@@ -61,6 +61,16 @@ class TARTReranker(BaseDocumentCompressor):
         return final_results
 
     def rerank(self, query: str, docs: Sequence[str]) -> Sequence[Tuple[int, float]]:
+        """
+        Reranks a list of documents based on a given query using a pre-trained model.
+
+        Args:
+            query: The query string.
+            docs: The list of documents to be reranked.
+
+        Returns:
+            A list of tuples containing the index of the document and its reranked score.
+        """
         instruction_queries: Sequence[str] = [
             f"{self.instruction} [SEP] {query}" for _ in range(len(docs))
         ]
