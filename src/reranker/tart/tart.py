@@ -18,7 +18,7 @@ class TARTReranker(BaseDocumentCompressor):
 
     model_path: str = os.path.join(CFG.MODELS_DIR, CFG.TART_PATH)
     tokenizer = EncT5Tokenizer.from_pretrained(model_path)
-    model = EncT5ForSequenceClassification.from_pretrained(model_path).to(CFG.DEVICE)
+    model = EncT5ForSequenceClassification.from_pretrained(model_path)
     """Model to use for reranking."""
     instruction: str = "Find passage to answer given question"
     """Instruction."""

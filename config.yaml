@@ -1,13 +1,14 @@
 CHUNK_SIZE: 500
 CHUNK_OVERLAP: 50
-SEPARATORS: ["\n\n", "\n", ""]
+SEPARATORS: ["\n\n", "\n", ". ", " ", ""]
 
 VECTORDB_TYPE: faiss
 VECTORDB_PATH: vectordb_faiss
 # VECTORDB_TYPE: chroma
 # VECTORDB_PATH: vectordb_chroma
 
-MODELS_DIR: ./models
+# MODELS_DIR: ./models
+MODELS_DIR: /home/kokmeng/Desktop/Dvorak/expts/models
 
 EMBEDDINGS_PATH: all-mpnet-base-v2
 # EMBEDDINGS_PATH: bge-small-en-v1.5
@@ -40,4 +41,8 @@ COMPRESSION_RETRIEVER_CONFIG:
   SEARCH_K: 10
   SIMILARITY_THRESHOLD: 0.5
 
+PROPOSITIONIZE: False
 PROPOSITIONIZER_PATH: propositionizer-wiki-flan-t5-large
+PROPOSITIONIZER_CONFIG:
+  CHUNK_SIZE: 1000
+  CHUNK_OVERLAP: 0

@@ -118,7 +118,7 @@ def build_retrieval_chain(
     Returns:
         ConversationalRetrievalChain: The conversational retrieval chain model.
     """
-    retriever = build_base_retriever(vectordb)
+    retriever = build_rerank_retriever(vectordb)
     prompt = PromptTemplate.from_template(QA_TEMPLATE)
 
     retrieval_chain = ConversationalRetrievalChain.from_llm(

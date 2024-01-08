@@ -8,6 +8,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from torch.utils.data import DataLoader, Dataset
 
 from src import CFG
+from src.vectordb import text_split
 
 
 class Propositionizer:
@@ -65,9 +66,12 @@ class Propositionizer:
                         ]
                     )
                 except json.JSONDecodeError:
-                    prop_texts.append(
-                        Document(page_content=input_text, metadata={"source": source})
+                    texts = text_split(
+                        Document(page_content=input_text, metadata={"source": source}),
+                        CFG.CHUNK_SIZE,
+                        CFG.CHUNK_OVERLAP,
                     )
+                    prop_texts.extend(texts)
         return prop_texts
 
 
