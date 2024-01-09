@@ -7,8 +7,7 @@ VECTORDB_PATH: vectordb_faiss
 # VECTORDB_TYPE: chroma
 # VECTORDB_PATH: vectordb_chroma
 
-# MODELS_DIR: ./models
-MODELS_DIR: /home/kokmeng/Desktop/Dvorak/expts/models
+MODELS_DIR: ./models
 
 EMBEDDINGS_PATH: all-mpnet-base-v2
 # EMBEDDINGS_PATH: bge-small-en-v1.5
