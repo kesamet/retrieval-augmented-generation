@@ -36,7 +36,9 @@ def load_retrieval_chain():
 def doc_conv_qa():
     with st.sidebar:
         st.title("Conversational DocQA using quantized LLM")
-        st.info(f"Running on {CFG.DEVICE}")
+        st.info(
+            f"Uses {CFG.RERANKER_NAME} reranker upon retrieval and {CFG.LLM_PATH} model."
+        )
 
         uploaded_file = st.file_uploader(
             "Upload a PDF and build VectorDB", type=["pdf"]

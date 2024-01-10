@@ -1,11 +1,10 @@
 """
 VectorDB
 """
-from typing import List
+from typing import Sequence
 
-from tqdm import tqdm
-from langchain.schema import Document
 from langchain.document_loaders import PyMuPDFLoader
+from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS, Chroma
 
@@ -22,8 +21,10 @@ def build_vectordb(filename: str) -> None:
     """
     doc = PyMuPDFLoader(filename).load()
 
-    texts = text_split(doc, CFG.CHUNK_SIZE, CFG.CHUNK_OVERLAP)
-    # texts = propositionize(doc)
+    if CFG.PROPOSITIONIZE:
+        texts = propositionize(doc)
+    else:
+        texts = text_split(doc, CFG.CHUNK_SIZE, CFG.CHUNK_OVERLAP)
 
     embeddings = build_base_embeddings()
     if CFG.VECTORDB_TYPE == "faiss":
@@ -34,7 +35,9 @@ def build_vectordb(filename: str) -> None:
         raise NotImplementedError
 
 
-def text_split(doc: Document, chunk_size: int, chunk_overlap: int) -> List[Document]:
+def text_split(
+    doc: Document, chunk_size: int, chunk_overlap: int
+) -> Sequence[Document]:
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
@@ -44,15 +47,16 @@ def text_split(doc: Document, chunk_size: int, chunk_overlap: int) -> List[Docum
     return text_splitter.split_documents(doc)
 
 
-def propositionize(doc: Document) -> List[Document]:
-    p = Propositionizer()
+def propositionize(doc: Document) -> Sequence[Document]:
+    propositionizer = Propositionizer()
 
-    texts = text_split(doc, 1000, 100)
+    texts = text_split(
+        doc,
+        CFG.PROPOSITIONIZER_CONFIG.CHUNK_SIZE,
+        CFG.PROPOSITIONIZER_CONFIG.CHUNK_OVERLAP,
+    )
 
-    prop_texts = []
-    for text in tqdm(texts):
-        propositions = p.generate("", "", text)
-        prop_texts.extend(propositions)
+    prop_texts = propositionizer.batch(texts)
     return prop_texts
 
 
