@@ -3,14 +3,13 @@ VectorDB
 """
 from typing import Sequence
 
-from langchain.document_loaders import PyMuPDFLoader
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import FAISS, Chroma
+from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.vectorstores import FAISS, Chroma
 
 from src import CFG
 from src.embeddings import build_base_embeddings
-from src.elements.propositionizer import Propositionizer
 
 
 def build_vectordb(filename: str) -> None:
@@ -48,6 +47,8 @@ def text_split(
 
 
 def propositionize(doc: Document) -> Sequence[Document]:
+    from src.elements.propositionizer import Propositionizer
+
     propositionizer = Propositionizer()
 
     texts = text_split(

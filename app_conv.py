@@ -1,9 +1,11 @@
 import streamlit as st
-from langchain.callbacks import StreamlitCallbackHandler
+from langchain_community.callbacks import StreamlitCallbackHandler
+from langchain_core.runnables import RunnableConfig
 
 from src import CFG
 from src.embeddings import build_base_embeddings
 from src.llms import build_llm
+from src.reranker import build_reranker
 from src.retrieval_qa import build_retrieval_chain
 from src.vectordb import build_vectordb, load_faiss, load_chroma
 from streamlit_app.utils import perform
@@ -24,20 +26,21 @@ def init_chat_history():
 
 @st.cache_resource
 def load_retrieval_chain():
+    llm = build_llm()
     embeddings = build_base_embeddings()
+    reranker = build_reranker()
     if CFG.VECTORDB_TYPE == "faiss":
         vectordb = load_faiss(embeddings)
     elif CFG.VECTORDB_TYPE == "chroma":
         vectordb = load_chroma(embeddings)
-    llm = build_llm()
-    return build_retrieval_chain(vectordb, llm)
+    return build_retrieval_chain(vectordb, reranker, llm)
 
 
 def doc_conv_qa():
     with st.sidebar:
         st.title("Conversational DocQA using quantized LLM")
         st.info(
-            f"Uses {CFG.RERANKER_NAME} reranker upon retrieval and {CFG.LLM_PATH} model."
+            f"Uses `{CFG.RERANKER_PATH}` reranker upon retrieval and `{CFG.LLM_PATH}` LLM."
         )
 
         uploaded_file = st.file_uploader(
@@ -79,7 +82,7 @@ def doc_conv_qa():
         with st.chat_message("assistant"):
             st.markdown(answer)
 
-            with st.expander("Retrieved extracts"):
+            with st.expander("Sources"):
                 for row in source_documents:
                     st.write("**Page {}**".format(row.metadata["page"] + 1))
                     st.info(row.page_content)
@@ -95,17 +98,17 @@ def doc_conv_qa():
                 expand_new_thoughts=True,
                 collapse_completed_thoughts=True,
             )
-            response = retrieval_chain(
+            response = retrieval_chain.invoke(
                 {
                     "question": user_query,
                     "chat_history": st.session_state.chat_history,
                 },
-                callbacks=[st_callback],
+                config=RunnableConfig(callbacks=[st_callback]),
             )
             st_callback._complete_current_thought()
             st.markdown(response["answer"])
 
-            with st.expander("Retrieved extracts"):
+            with st.expander("Sources"):
                 for row in response["source_documents"]:
                     st.write("**Page {}**".format(row.metadata["page"] + 1))
                     st.info(row.page_content)

@@ -1,7 +1,7 @@
 # retrieval-augmented-generation
-Retrieval augmented generation demos with Llama-2 or Mistral-7b
+Retrieval augmented generation demos with Llama-2, Mistral-7b, Zephyr-7b
 
-The demos use quantized models and run on CPU with acceptable inference time (~1 min).
+The demos use quantized models and run on CPU with acceptable inference time.
 
 
 ## 🔧 Getting Started
@@ -24,6 +24,7 @@ Download and save the models in `./models` and update `config.yaml`. The models 
 - LLMs
     - [TheBloke/Llama-2-7B-Chat-GGUF](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF)
     - [TheBloke/Mistral-7B-Instruct-v0.2-GGUF](https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF)
+    - [TheBloke/zephyr-7B-beta-GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF)
 - Rerankers:
     - [facebook/tart-full-flan-t5-xl](https://huggingface.co/facebook/tart-full-flan-t5-xl): save in `models/tart-full-flan-t5-xl/`
     - [BAAI/bge-reranker-base](https://huggingface.co/BAAI/bge-reranker-base): save in `models/bge-reranker-base/`

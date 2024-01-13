@@ -15,9 +15,12 @@ EMBEDDINGS_PATH: all-mpnet-base-v2
 # LLM_PATH: llama-2-7b-chat.Q4_K_M.gguf
 # LLM_TYPE: llama
 # PROMPT_TYPE: llama
-LLM_PATH: mistral-7b-instruct-v0.2.Q4_K_M.gguf
+# LLM_PATH: mistral-7b-instruct-v0.2.Q4_K_M.gguf
+# LLM_TYPE: mistral
+# PROMPT_TYPE: mistral
+LLM_PATH: zephyr-7b-beta.Q4_K_M.gguf
 LLM_TYPE: mistral
-PROMPT_TYPE: mistral
+PROMPT_TYPE: zephyr
 
 LLM_CONFIG:
   MAX_NEW_TOKENS: 512
@@ -28,10 +31,11 @@ LLM_CONFIG:
 BASE_RETRIEVER_CONFIG:
   SEARCH_K: 4
 
-BGE_PATH: bge-reranker-base
-TART_PATH: tart-full-flan-t5-xl
+# RERANKER_PATH: tart-full-flan-t5-xl
+# RERANKER_TYPE: tart
+RERANKER_PATH: bge-reranker-base
+RERANKER_TYPE: bge
 
-RERANKER_NAME: BGE  # BGE or TART
 RERANK_RETRIEVER_CONFIG:
   SEARCH_K: 10
   TOP_N: 4
