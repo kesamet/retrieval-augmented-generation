@@ -4,7 +4,6 @@ from langchain_core.runnables import RunnableConfig
 
 from src import CFG
 from src.embeddings import build_hyde_embeddings
-from src.query_expansion import build_multiple_queries_expansion_chain
 from src.retrieval_qa import (
     build_retrieval_qa,
     build_base_retriever,
@@ -42,13 +41,13 @@ def load_vectordb_hyde():
     raise NotImplementedError
 
 
-def load_retriever(_vectordb, retrieval_mode, _embeddings=None):
+def load_retriever(_vectordb, retrieval_mode):
     if retrieval_mode == "Base":
         return build_base_retriever(_vectordb)
     if retrieval_mode == "Rerank":
         return build_rerank_retriever(_vectordb, RERANKER)
     if retrieval_mode == "Contextual compression":
-        return build_compression_retriever(_vectordb, _embeddings)
+        return build_compression_retriever(_vectordb, BASE_EMBEDDINGS)
     raise NotImplementedError
 
 
@@ -142,7 +141,7 @@ def doc_qa():
         st.session_state.last_form = [mode, retrieval_mode, use_hyde]
 
         if mode == "Retrieval only":
-            retriever = load_retriever(vectordb, retrieval_mode, BASE_EMBEDDINGS)
+            retriever = load_retriever(vectordb, retrieval_mode)
             relevant_docs = retriever.get_relevant_documents(user_query)
             with c0:
                 with st.spinner("Retrieving ..."):
@@ -154,7 +153,7 @@ def doc_qa():
             }
         else:
             db = vectordb_hyde if use_hyde else vectordb
-            retriever = load_retriever(db, retrieval_mode, BASE_EMBEDDINGS)
+            retriever = load_retriever(db, retrieval_mode)
             retrieval_qa = build_retrieval_qa(LLM, retriever)
 
             st_callback = StreamlitCallbackHandler(
@@ -186,7 +185,7 @@ def doc_qa():
             st.write("#### Sources")
             for row in st.session_state.last_response["source_documents"]:
                 st.write("**Page {}**".format(row.metadata["page"] + 1))
-                st.info(row.page_content.replace("$", "\$"))
+                st.info(row.page_content.replace("$", r"\$"))
 
             # Display PDF
             st.write("---")
