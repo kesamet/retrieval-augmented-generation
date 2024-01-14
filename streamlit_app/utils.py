@@ -5,7 +5,7 @@ import streamlit as st
 
 from src.embeddings import build_base_embeddings
 from src.llms import build_llm
-from src.retrieval_qa import build_base_retriever, build_rerank_retriever, build_compression_retriever
+from src.reranker import build_reranker
 
 
 @st.cache_resource
@@ -19,15 +19,8 @@ def load_llm():
 
 
 @st.cache_resource
-def load_retriever(_vectordb, retrieval_mode, _embeddings=None):
-    if retrieval_mode == "Base":
-        return build_base_retriever(_vectordb)
-    elif retrieval_mode == "Rerank":
-        return build_rerank_retriever(_vectordb)
-    elif retrieval_mode == "Contextual compression":
-        return build_compression_retriever(_vectordb, _embeddings)
-    else:
-        raise NotImplementedError
+def load_reranker():
+    return build_reranker()
 
 
 def perform(func, filebytes, **kwargs):

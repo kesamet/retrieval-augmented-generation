@@ -7,34 +7,45 @@ from langchain.chains import ConversationalRetrievalChain, RetrievalQA
 from langchain.embeddings.base import Embeddings
 from langchain.llms.base import LLM
 from langchain.prompts import PromptTemplate
-from langchain.vectorstores.base import VectorStore
-from langchain.document_transformers import EmbeddingsRedundantFilter
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import (
     DocumentCompressorPipeline,
     EmbeddingsFilter,
 )
+from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
 from langchain.text_splitter import CharacterTextSplitter
+from langchain.vectorstores.base import VectorStore
 from langchain_core.vectorstores import VectorStoreRetriever
+from langchain_community.document_transformers import EmbeddingsRedundantFilter
 
 from src import CFG
 
 if CFG.PROMPT_TYPE == "llama":
     QA_TEMPLATE = """<s>[INST] <<SYS>> You are a helpful, respectful and honest AI Assistant. \
-Use the following pieces of information to answer the user's question. \
+Use the following context to answer the user's question. \
 If you don't know the answer, just say that you don't know, don't try to make up an answer. <</SYS>>
 Context: {context}
 Question: {question}
 Only return the helpful answer below and nothing else.
-Answer: [/INST]"""
+Answer:[/INST]"""
 elif CFG.PROMPT_TYPE == "mistral":
     QA_TEMPLATE = """<s>[INST] You are a helpful, respectful and honest AI Assistant. \
-Use the following pieces of information to answer the user's question. \
+Use the following context to answer the user's question. \
 If you don't know the answer, just say that you don't know, don't try to make up an answer.
 Context: {context}
 Question: {question}
 Only return the helpful answer and nothing else.
-Answer: [/INST]"""
+Answer:[/INST]"""
+elif CFG.PROMPT_TYPE == "zephyr":
+    QA_TEMPLATE = """<|system|>
+You are a helpful, respectful and honest AI Assistant. \
+Use the following context to answer the user's question. \
+If you don't know the answer, just say that you don't know, don't try to make up an answer.</s>
+<|user|>
+Context: {context}
+Question: {question}
+Only return the helpful answer and nothing else.</s>
+<|assistant|>"""
 else:
     raise NotImplementedError
 
@@ -45,18 +56,12 @@ def build_base_retriever(vectordb: VectorStore) -> VectorStoreRetriever:
     )
 
 
-def build_rerank_retriever(vectordb: VectorStore) -> ContextualCompressionRetriever:
-    from src.reranker import BGEReranker, TARTReranker
-
+def build_rerank_retriever(
+    vectordb: VectorStore, reranker: BaseDocumentCompressor
+) -> ContextualCompressionRetriever:
     base_retriever = vectordb.as_retriever(
         search_kwargs={"k": CFG.RERANK_RETRIEVER_CONFIG.SEARCH_K}
     )
-    if CFG.RERANKER_NAME == "BGE":
-        reranker = BGEReranker(top_n=CFG.RERANK_RETRIEVER_CONFIG.TOP_N)
-    elif CFG.RERANKER_NAME == "TART":
-        reranker = TARTReranker(top_n=CFG.RERANK_RETRIEVER_CONFIG.TOP_N)
-    else:
-        raise NotImplementedError
     return ContextualCompressionRetriever(
         base_compressor=reranker, base_retriever=base_retriever
     )
@@ -107,7 +112,7 @@ def build_retrieval_qa(llm: LLM, retriever: Any) -> RetrievalQA:
 
 
 def build_retrieval_chain(
-    vectordb: VectorStore, llm: LLM
+    vectordb: VectorStore, reranker: BaseDocumentCompressor, llm: LLM
 ) -> ConversationalRetrievalChain:
     """Builds a conversational retrieval chain model.
 
@@ -118,7 +123,7 @@ def build_retrieval_chain(
     Returns:
         ConversationalRetrievalChain: The conversational retrieval chain model.
     """
-    retriever = build_rerank_retriever(vectordb)
+    retriever = build_rerank_retriever(vectordb, reranker)
     prompt = PromptTemplate.from_template(QA_TEMPLATE)
 
     retrieval_chain = ConversationalRetrievalChain.from_llm(
