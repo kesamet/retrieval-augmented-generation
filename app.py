@@ -142,7 +142,6 @@ def doc_qa():
 
         if mode == "Retrieval only":
             retriever = load_retriever(vectordb, retrieval_mode)
-            relevant_docs = retriever.get_relevant_documents(user_query)
             with c0:
                 with st.spinner("Retrieving ..."):
                     relevant_docs = retriever.get_relevant_documents(user_query)

@@ -8,23 +8,7 @@ from langchain.prompts import PromptTemplate
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 from src import CFG
-
-if CFG.PROMPT_TYPE == "llama":
-    HYDE_TEMPLATE = """<s>[INST] <<SYS>> Please answer the user's question about the document. <</SYS>>
-Question: {question}
-Answer:[/INST]"""
-elif CFG.PROMPT_TYPE == "mistral":
-    HYDE_TEMPLATE = """<s>[INST] Please answer the user's question about the document.
-Question: {question}
-Answer:[/INST]"""
-elif CFG.PROMPT_TYPE == "zephyr":
-    HYDE_TEMPLATE = """<|system|>
-Please answer the user's question about the document.</s>
-<|user|>
-Question: {question}</s>
-<|assistant|>"""
-else:
-    raise NotImplementedError
+from src.prompt_templates import HYDE_TEMPLATE
 
 
 def build_base_embeddings():
