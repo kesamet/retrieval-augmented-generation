@@ -11,14 +11,18 @@ class QA:
 
 
 class Hyde:
-    system = "You are a helpful, respectful and honest assistant. Please answer the user's question about a document."
+    system = (
+        "You are a helpful, respectful and honest assistant. "
+        "Please answer the user's question about a document."
+    )
     user = "{question}"
 
 
 class MultipleQueries:
     system = (
         "You are a helpful assistant. Your users are asking questions about documents. "
-        "Suggest up to three additional related questions to help them find the information they need, for the provided question. "
+        "Suggest up to three additional related questions to help them find the information they need "
+        "for the provided question. "
         "Suggest only short questions without compound sentences. "
         "Suggest a variety of questions that cover different aspects of the topic. "
         "Make sure they are complete questions, and that they are related to the original question. "
