@@ -4,6 +4,7 @@ from langchain_core.runnables import RunnableConfig
 
 from src import CFG
 from src.embeddings import build_hyde_embeddings
+from src.query_expansion import build_multiple_queries_expansion_chain
 from src.retrieval_qa import (
     build_retrieval_qa,
     build_base_retriever,
@@ -150,6 +151,12 @@ def doc_qa():
                 "query": user_query,
                 "source_documents": relevant_docs,
             }
+
+            chain = build_multiple_queries_expansion_chain(LLM)
+            res = chain.invoke(user_query)
+            st.session_state.last_related = [
+                x.strip() for x in res.split("\n") if x.strip()
+            ]
         else:
             db = vectordb_hyde if use_hyde else vectordb
             retriever = load_retriever(db, retrieval_mode)
@@ -164,10 +171,6 @@ def doc_qa():
                 user_query, config=RunnableConfig(callbacks=[st_callback])
             )
             st_callback._complete_current_thought()
-
-            # chain = build_multiple_queries_expansion_chain(LLM)
-            # res = chain.invoke(user_query)
-            # st.session_state.last_related = [x.strip() for x in res.split("\n") if x.strip()]
 
     if st.session_state.last_response:
         with c0:
