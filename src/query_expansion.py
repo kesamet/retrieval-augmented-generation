@@ -4,6 +4,8 @@ from langchain.schema import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.runnable.base import RunnableSequence
 
+from src.prompt_templates import MULTI_QUERIES_TEMPLATE
+
 
 def build_llm_chain(llm: LLM, template: str) -> RunnableSequence:
     prompt = PromptTemplate.from_template(template)
@@ -22,16 +24,7 @@ Output: [/INST]"""
 
 
 def build_multiple_queries_expansion_chain(llm: LLM) -> RunnableSequence:
-    template = """<s>[INST] You are a helpful assistant. \
-Your users are asking questions about documents. \
-Suggest up to three additional related questions to help them find the information they need, \
-for the provided question. \
-Suggest only short questions without compound sentences. \
-Suggest a variety of questions that cover different aspects of the topic. \
-Make sure they are complete questions, and that they are related to the original question. \
-Output one question per line and without numbering.
-Question: {question}
-Output: [/INST]"""
-
-    chain = {"question": RunnablePassthrough()} | build_llm_chain(llm, template)
+    chain = {"question": RunnablePassthrough()} | build_llm_chain(
+        llm, MULTI_QUERIES_TEMPLATE
+    )
     return chain

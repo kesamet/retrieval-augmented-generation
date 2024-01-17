@@ -17,6 +17,8 @@ Activate the environment.
 conda activate rag
 ```
 
+### Download model artefacts
+
 Download and save the models in `./models` and update `config.yaml`. The models used in this demo are:
 - Embeddings
     - [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
@@ -31,7 +33,16 @@ Download and save the models in `./models` and update `config.yaml`. The models 
 - Propositionizer
     - [chentong00/propositionizer-wiki-flan-t5-large](https://huggingface.co/chentong00/propositionizer-wiki-flan-t5-large) save in `models/propositionizer-wiki-flan-t5-large/`
 
-Ensure that the LLM can be loaded by `langchain.llms.ctransformers.CTransformers`.
+
+### Add prompt format
+
+Since each model type has its own prompt format, include the format in `./src/prompt_templates.py`. For example, the format used in `openbuddy` models is
+```python
+_openbuddy_format = """{system}
+User: {user}
+Assistant:"""
+```
+Refer to the file for more details.
 
 
 ## 💻 App

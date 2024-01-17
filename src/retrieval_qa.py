@@ -19,35 +19,7 @@ from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_community.document_transformers import EmbeddingsRedundantFilter
 
 from src import CFG
-
-if CFG.PROMPT_TYPE == "llama":
-    QA_TEMPLATE = """<s>[INST] <<SYS>> You are a helpful, respectful and honest AI Assistant. \
-Use the following context to answer the user's question. \
-If you don't know the answer, just say that you don't know, don't try to make up an answer. <</SYS>>
-Context: {context}
-Question: {question}
-Only return the helpful answer below and nothing else.
-Answer:[/INST]"""
-elif CFG.PROMPT_TYPE == "mistral":
-    QA_TEMPLATE = """<s>[INST] You are a helpful, respectful and honest AI Assistant. \
-Use the following context to answer the user's question. \
-If you don't know the answer, just say that you don't know, don't try to make up an answer.
-Context: {context}
-Question: {question}
-Only return the helpful answer and nothing else.
-Answer:[/INST]"""
-elif CFG.PROMPT_TYPE == "zephyr":
-    QA_TEMPLATE = """<|system|>
-You are a helpful, respectful and honest AI Assistant. \
-Use the following context to answer the user's question. \
-If you don't know the answer, just say that you don't know, don't try to make up an answer.</s>
-<|user|>
-Context: {context}
-Question: {question}
-Only return the helpful answer and nothing else.</s>
-<|assistant|>"""
-else:
-    raise NotImplementedError
+from src.prompt_templates import QA_TEMPLATE
 
 
 def build_base_retriever(vectordb: VectorStore) -> VectorStoreRetriever:
