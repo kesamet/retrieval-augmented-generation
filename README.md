@@ -1,7 +1,12 @@
 # retrieval-augmented-generation
-Retrieval augmented generation demos with Llama-2, Mistral-7b, Zephyr-7b
+Retrieval augmented generation demos with Llama-2-7b, Mistral-7b, Zephyr-7b
 
-The demos use quantized models and run on CPU with acceptable inference time.
+The demos use quantized models and run on CPU with acceptable inference time. They can run **offline** without Internet access, thus allowing deployment in an air-gapped environment.
+
+The demos also allow user to
+- apply propositionizer to document chunks
+- perform reranking upon retrieval
+- perform hypothetical document embedding (HyDE)
 
 
 ## 🔧 Getting Started
