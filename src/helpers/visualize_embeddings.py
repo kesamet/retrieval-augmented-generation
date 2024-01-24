@@ -1,15 +1,16 @@
 import os
 
 import numpy as np
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 from umap import UMAP
-import matplotlib.pyplot as plt
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 
 from src import CFG
 
 
 def project_embeddings(embeddings, umap_transform):
+    # Transform embeddings one at a time
     umap_embeddings = np.empty((len(embeddings), 2))
     for i, embedding in enumerate(tqdm(embeddings)):
         umap_embeddings[i] = umap_transform.transform([embedding])
@@ -48,18 +49,28 @@ def visualize_embeddings(
     return fig
 
 
-# embedding_function = SentenceTransformerEmbeddingFunction(model_name=os.path.join(CFG.MODELS_DIR, CFG.EMBEDDINGS_PATH))
+embedding_function = SentenceTransformerEmbeddingFunction(
+    model_name=os.path.join(CFG.MODELS_DIR, CFG.EMBEDDINGS_PATH)
+)
 
+reducer = UMAP(random_state=0, transform_seed=0)
+
+# # How to use
 # embeddings = chroma_db.get(include=['embeddings'])['embeddings']
-# umap_transform = UMAP(random_state=0, transform_seed=0).fit(embeddings)
+# umap_transform = reducer.fit(embeddings)
 # projected_dataset_embeddings = project_embeddings(embeddings, umap_transform)
 
-# query = "What is the total revenue?"
+# query = "..."
 # retriever = chroma_db.as_retriever()
 # retrieved_documents = retriever.get_relevant_documents(query)
 
-# query_embedding = embedding_function([query])[0]
+# query_embeddings = embedding_function([query])
+# projected_query_embedding = project_embeddings(query_embeddings, umap_transform)
 # retrieved_embeddings = embedding_function([d.page_content for d in retrieved_documents])
-
-# projected_query_embedding = project_embeddings([query_embedding], umap_transform)
 # projected_retrieved_embeddings = project_embeddings(retrieved_embeddings, umap_transform)
+
+# visualize_embeddings(
+#     projected_dataset_embeddings,
+#     projected_query_embedding,
+#     projected_retrieved_embeddings,
+# )
