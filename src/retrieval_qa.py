@@ -71,14 +71,12 @@ def build_retrieval_qa(llm: LLM, retriever: Any) -> RetrievalQA:
     Returns:
         RetrievalQA: The retrieval QA model.
     """
-    prompt = PromptTemplate.from_template(QA_TEMPLATE)
-
     retrieval_qa = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
         retriever=retriever,
         return_source_documents=True,
-        chain_type_kwargs={"prompt": prompt},
+        chain_type_kwargs={"prompt": PromptTemplate.from_template(QA_TEMPLATE)},
     )
     return retrieval_qa
 
@@ -96,13 +94,23 @@ def build_retrieval_chain(
         ConversationalRetrievalChain: The conversational retrieval chain model.
     """
     retriever = build_rerank_retriever(vectordb, reranker)
-    prompt = PromptTemplate.from_template(QA_TEMPLATE)
+
+    condense_question_template = """Given the following conversation and a follow up question, \
+rephrase the follow up question to be a standalone question, in its original language.
+
+Chat History:
+{chat_history}
+Follow Up Input: {question}
+Standalone question:"""
 
     retrieval_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         chain_type="stuff",
         retriever=retriever,
         return_source_documents=True,
-        combine_docs_chain_kwargs={"prompt": prompt},
+        combine_docs_chain_kwargs={"prompt": PromptTemplate.from_template(QA_TEMPLATE)},
+        condense_question_prompt=PromptTemplate.from_template(
+            condense_question_template
+        ),
     )
     return retrieval_chain

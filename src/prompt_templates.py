@@ -7,7 +7,7 @@ class QA:
         "Use the following pieces of retrieved context to answer the user's question. "
         "If you don't know the answer, just say that you don't know, don't try to make up an answer."
     )
-    user = "{question}\nContext = {context}"
+    user = "{question}\nContext:\n{context}"
 
 
 class Hyde:
