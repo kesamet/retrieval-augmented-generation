@@ -73,8 +73,7 @@ def doc_qa():
     init_sess_state()
 
     with st.sidebar:
-        st.header("DocQA using quantized LLM")
-        st.info(f"Running on {CFG.DEVICE}")
+        st.header("RAG with quantized LLM")
         st.info(f"LLM: `{CFG.LLM_PATH}`")
         st.info(f"Embeddings: `{CFG.EMBEDDINGS_PATH}`")
         st.info(f"Reranker: `{CFG.RERANKER_PATH}`")

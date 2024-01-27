@@ -1,5 +1,5 @@
 # retrieval-augmented-generation
-Retrieval augmented generation demos with Llama-2-7b, Mistral-7b, Zephyr-7b
+Retrieval augmented generation (RAG) demos with Llama-2-7b, Mistral-7b, Zephyr-7b
 
 The demos use quantized models and run on CPU with acceptable inference time. They can run **offline** without Internet access, thus allowing deployment in an air-gapped environment.
 
@@ -53,12 +53,12 @@ Refer to the file for more details.
 ## 💻 App
 
 We use Streamlit as the interface for the demos. There are two demos:
-- Retrieval QA
+- RAG
 ```bash
 streamlit run app.py
 ```
 
-- Conversational retrieval QA
+- Conversational RAG
 ```bash
 streamlit run app_conv.py
 ```

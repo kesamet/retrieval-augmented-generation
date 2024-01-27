@@ -38,7 +38,7 @@ def load_retrieval_chain():
 
 def doc_conv_qa():
     with st.sidebar:
-        st.title("Conversational DocQA using quantized LLM")
+        st.title("Conversational RAG with quantized LLM")
         st.info(
             f"Uses `{CFG.RERANKER_PATH}` reranker upon retrieval and `{CFG.LLM_PATH}` LLM."
         )
