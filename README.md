@@ -1,7 +1,7 @@
 # retrieval-augmented-generation
 Retrieval augmented generation (RAG) demos with Llama-2-7b, Mistral-7b, Zephyr-7b
 
-The demos use quantized models and run on CPU with acceptable inference time. They can run **offline** without internet access, thus allowing deployment in an air-gapped environment.
+The demos use quantized models and run on CPU with acceptable inference time. They can run **offline** without Internet access, thus allowing deployment in an air-gapped environment.
 
 The demos also allow user to
 - apply propositionizer to document chunks
