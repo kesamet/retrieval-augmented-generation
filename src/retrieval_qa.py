@@ -28,6 +28,19 @@ def build_base_retriever(vectordb: VectorStore) -> VectorStoreRetriever:
     )
 
 
+def build_multivector_retriever(
+    vectorstore: VectorStore, docstore
+) -> VectorStoreRetriever:
+    from langchain.retrievers.multi_vector import MultiVectorRetriever, SearchType
+
+    return MultiVectorRetriever(
+        vectorstore=vectorstore,
+        docstore=docstore,
+        id_key="doc_id",
+        search_type=SearchType.mmr,
+    )
+
+
 def build_rerank_retriever(
     vectordb: VectorStore, reranker: BaseDocumentCompressor
 ) -> ContextualCompressionRetriever:

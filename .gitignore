@@ -163,7 +163,11 @@ cython_debug/
 # DS_Store
 .DS_Store
 
+# vscode
+.vscode/
+
 # others
-*.pdf
 models/*
 vectordb_*/
+*.pdf
+*.pkl
