@@ -1,9 +1,13 @@
 """
 VectorDB
 """
-from typing import Sequence
+import pickle
+import uuid
+from typing import Any, Sequence
 
+from langchain.embeddings.base import Embeddings
 from langchain.schema import Document
+from langchain.vectorstores.base import VectorStore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.vectorstores import FAISS, Chroma
@@ -13,29 +17,28 @@ from src.embeddings import build_base_embeddings
 
 
 def build_vectordb(filename: str) -> None:
-    """Builds a vector database from a PDF file.
-
-    Args:
-        filename (str): Path to the PDF file.
-    """
+    """Builds a vector database from a PDF file."""
     doc = PyMuPDFLoader(filename).load()
+    embedding_function = build_base_embeddings()
 
-    if CFG.PROPOSITIONIZE:
-        texts = propositionize(doc)
-    else:
-        texts = text_split(doc, CFG.CHUNK_SIZE, CFG.CHUNK_OVERLAP)
+    if CFG.TEXT_SPLIT_MODE == "simple":
+        docs = simple_text_split(doc, CFG.CHUNK_SIZE, CFG.CHUNK_OVERLAP)
+        save_vectorstore(docs, embedding_function, CFG.VECTORDB_PATH)
+    elif CFG.TEXT_SPLIT_MODE == "propositionize":
+        docs = propositionize(doc)
+        save_vectorstore(docs, embedding_function, CFG.VECTORDB_PATH)
+    elif CFG.TEXT_SPLIT_MODE == "parent_document":
+        child_docs, parents = parent_document_split(doc)
+        save_vectorstore(child_docs, embedding_function, CFG.VECTORDB_PATH)
 
-    embeddings = build_base_embeddings()
-    if CFG.VECTORDB_TYPE == "faiss":
-        _build_faiss(texts, embeddings)
-    elif CFG.VECTORDB_TYPE == "chroma":
-        _build_chroma(texts, embeddings)
+        with open(CFG.PARENT_DOCS_PATH, "wb") as handle:
+            pickle.dump(parents, handle, protocol=pickle.HIGHEST_PROTOCOL)
     else:
         raise NotImplementedError
 
 
-def text_split(
-    doc: Document, chunk_size: int, chunk_overlap: int
+def simple_text_split(
+    doc: Sequence[Document], chunk_size: int, chunk_overlap: int
 ) -> Sequence[Document]:
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
@@ -46,12 +49,30 @@ def text_split(
     return text_splitter.split_documents(doc)
 
 
-def propositionize(doc: Document) -> Sequence[Document]:
+def parent_document_split(
+    doc: Sequence[Document],
+) -> tuple[Sequence[Document], tuple[list[str], Sequence[Document]]]:
+    """ParentDocumentRetriever"""
+    id_key = "doc_id"
+
+    parent_docs = simple_text_split(doc, 2000, 0)
+    doc_ids = [str(uuid.uuid4()) for _ in parent_docs]
+
+    child_docs = []
+    for i, pdoc in enumerate(parent_docs):
+        _sub_docs = simple_text_split([pdoc], 400, 0)
+        for _doc in _sub_docs:
+            _doc.metadata[id_key] = doc_ids[i]
+        child_docs.extend(_sub_docs)
+    return child_docs, (doc_ids, parent_docs)
+
+
+def propositionize(doc: Sequence[Document]) -> Sequence[Document]:
     from src.elements.propositionizer import Propositionizer
 
     propositionizer = Propositionizer()
 
-    texts = text_split(
+    texts = simple_text_split(
         doc,
         CFG.PROPOSITIONIZER_CONFIG.CHUNK_SIZE,
         CFG.PROPOSITIONIZER_CONFIG.CHUNK_OVERLAP,
@@ -61,18 +82,30 @@ def propositionize(doc: Document) -> Sequence[Document]:
     return prop_texts
 
 
-def _build_faiss(texts, embeddings):
-    vectorstore = FAISS.from_documents(texts, embeddings)
-    vectorstore.save_local(CFG.VECTORDB_PATH)
+def save_vectorstore(
+    docs: Sequence[Document], embedding_function: Embeddings, persist_directory: str
+) -> None:
+    if CFG.VECTORDB_TYPE == "faiss":
+        vectorstore = FAISS.from_documents(docs, embedding_function)
+        vectorstore.save_local(persist_directory)
+    elif CFG.VECTORDB_TYPE == "chroma":
+        _ = Chroma.from_documents(
+            docs, embedding_function, persist_directory=persist_directory
+        )
+    else:
+        raise NotImplementedError
 
 
-def _build_chroma(texts, embeddings):
-    _ = Chroma.from_documents(texts, embeddings, persist_directory=CFG.VECTORDB_PATH)
+def load_faiss(embedding_function: Embeddings) -> VectorStore:
+    return FAISS.load_local(CFG.VECTORDB_PATH, embedding_function)
 
 
-def load_faiss(embeddings):
-    return FAISS.load_local(CFG.VECTORDB_PATH, embeddings)
+def load_chroma(embedding_function: Embeddings) -> VectorStore:
+    return Chroma(
+        persist_directory=CFG.VECTORDB_PATH, embedding_function=embedding_function
+    )
 
 
-def load_chroma(embeddings):
-    return Chroma(persist_directory=CFG.VECTORDB_PATH, embedding_function=embeddings)
+def load_pkl(filename: str) -> Any:
+    with open(filename, "rb") as handle:
+        return pickle.load(handle)

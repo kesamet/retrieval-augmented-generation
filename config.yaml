@@ -1,5 +1,7 @@
 DEVICE: cpu
 
+TEXT_SPLIT_MODE: simple
+
 CHUNK_SIZE: 500
 CHUNK_OVERLAP: 50
 SEPARATORS: ["\n\n", "\n", ". ", " ", ""]
@@ -8,6 +10,8 @@ VECTORDB_TYPE: faiss
 VECTORDB_PATH: vectordb_faiss
 # VECTORDB_TYPE: chroma
 # VECTORDB_PATH: vectordb_chroma
+
+PARENT_DOCS_PATH: ./data/parent_docs.pkl
 
 MODELS_DIR: ./models
 
@@ -46,7 +50,6 @@ COMPRESSION_RETRIEVER_CONFIG:
   SEARCH_K: 10
   SIMILARITY_THRESHOLD: 0.5
 
-PROPOSITIONIZE: False
 PROPOSITIONIZER_PATH: propositionizer-wiki-flan-t5-large
 PROPOSITIONIZER_CONFIG:
   CHUNK_SIZE: 1000
