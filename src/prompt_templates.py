@@ -1,5 +1,29 @@
 from src import CFG
 
+llama_format = """<s>[INST] <<SYS>>{system}<</SYS>>
+{user}
+[/INST]"""
+
+mistral_format = """<s>[INST] {system}
+{user}
+[/INST]"""
+
+zephyr_format = """<|system|>
+{system}</s>
+<|user|>
+{user}</s>
+<|assistant|>"""
+
+
+if CFG.PROMPT_TYPE == "llama":
+    _chat_format = llama_format
+elif CFG.PROMPT_TYPE == "mistral":
+    _chat_format = mistral_format
+elif CFG.PROMPT_TYPE == "zephyr":
+    _chat_format = zephyr_format
+else:
+    raise NotImplementedError
+
 
 class QA:
     system = (
@@ -7,7 +31,18 @@ class QA:
         "Use the following pieces of retrieved context to answer the user's question. "
         "If you don't know the answer, just say that you don't know, don't try to make up an answer."
     )
-    user = "{question}\nContext:\n{context}"
+    user = "Question: {question}\nContext:\n{context}\nAnswer:"
+
+
+class CondenseQuestion:
+    system = ""
+    user = (
+        "Given the following conversation and a follow up question, "
+        "rephrase the follow up question to be a standalone question, in its original language.\n\n"
+        "Chat History:\n{chat_history}\n"
+        "Follow Up Input: {question}\n"
+        "Standalone question:"
+    )
 
 
 class Hyde:
@@ -15,7 +50,7 @@ class Hyde:
         "You are a helpful, respectful and honest assistant. "
         "Please answer the user's question about a document."
     )
-    user = "{question}"
+    user = "Question: {question}"
 
 
 class MultipleQueries:
@@ -28,55 +63,14 @@ class MultipleQueries:
         "Make sure they are complete questions, and that they are related to the original question. "
         "Output one question per line and without numbering."
     )
-    user = "{question}"
+    user = "Question: {question}"
 
 
-_llama_format = """<s>[INST] <<SYS>>{system}<</SYS>>
-Question: {user}
-Answer:[/INST]"""
-
-_mistral_format = """<s>[INST] {system}
-Question: {user}
-Answer:[/INST]"""
-
-_zephyr_format = """<|system|>
-{system}</s>
-<|user|>
-Question: {user}</s>
-<|assistant|>"""
-
-_openbuddy_format = """{system}
-User: {user}
-Assistant:"""
-
-
-if CFG.PROMPT_TYPE == "llama":
-    QA_TEMPLATE = _llama_format.format(system=QA.system, user=QA.user)
-    HYDE_TEMPLATE = _llama_format.format(system=Hyde.system, user=Hyde.user)
-    MULTI_QUERIES_TEMPLATE = _llama_format.format(
-        system=MultipleQueries.system, user=MultipleQueries.user
-    )
-
-elif CFG.PROMPT_TYPE == "mistral":
-    QA_TEMPLATE = _mistral_format.format(system=QA.system, user=QA.user)
-    HYDE_TEMPLATE = _mistral_format.format(system=Hyde.system, user=Hyde.user)
-    MULTI_QUERIES_TEMPLATE = _mistral_format.format(
-        system=MultipleQueries.system, user=MultipleQueries.user
-    )
-
-elif CFG.PROMPT_TYPE == "zephyr":
-    QA_TEMPLATE = _zephyr_format.format(system=QA.system, user=QA.user)
-    HYDE_TEMPLATE = _zephyr_format.format(system=Hyde.system, user=Hyde.user)
-    MULTI_QUERIES_TEMPLATE = _zephyr_format.format(
-        system=MultipleQueries.system, user=MultipleQueries.user
-    )
-
-elif CFG.PROMPT_TYPE == "openbuddy":
-    QA_TEMPLATE = _openbuddy_format.format(system=QA.system, user=QA.user)
-    HYDE_TEMPLATE = _openbuddy_format.format(system=Hyde.system, user=Hyde.user)
-    MULTI_QUERIES_TEMPLATE = _openbuddy_format.format(
-        system=MultipleQueries.system, user=MultipleQueries.user
-    )
-
-else:
-    raise NotImplementedError
+QA_TEMPLATE = _chat_format.format(system=QA.system, user=QA.user)
+CONDENSE_QUESTION_TEMPLATE = _chat_format.format(
+    system=CondenseQuestion.system, user=CondenseQuestion.user
+)
+HYDE_TEMPLATE = _chat_format.format(system=Hyde.system, user=Hyde.user)
+MULTI_QUERIES_TEMPLATE = _chat_format.format(
+    system=MultipleQueries.system, user=MultipleQueries.user
+)
