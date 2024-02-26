@@ -3,8 +3,9 @@ VectorDB
 """
 import pickle
 import uuid
-from typing import Any, Sequence
+from typing import Any, Optional, Sequence
 
+from chromadb.config import Settings
 from langchain.embeddings.base import Embeddings
 from langchain.schema import Document
 from langchain.vectorstores.base import VectorStore
@@ -12,7 +13,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.vectorstores import FAISS, Chroma
 
-from src import CFG
+from src import CFG, logger
 from src.embeddings import build_base_embeddings
 
 
@@ -83,26 +84,50 @@ def propositionize(doc: Sequence[Document]) -> Sequence[Document]:
 
 
 def save_vectorstore(
-    docs: Sequence[Document], embedding_function: Embeddings, persist_directory: str
+    docs: Sequence[Document],
+    embedding_function: Embeddings,
+    persist_directory: str,
+    vectordb_type: Optional[str] = None,
 ) -> None:
-    if CFG.VECTORDB_TYPE == "faiss":
+    if vectordb_type is None:
+        logger.info("No vectordb_type provided, using default from config")
+        vectordb_type = CFG.VECTORDB_TYPE
+
+    if vectordb_type == "faiss":
         vectorstore = FAISS.from_documents(docs, embedding_function)
         vectorstore.save_local(persist_directory)
-    elif CFG.VECTORDB_TYPE == "chroma":
+    elif vectordb_type == "chroma":
         _ = Chroma.from_documents(
-            docs, embedding_function, persist_directory=persist_directory
+            docs,
+            embedding_function=embedding_function,
+            persist_directory=persist_directory,
+            client_setting=Settings(anonymized_telemetry=False, is_persistent=True),
         )
     else:
         raise NotImplementedError
 
 
-def load_faiss(embedding_function: Embeddings) -> VectorStore:
-    return FAISS.load_local(CFG.VECTORDB_PATH, embedding_function)
+def load_faiss(
+    embedding_function: Embeddings, persist_directory: Optional[str] = None
+) -> VectorStore:
+    if persist_directory is None:
+        logger.info("No persist_directory provided, using default from config")
+        persist_directory = CFG.VECTORDB_PATH
+
+    return FAISS.load_local(persist_directory, embedding_function)
 
 
-def load_chroma(embedding_function: Embeddings) -> VectorStore:
+def load_chroma(
+    embedding_function: Embeddings, persist_directory: Optional[str] = None
+) -> VectorStore:
+    if persist_directory is None:
+        logger.info("No persist_directory provided, using default from config")
+        persist_directory = CFG.VECTORDB_PATH
+
     return Chroma(
-        persist_directory=CFG.VECTORDB_PATH, embedding_function=embedding_function
+        persist_directory=persist_directory,
+        embedding_function=embedding_function,
+        client_setting=Settings(anonymized_telemetry=False, is_persistent=True),
     )
 
 
