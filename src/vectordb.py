@@ -1,6 +1,7 @@
 """
 VectorDB
 """
+import os
 import pickle
 import uuid
 from typing import Any, Optional, Sequence
@@ -123,6 +124,9 @@ def load_chroma(
     if persist_directory is None:
         logger.info("No persist_directory provided, using default from config")
         persist_directory = CFG.VECTORDB_PATH
+
+    if not os.path.exists(persist_directory):
+        raise FileNotFoundError
 
     return Chroma(
         persist_directory=persist_directory,
