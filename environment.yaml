@@ -2,7 +2,7 @@ dependencies:
 - python=3.11.4
 - pip=23.2.1
 - pip:
-  - chromadb==0.4.22
+  - chromadb==0.4.23
   - ctransformers==0.2.27
   - faiss-cpu==1.7.4
   - langchain==0.1.6
@@ -11,6 +11,6 @@ dependencies:
   - rank-bm25==0.2.2
   - sentence-transformers==2.2.2
   - simsimd==3.3.0
-  - streamlit==1.31.0
-  - transformers==4.37.2
+  - streamlit==1.31.1
+  - transformers==4.38.1
   - umap-learn==0.5.5
