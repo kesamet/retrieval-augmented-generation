@@ -21,7 +21,7 @@ def init_chat_history():
     clear_button = st.sidebar.button("Clear Conversation", key="clear")
     if clear_button or "chat_history" not in st.session_state:
         st.session_state["chat_history"] = list()
-        st.session_state["source_documents"] = list()
+        st.session_state["display_history"] = [("", "Hi! How can I help you?", None)]
 
 
 @st.cache_resource
@@ -58,8 +58,8 @@ def doc_conv_qa():
             st.info(f"Current document: {st.session_state.uploaded_filename}")
 
         try:
-            with st.status("Load retrieval_chain", expanded=False) as status:
-                st.write("Loading retrieval_chain...")
+            with st.status("Load retrieval chain", expanded=False) as status:
+                st.write("Loading retrieval chain...")
                 retrieval_chain = load_retrieval_chain()
                 status.update(
                     label="Loading complete!", state="complete", expanded=False
@@ -73,19 +73,18 @@ def doc_conv_qa():
     init_chat_history()
 
     # Display chat history
-    for (question, answer), source_documents in zip(
-        st.session_state.chat_history, st.session_state.source_documents
-    ):
+    for question, answer, source_documents in st.session_state.display_history:
         if question != "":
             with st.chat_message("user"):
                 st.markdown(question)
         with st.chat_message("assistant"):
             st.markdown(answer)
 
-            with st.expander("Sources"):
-                for row in source_documents:
-                    st.write("**Page {}**".format(row.metadata["page"] + 1))
-                    st.info(row.page_content)
+            if source_documents is not None:
+                with st.expander("Sources"):
+                    for row in source_documents:
+                        st.write("**Page {}**".format(row.metadata["page"] + 1))
+                        st.info(row.page_content)
 
     if user_query := st.chat_input("Your query"):
         with st.chat_message("user"):
@@ -116,7 +115,9 @@ def doc_conv_qa():
             st.session_state.chat_history.append(
                 (response["question"], response["answer"])
             )
-            st.session_state.source_documents.append(response["source_documents"])
+            st.session_state.display_history.append(
+                (response["question"], response["answer"], response["source_documents"])
+            )
 
 
 if __name__ == "__main__":
