@@ -93,11 +93,15 @@ f_groundedness = (
 
 app_id = "Chain1"
 
-tru_recorder = TruChain(rag_chain, app_id=app_id, feedbacks=[
-    f_qa_relevance,
-    f_context_relevance,
-    f_groundedness,
-])
+tru_recorder = TruChain(
+    rag_chain,
+    app_id=app_id,
+    feedbacks=[
+        f_qa_relevance,
+        f_context_relevance,
+        f_groundedness,
+    ],
+)
 
 qns = ...
 for qn in qns:

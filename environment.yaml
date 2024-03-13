@@ -5,12 +5,12 @@ dependencies:
   - chromadb==0.4.23
   - ctransformers==0.2.27
   - faiss-cpu==1.7.4
-  - langchain==0.1.6
+  - langchain==0.1.12
   - PyMuPDF==1.23.8
   - python-box==7.1.1
   - rank-bm25==0.2.2
   - sentence-transformers==2.2.2
   - simsimd==3.3.0
-  - streamlit==1.31.1
-  - transformers==4.38.1
+  - streamlit==1.32.1
+  - transformers==4.38.2
   - umap-learn==0.5.5

@@ -17,7 +17,6 @@ llm = LiteLLM(model="gemini/gemini-pro", temperature=0.1)
 query_engine = index.as_query_engine(llm=llm)
 
 
-
 # Evaluate with trulens-eval
 
 # Define provider and database
@@ -30,10 +29,9 @@ tru = Tru(database_url=database_url, database_redact_keys=True)
 
 
 # Using TruLlama
-f_qa_relevance = (
-    Feedback(provider.relevance_with_cot_reasons, name="Answer Relevance")
-    .on_input_output()
-)
+f_qa_relevance = Feedback(
+    provider.relevance_with_cot_reasons, name="Answer Relevance"
+).on_input_output()
 
 f_context_relevance = (
     Feedback(provider.relevance_with_cot_reasons, name="Context Relevance")
@@ -52,17 +50,20 @@ f_groundedness = (
 
 app_id = "Chain2"
 
-tru_recorder = TruLlama(query_engine, app_id=app_id, feedbacks=[
-    f_qa_relevance,
-    f_context_relevance,
-    f_groundedness,
-])
+tru_recorder = TruLlama(
+    query_engine,
+    app_id=app_id,
+    feedbacks=[
+        f_qa_relevance,
+        f_context_relevance,
+        f_groundedness,
+    ],
+)
 
 qns = ...
 for qn in qns:
     with tru_recorder as recording:
         res = query_engine.query(qn)
-
 
 
 # Results
