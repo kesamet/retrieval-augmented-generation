@@ -1,5 +1,7 @@
+import os
+
 import streamlit as st
-from langchain_community.callbacks import StreamlitCallbackHandler
+from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 from langchain_core.runnables import RunnableConfig
 
 from src import CFG
@@ -57,6 +59,10 @@ def doc_conv_qa():
         if st.session_state.uploaded_filename != "":
             st.info(f"Current document: {st.session_state.uploaded_filename}")
 
+        if not os.path.exists(CFG.VECTORDB_PATH):
+            st.info("Please build VectorDB first.")
+            st.stop()
+
         try:
             with st.status("Load retrieval chain", expanded=False) as status:
                 st.write("Loading retrieval chain...")
@@ -64,10 +70,10 @@ def doc_conv_qa():
                 status.update(
                     label="Loading complete!", state="complete", expanded=False
                 )
-
             st.success("Reading from existing VectorDB")
-        except Exception:
-            st.error("No existing VectorDB found")
+        except Exception as e:
+            st.error(e)
+            st.stop()
 
     st.sidebar.write("---")
     init_chat_history()

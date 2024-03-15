@@ -4,7 +4,7 @@ Collection of useful tools
 from typing import Optional
 
 from langchain.callbacks.manager import CallbackManagerForToolRun
-from langchain.chains import RetrievalQA
+from langchain.chains.retrieval_qa.base import RetrievalQA
 from langchain.tools import BaseTool, Tool
 from langchain.utilities.wikipedia import WikipediaAPIWrapper
 

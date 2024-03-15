@@ -11,7 +11,7 @@ from langchain.embeddings.base import Embeddings
 from langchain.schema import Document
 from langchain.vectorstores.base import VectorStore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.document_loaders.pdf import PyMuPDFLoader
 from langchain_community.vectorstores import FAISS, Chroma
 
 from src import CFG, logger
@@ -25,13 +25,15 @@ def build_vectordb(filename: str) -> None:
 
     if CFG.TEXT_SPLIT_MODE == "simple":
         docs = simple_text_split(doc, CFG.CHUNK_SIZE, CFG.CHUNK_OVERLAP)
-        save_vectorstore(docs, embedding_function, CFG.VECTORDB_PATH)
+        save_vectorstore(docs, embedding_function, CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
     elif CFG.TEXT_SPLIT_MODE == "propositionize":
         docs = propositionize(doc)
-        save_vectorstore(docs, embedding_function, CFG.VECTORDB_PATH)
+        save_vectorstore(docs, embedding_function, CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
     elif CFG.TEXT_SPLIT_MODE == "parent_document":
         child_docs, parents = parent_document_split(doc)
-        save_vectorstore(child_docs, embedding_function, CFG.VECTORDB_PATH)
+        save_vectorstore(
+            child_docs, embedding_function, CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE
+        )
 
         with open(CFG.PARENT_DOCS_PATH, "wb") as handle:
             pickle.dump(parents, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -88,11 +90,10 @@ def save_vectorstore(
     docs: Sequence[Document],
     embedding_function: Embeddings,
     persist_directory: str,
-    vectordb_type: Optional[str] = None,
+    vectordb_type: str,
 ) -> None:
-    if vectordb_type is None:
-        logger.info("No vectordb_type provided, using default from config")
-        vectordb_type = CFG.VECTORDB_TYPE
+    """Saves a vector database to disk."""
+    logger.info(f"persist_directory = {persist_directory}")
 
     if vectordb_type == "faiss":
         vectorstore = FAISS.from_documents(docs, embedding_function)
@@ -100,9 +101,9 @@ def save_vectorstore(
     elif vectordb_type == "chroma":
         _ = Chroma.from_documents(
             docs,
-            embedding_function=embedding_function,
+            embedding_function,
             persist_directory=persist_directory,
-            client_setting=Settings(anonymized_telemetry=False, is_persistent=True),
+            client_settings=Settings(anonymized_telemetry=False, is_persistent=True),
         )
     else:
         raise NotImplementedError
@@ -111,27 +112,30 @@ def save_vectorstore(
 def load_faiss(
     embedding_function: Embeddings, persist_directory: Optional[str] = None
 ) -> VectorStore:
+    """Loads a FAISS index from disk."""
     if persist_directory is None:
-        logger.info("No persist_directory provided, using default from config")
         persist_directory = CFG.VECTORDB_PATH
+    logger.info(f"persist_directory = {persist_directory}")
 
-    return FAISS.load_local(persist_directory, embedding_function)
+    return FAISS.load_local(
+        persist_directory, embedding_function, allow_dangerous_deserialization=True
+    )
 
 
 def load_chroma(
     embedding_function: Embeddings, persist_directory: Optional[str] = None
 ) -> VectorStore:
+    """Loads a Chroma index from disk."""
     if persist_directory is None:
-        logger.info("No persist_directory provided, using default from config")
         persist_directory = CFG.VECTORDB_PATH
-
     if not os.path.exists(persist_directory):
         raise FileNotFoundError
+    logger.info(f"persist_directory = {persist_directory}")
 
     return Chroma(
         persist_directory=persist_directory,
         embedding_function=embedding_function,
-        client_setting=Settings(anonymized_telemetry=False, is_persistent=True),
+        client_settings=Settings(anonymized_telemetry=False, is_persistent=True),
     )
 
 

@@ -168,7 +168,7 @@ cython_debug/
 
 # others
 models/
-vectordb_*/
+vectordb/
 *.pdf
 *.pkl
 dev*
