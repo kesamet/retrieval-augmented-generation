@@ -19,15 +19,21 @@ EMBEDDINGS_PATH: all-mpnet-base-v2
 VECTORDB_TYPE: chroma
 VECTORDB_PATH: vectordb/chroma
 
+# USE_CTRANSFORMERS: True
 # LLM_PATH: llama-2-7b-chat.Q4_K_M.gguf
-# LLM_TYPE: llama
 # PROMPT_TYPE: llama
+
+# USE_CTRANSFORMERS: True
 # LLM_PATH: mistral-7b-instruct-v0.2.Q4_K_M.gguf
-# LLM_TYPE: mistral
 # PROMPT_TYPE: mistral
-LLM_PATH: zephyr-7b-beta.Q4_K_M.gguf
-LLM_TYPE: mistral
-PROMPT_TYPE: zephyr
+
+# USE_CTRANSFORMERS: True
+# LLM_PATH: zephyr-7b-beta.Q4_K_M.gguf
+# PROMPT_TYPE: zephyr
+
+USE_CTRANSFORMERS: False
+LLM_PATH: gemma-2b-it-q4_k_m.gguf
+PROMPT_TYPE: gemma
 
 LLM_CONFIG:
   MAX_NEW_TOKENS: 512

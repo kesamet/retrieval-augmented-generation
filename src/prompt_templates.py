@@ -14,12 +14,19 @@ zephyr_format = """<|system|>
 {user}</s>
 <|assistant|>"""
 
+gemma_format = """<start_of_turn>user
+{system}
+{user}<end_of_turn>
+<start_of_turn>model"""
+
 
 if CFG.PROMPT_TYPE == "llama":
     _chat_format = llama_format
 elif CFG.PROMPT_TYPE == "mistral":
     _chat_format = mistral_format
 elif CFG.PROMPT_TYPE == "zephyr":
+    _chat_format = zephyr_format
+elif CFG.PROMPT_TYPE == "gemma":
     _chat_format = zephyr_format
 else:
     raise NotImplementedError
@@ -57,10 +64,10 @@ class MultipleQueries:
     system = (
         "You are a helpful assistant. Your users are asking questions about documents. "
         "Suggest up to three additional related questions to help them find the information they need "
-        "for the provided question. "
-        "Suggest only short questions without compound sentences. "
-        "Suggest a variety of questions that cover different aspects of the topic. "
-        "Make sure they are complete questions, and that they are related to the original question. "
+        "for the provided question.\n"
+        "Suggest only short questions without compound sentences.\n"
+        "Suggest a variety of questions that cover different aspects of the topic.\n"
+        "Make sure they are complete questions, and that they are related to the original question.\n"
         "Output one question per line and without numbering."
     )
     user = "Question: {question}"
