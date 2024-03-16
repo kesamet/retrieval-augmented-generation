@@ -5,14 +5,16 @@ from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 from langchain_core.runnables import RunnableConfig
 
 from src import CFG
-from src.embeddings import build_base_embeddings
-from src.llms import build_llm
-from src.reranker import build_reranker
 from src.retrieval_qa import build_retrieval_chain
 from src.vectordb import build_vectordb, load_faiss, load_chroma
-from streamlit_app.utils import perform
+from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
 
 st.set_page_config(page_title="Conversational Retrieval QA")
+
+LLM = load_llm()
+BASE_EMBEDDINGS = load_base_embeddings()
+RERANKER = load_reranker()
+
 
 if "uploaded_filename" not in st.session_state:
     st.session_state["uploaded_filename"] = ""
@@ -20,30 +22,29 @@ if "uploaded_filename" not in st.session_state:
 
 def init_chat_history():
     """Initialise chat history."""
-    clear_button = st.sidebar.button("Clear Conversation", key="clear")
+    clear_button = st.sidebar.button("Clear Chat", key="clear")
     if clear_button or "chat_history" not in st.session_state:
         st.session_state["chat_history"] = list()
-        st.session_state["display_history"] = [("", "Hi! How can I help you?", None)]
+        st.session_state["display_history"] = [("", "Hello! How can I help you?", None)]
 
 
 @st.cache_resource
-def load_retrieval_chain():
-    llm = build_llm()
-    embeddings = build_base_embeddings()
-    reranker = build_reranker()
+def load_vectordb():
     if CFG.VECTORDB_TYPE == "faiss":
-        vectordb = load_faiss(embeddings)
-    elif CFG.VECTORDB_TYPE == "chroma":
-        vectordb = load_chroma(embeddings)
-    return build_retrieval_chain(vectordb, reranker, llm)
+        return load_faiss(BASE_EMBEDDINGS)
+    if CFG.VECTORDB_TYPE == "chroma":
+        return load_chroma(BASE_EMBEDDINGS)
+    raise NotImplementedError
 
 
 def doc_conv_qa():
     with st.sidebar:
         st.title("Conversational RAG with quantized LLM")
-        st.info(
-            f"Uses `{CFG.RERANKER_PATH}` reranker upon retrieval and `{CFG.LLM_PATH}` LLM."
-        )
+
+        with st.expander("Models used"):
+            st.info(f"LLM: `{CFG.LLM_PATH}`")
+            st.info(f"Embeddings: `{CFG.EMBEDDINGS_PATH}`")
+            st.info(f"Reranker: `{CFG.RERANKER_PATH}`")
 
         uploaded_file = st.file_uploader(
             "Upload a PDF and build VectorDB", type=["pdf"]
@@ -66,7 +67,8 @@ def doc_conv_qa():
         try:
             with st.status("Load retrieval chain", expanded=False) as status:
                 st.write("Loading retrieval chain...")
-                retrieval_chain = load_retrieval_chain()
+                vectordb = load_vectordb()
+                retrieval_chain = build_retrieval_chain(vectordb, RERANKER, LLM)
                 status.update(
                     label="Loading complete!", state="complete", expanded=False
                 )

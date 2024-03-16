@@ -15,7 +15,7 @@ from src.retrieval_qa import (
 )
 from src.vectordb import build_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
-from streamlit_app.utils import load_base_embeddings, load_llm, load_reranker
+from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
 
 st.set_page_config(page_title="Retrieval QA", layout="wide")
 
@@ -76,9 +76,11 @@ def doc_qa():
 
     with st.sidebar:
         st.header("RAG with quantized LLM")
-        st.info(f"LLM: `{CFG.LLM_PATH}`")
-        st.info(f"Embeddings: `{CFG.EMBEDDINGS_PATH}`")
-        st.info(f"Reranker: `{CFG.RERANKER_PATH}`")
+
+        with st.expander("Models used"):
+            st.info(f"LLM: `{CFG.LLM_PATH}`")
+            st.info(f"Embeddings: `{CFG.EMBEDDINGS_PATH}`")
+            st.info(f"Reranker: `{CFG.RERANKER_PATH}`")
 
         uploaded_file = st.file_uploader(
             "Upload a PDF and build VectorDB", type=["pdf"]
@@ -87,12 +89,9 @@ def doc_qa():
             if uploaded_file is None:
                 st.error("No PDF uploaded")
             else:
-                uploaded_filename = f"./data/{uploaded_file.name}"
-                with open(uploaded_filename, "wb") as f:
-                    f.write(uploaded_file.getvalue())
                 with st.spinner("Building VectorDB..."):
-                    build_vectordb(uploaded_filename)
-                st.session_state.uploaded_filename = uploaded_filename
+                    perform(build_vectordb, uploaded_file.read())
+                st.session_state.uploaded_filename = uploaded_file.name
 
         if st.session_state.uploaded_filename != "":
             st.info(f"Current document: {st.session_state.uploaded_filename}")

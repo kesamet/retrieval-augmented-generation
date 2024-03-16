@@ -12,5 +12,6 @@ dependencies:
   - sentence-transformers==2.5.2
   - simsimd==3.3.0
   - streamlit==1.32.1
+  - torch==2.2.1
   - transformers==4.38.2
   - umap-learn==0.5.5
