@@ -1,6 +1,5 @@
 from typing import Dict, TypedDict
 
-import pprint
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -246,15 +245,22 @@ def build_graph():
     return app
 
 
-# # Sample run
-# inputs = {"keys": {"question": "Explain how the different types of agent memory work?"}}
-# for output in app.stream(inputs):
-#     for key, value in output.items():
-#         # Node
-#         pprint.pprint(f"Node '{key}':")
-#         # Optional: print full state at each node
-#         # pprint.pprint(value["keys"], indent=2, width=80, depth=None)
-#     pprint.pprint("\n---\n")
+if __name__ == "__main__":
+    import pprint
 
-# # Final generation
-# pprint.pprint(value["keys"]["generation"])
+    app = build_graph()
+
+    # Sample run
+    inputs = {
+        "keys": {"question": "Explain how the different types of agent memory work?"}
+    }
+    for output in app.stream(inputs):
+        for key, value in output.items():
+            # Node
+            pprint.pprint(f"Node '{key}':")
+            # Optional: print full state at each node
+            # pprint.pprint(value["keys"], indent=2, width=80, depth=None)
+        pprint.pprint("\n---\n")
+
+    # Final generation
+    pprint.pprint(value["keys"]["generation"])
