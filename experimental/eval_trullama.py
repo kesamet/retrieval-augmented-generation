@@ -1,3 +1,8 @@
+"""
+Evaluate and track LLM experiments in llama-index with trulens-eval
+LLM used here is gemini-pro
+"""
+
 import numpy as np
 from llama_index.core import StorageContext, load_index_from_storage
 from llama_index.llms.litellm import LiteLLM

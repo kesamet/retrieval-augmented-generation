@@ -1,3 +1,8 @@
+"""
+Evaluate and track LLM experiments in langchain with trulens-eval
+LLM used here is gemini-pro
+"""
+
 import numpy as np
 from langchain.prompts import PromptTemplate
 from langchain.schema import StrOutputParser, BaseRetriever
@@ -16,7 +21,7 @@ from src.vectordb import load_chroma
 from src.reranker import build_reranker
 from src.retrieval_qa import build_rerank_retriever
 from src.llms import build_llm
-
+from src.prompt_templates import QA_TEMPLATE
 
 # Setup RAG
 embedding_function = build_base_embeddings()
@@ -24,14 +29,6 @@ vectordb = load_chroma(embedding_function)
 reranker = build_reranker()
 retriever = build_rerank_retriever(vectordb, reranker)
 llm = build_llm()
-
-QA_TEMPLATE = """You are an assistant for question-answering tasks. \
-Use the following pieces of retrieved context to answer the question. \
-If you don't know the answer, just say you don't know.
-Question: {question}
-Context: {context}
-Answer:"""
-
 prompt = PromptTemplate.from_template(QA_TEMPLATE)
 
 
