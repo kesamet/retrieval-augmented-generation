@@ -1,3 +1,8 @@
+"""
+Sample implementation of Corrective RAG (https://github.com/HuskyInSalt/CRAG)
+with langgraph
+"""
+
 from typing import Dict, TypedDict
 
 from langchain.prompts import PromptTemplate

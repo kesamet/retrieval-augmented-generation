@@ -1,3 +1,8 @@
+"""
+Evaluate and track LLM experiments in langchain with trulens-eval
+LLM used here is gemini-pro
+"""
+
 import numpy as np
 from langchain.prompts import PromptTemplate
 from langchain.schema import StrOutputParser, BaseRetriever
