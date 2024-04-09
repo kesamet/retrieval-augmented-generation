@@ -20,6 +20,15 @@ if "uploaded_filename" not in st.session_state:
     st.session_state["uploaded_filename"] = ""
 
 
+@st.cache_resource
+def load_vectordb():
+    if CFG.VECTORDB_TYPE == "faiss":
+        return load_faiss(BASE_EMBEDDINGS)
+    if CFG.VECTORDB_TYPE == "chroma":
+        return load_chroma(BASE_EMBEDDINGS)
+    raise NotImplementedError
+
+
 def init_chat_history():
     """Initialise chat history."""
     clear_button = st.sidebar.button("Clear Chat", key="clear")
@@ -28,13 +37,10 @@ def init_chat_history():
         st.session_state["display_history"] = [("", "Hello! How can I help you?", None)]
 
 
-@st.cache_resource
-def load_vectordb():
-    if CFG.VECTORDB_TYPE == "faiss":
-        return load_faiss(BASE_EMBEDDINGS)
-    if CFG.VECTORDB_TYPE == "chroma":
-        return load_chroma(BASE_EMBEDDINGS)
-    raise NotImplementedError
+def print_docs(source_documents):
+    for row in source_documents:
+        st.write("**Page {}**".format(row.metadata["page"] + 1))
+        st.info(row.page_content)
 
 
 def doc_conv_qa():
@@ -90,9 +96,7 @@ def doc_conv_qa():
 
             if source_documents is not None:
                 with st.expander("Sources"):
-                    for row in source_documents:
-                        st.write("**Page {}**".format(row.metadata["page"] + 1))
-                        st.info(row.page_content)
+                    print_docs(source_documents)
 
     if user_query := st.chat_input("Your query"):
         with st.chat_message("user"):
@@ -116,9 +120,7 @@ def doc_conv_qa():
             st.markdown(response["answer"])
 
             with st.expander("Sources"):
-                for row in response["source_documents"]:
-                    st.write("**Page {}**".format(row.metadata["page"] + 1))
-                    st.info(row.page_content)
+                print_docs(response["source_documents"])
 
             st.session_state.chat_history.append(
                 (response["question"], response["answer"])

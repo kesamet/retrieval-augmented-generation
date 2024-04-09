@@ -1,6 +1,7 @@
 """
 Collection of useful tools
 """
+
 from typing import Optional
 
 from langchain.callbacks.manager import CallbackManagerForToolRun
@@ -14,7 +15,9 @@ class KnowledgeBaseQueryRun(BaseTool):
     """Tool that searches the Knowledge Base."""
 
     name: str = "Knowledge Base"
-    description: str = "Useful for when you need to answer questions about information from vector database."
+    description: str = (
+        "Useful for when you need to answer questions about information from vector database."
+    )
     retrieval_qa: RetrievalQA
 
     def _run(

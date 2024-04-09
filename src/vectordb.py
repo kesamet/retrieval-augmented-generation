@@ -1,6 +1,7 @@
 """
 VectorDB
 """
+
 import os
 import pickle
 import uuid
@@ -12,7 +13,8 @@ from langchain.schema import Document
 from langchain.vectorstores.base import VectorStore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders.pdf import PyMuPDFLoader
-from langchain_community.vectorstores import FAISS, Chroma
+from langchain_community.vectorstores.chroma import Chroma
+from langchain_community.vectorstores.faiss import FAISS
 
 from src import CFG, logger
 from src.embeddings import build_base_embeddings
