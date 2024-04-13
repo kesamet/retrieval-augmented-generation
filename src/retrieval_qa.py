@@ -38,7 +38,7 @@ class VectorStoreRetrieverWithScores(VectorStoreRetriever):
                 query, **self.search_kwargs
             )
             for doc, score in docs_and_scores:
-                doc.metadata = {**doc.metadata, "similarity_score": score}
+                doc.metadata = {**doc.metadata, "similarity_score": f"{score}:.4f"}
             docs = [doc for doc, _ in docs_and_scores]
         elif self.search_type == "similarity_score_threshold":
             docs_and_similarities = (
@@ -47,7 +47,7 @@ class VectorStoreRetrieverWithScores(VectorStoreRetriever):
                 )
             )
             for doc, score in docs_and_similarities:
-                doc.metadata = {**doc.metadata, "similarity_score": score}
+                doc.metadata = {**doc.metadata, "similarity_score": f"{score:.4f}"}
             docs = [doc for doc, _ in docs_and_similarities]
         elif self.search_type == "mmr":
             docs = self.vectorstore.max_marginal_relevance_search(

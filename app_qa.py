@@ -90,7 +90,7 @@ def doc_qa():
                 st.error("No PDF uploaded")
             else:
                 with st.spinner("Building VectorDB..."):
-                    perform(build_vectordb, uploaded_file.read())
+                    perform(build_vectordb, uploaded_file.read(), embedding_function=BASE_EMBEDDINGS)
                 st.session_state.uploaded_filename = uploaded_file.name
 
         if st.session_state.uploaded_filename != "":
@@ -190,7 +190,7 @@ def doc_qa():
         with c1:
             st.write("#### Sources")
             for row in st.session_state.last_response["source_documents"]:
-                st.write("**Page {}**".format(row.metadata["page"] + 1))
+                st.write(f"**Page {row.metadata['page_number']}**")
                 st.info(row.page_content.replace("$", r"\$"))
 
             # Display PDF

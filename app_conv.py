@@ -39,7 +39,7 @@ def init_chat_history():
 
 def print_docs(source_documents):
     for row in source_documents:
-        st.write("**Page {}**".format(row.metadata["page"] + 1))
+        st.write(f"**Page {row.metadata['page_number']}**")
         st.info(row.page_content)
 
 
@@ -60,7 +60,7 @@ def doc_conv_qa():
                 st.error("No PDF uploaded")
             else:
                 with st.spinner("Building VectorDB..."):
-                    perform(build_vectordb, uploaded_file.read())
+                    perform(build_vectordb, uploaded_file.read(), embedding_function=BASE_EMBEDDINGS)
                 st.session_state.uploaded_filename = uploaded_file.name
 
         if st.session_state.uploaded_filename != "":
