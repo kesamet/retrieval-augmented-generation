@@ -31,11 +31,9 @@ def text_split(elements: Sequence[Element]) -> Sequence[Document]:
         narrative_elements, max_characters=2000, new_after_n_chars=1500
     )
 
-    _clean = lambda text: clean(text, extra_whitespace=True)
-
     documents = []
     for element in narrative_elements:
-        element.apply(_clean)
+        text = clean(element.text, extra_whitespace=True)
 
         x = element.metadata.to_dict()
         metadata = {
@@ -45,7 +43,8 @@ def text_split(elements: Sequence[Element]) -> Sequence[Document]:
             "page_number": x["page_number"],
             "filetype": x["filetype"],
         }
-        documents.append(Document(page_content=element.text, metadata=metadata))
+
+        documents.append(Document(page_content=text, metadata=metadata))
     return documents
 
 
