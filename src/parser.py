@@ -49,7 +49,7 @@ def text_split(elements: Sequence[Element]) -> Sequence[Document]:
 
 
 def simple_text_split(
-    doc: Sequence[Document], chunk_size: int, chunk_overlap: int
+    docs: Sequence[Document], chunk_size: int, chunk_overlap: int
 ) -> Sequence[Document]:
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
@@ -57,16 +57,21 @@ def simple_text_split(
         separators=["\n\n", "\n", ". ", " ", ""],
         length_function=len,
     )
-    return text_splitter.split_documents(doc)
+    texts = text_splitter.split_documents(docs)
+
+    # MuPDF pages use 0-based indexing. Set page_number = page + 1
+    for t in texts:
+        t.metadata["page_number"] = t.metadata["page"] + 1
+    return texts
 
 
 def parent_document_split(
-    doc: Sequence[Document],
+    docs: Sequence[Document],
 ) -> tuple[Sequence[Document], tuple[list[str], Sequence[Document]]]:
     """ParentDocumentRetriever"""
     id_key = "doc_id"
 
-    parent_docs = simple_text_split(doc, 2000, 0)
+    parent_docs = simple_text_split(docs, 2000, 0)
     doc_ids = [str(uuid.uuid4()) for _ in parent_docs]
 
     child_docs = []
@@ -78,13 +83,13 @@ def parent_document_split(
     return child_docs, (doc_ids, parent_docs)
 
 
-def propositionize(doc: Sequence[Document]) -> Sequence[Document]:
+def propositionize(docs: Sequence[Document]) -> Sequence[Document]:
     from src.elements.propositionizer import Propositionizer
 
     propositionizer = Propositionizer()
 
     texts = simple_text_split(
-        doc,
+        docs,
         CFG.PROPOSITIONIZER_CONFIG.CHUNK_SIZE,
         CFG.PROPOSITIONIZER_CONFIG.CHUNK_OVERLAP,
     )

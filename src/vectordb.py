@@ -26,14 +26,6 @@ def build_vectordb(filename: str, embedding_function: Embeddings) -> None:
     elif CFG.TEXT_SPLIT_MODE == "propositionize":
         docs = propositionize(parts)
         save_vectorstore(docs, embedding_function, CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
-    # elif CFG.TEXT_SPLIT_MODE == "parent_document":
-    #     child_docs, parents = parent_document_split(doc)
-    #     save_vectorstore(
-    #         child_docs, embedding_function, CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE
-    #     )
-
-    #     with open(CFG.PARENT_DOCS_PATH, "wb") as handle:
-    #         pickle.dump(parents, handle, protocol=pickle.HIGHEST_PROTOCOL)
     else:
         raise NotImplementedError
 

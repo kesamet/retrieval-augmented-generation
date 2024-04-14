@@ -14,7 +14,9 @@ The demos also allow user to
 You will need to set up your development environment using conda, which you can install [directly](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
 ```bash
-conda env create --name rag -f environment.yaml --force
+conda env create --name rag python=3.11
+conda activate rag
+pip install -r requirements.txt
 ```
 
 Activate the environment.
