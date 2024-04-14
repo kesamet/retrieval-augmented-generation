@@ -1,0 +1,16 @@
+chromadb==0.4.24
+ctransformers==0.2.27
+faiss-cpu==1.8.0
+langchain==0.1.12
+pikepdf==8.15.0
+pillow_heif==0.16.0
+PyMuPDF==1.23.26
+python-box==7.1.1
+rank-bm25==0.2.2
+sentence-transformers==2.6.0
+simsimd==3.3.0
+streamlit==1.33.0
+torch==2.2.1
+transformers==4.38.2
+umap-learn==0.5.5
+unstructured==0.13.2

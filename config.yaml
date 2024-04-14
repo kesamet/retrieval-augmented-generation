@@ -1,18 +1,11 @@
 DEVICE: cpu
 
-CHUNK_SIZE: 1000
-CHUNK_OVERLAP: 50
-SEPARATORS: ["\n\n", "\n", ". ", " ", ""]
-
-TEXT_SPLIT_MODE: simple
-
-# TEXT_SPLIT_MODE: parent_document
-# PARENT_DOCS_PATH: ./data/parent_docs.pkl
+TEXT_SPLIT_MODE: default
 
 MODELS_DIR: ./models
 
-EMBEDDINGS_PATH: all-mpnet-base-v2
-# EMBEDDINGS_PATH: bge-small-en-v1.5
+# EMBEDDINGS_PATH: all-mpnet-base-v2
+EMBEDDINGS_PATH: bge-small-en-v1.5
 
 # VECTORDB_TYPE: faiss
 # VECTORDB_PATH: vectordb/faiss
@@ -23,23 +16,23 @@ VECTORDB_PATH: vectordb/chroma
 # LLM_PATH: llama-2-7b-chat.Q4_K_M.gguf
 # PROMPT_TYPE: llama
 
-# USE_CTRANSFORMERS: True
-# LLM_PATH: mistral-7b-instruct-v0.2.Q4_K_M.gguf
-# PROMPT_TYPE: mistral
+USE_CTRANSFORMERS: True
+LLM_PATH: mistral-7b-instruct-v0.2.Q4_K_M.gguf
+PROMPT_TYPE: mistral
 
 # USE_CTRANSFORMERS: True
 # LLM_PATH: zephyr-7b-beta.Q4_K_M.gguf
 # PROMPT_TYPE: zephyr
 
-USE_CTRANSFORMERS: False
-LLM_PATH: gemma-2b-it-q4_k_m.gguf
-PROMPT_TYPE: gemma
+# USE_CTRANSFORMERS: False
+# LLM_PATH: gemma-2b-it-q4_k_m.gguf
+# PROMPT_TYPE: gemma
 
 LLM_CONFIG:
   MAX_NEW_TOKENS: 512
   TEMPERATURE: 0.2
   REPETITION_PENALTY: 1.1
-  CONTEXT_LENGTH: 2048
+  CONTEXT_LENGTH: 4000
 
 BASE_RETRIEVER_CONFIG:
   SEARCH_K: 4
