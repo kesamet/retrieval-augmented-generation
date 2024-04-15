@@ -13,7 +13,7 @@ from src.retrieval_qa import (
     build_rerank_retriever,
     build_compression_retriever,
 )
-from src.vectordb import build_vectordb, load_faiss, load_chroma
+from src.vectordb import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
 
@@ -55,9 +55,6 @@ def load_retriever(_vectordb, retrieval_mode):
 
 
 def init_sess_state():
-    if "uploaded_filename" not in st.session_state:
-        st.session_state["uploaded_filename"] = ""
-
     if "last_form" not in st.session_state:
         st.session_state["last_form"] = list()
 
@@ -88,13 +85,19 @@ def doc_qa():
         if st.button("Build VectorDB"):
             if uploaded_file is None:
                 st.error("No PDF uploaded")
-            else:
-                with st.spinner("Building VectorDB..."):
-                    perform(build_vectordb, uploaded_file.read(), embedding_function=BASE_EMBEDDINGS)
-                st.session_state.uploaded_filename = uploaded_file.name
+                st.stop()
 
-        if st.session_state.uploaded_filename != "":
-            st.info(f"Current document: {st.session_state.uploaded_filename}")
+            if os.path.exists(CFG.VECTORDB_PATH):
+                st.warning("Deleting existing VectorDB")
+                delete_vectordb(CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
+
+            with st.spinner("Building VectorDB..."):
+                perform(
+                    build_vectordb,
+                    uploaded_file.read(),
+                    embedding_function=BASE_EMBEDDINGS,
+                )
+                load_vectordb.clear()
 
         if not os.path.exists(CFG.VECTORDB_PATH):
             st.info("Please build VectorDB first.")
