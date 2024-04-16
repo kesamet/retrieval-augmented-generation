@@ -2,6 +2,7 @@
 VectorDB
 """
 
+import shutil
 import os
 from typing import Optional, Sequence
 
@@ -22,33 +23,51 @@ def build_vectordb(filename: str, embedding_function: Embeddings) -> None:
 
     if CFG.TEXT_SPLIT_MODE == "default":
         docs = text_split(parts)
-        save_vectorstore(docs, embedding_function, CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
+        save_vectordb(docs, embedding_function, CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
     elif CFG.TEXT_SPLIT_MODE == "propositionize":
         docs = propositionize(parts)
-        save_vectorstore(docs, embedding_function, CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
+        save_vectordb(docs, embedding_function, CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
     else:
         raise NotImplementedError
 
 
-def save_vectorstore(
+def save_vectordb(
     docs: Sequence[Document],
     embedding_function: Embeddings,
     persist_directory: str,
     vectordb_type: str,
 ) -> None:
     """Saves a vector database to disk."""
-    logger.info(f"persist_directory = {persist_directory}")
+    logger.info(f"Save vectordb to '{persist_directory}'")
 
     if vectordb_type == "faiss":
         vectorstore = FAISS.from_documents(docs, embedding_function)
         vectorstore.save_local(persist_directory)
     elif vectordb_type == "chroma":
-        _ = Chroma.from_documents(
-            docs,
-            embedding_function,
+        vectorstore = Chroma(
+            collection_name="langchain",
+            embedding_function=embedding_function,
             persist_directory=persist_directory,
             client_settings=Settings(anonymized_telemetry=False, is_persistent=True),
         )
+
+        _ = vectorstore.add_documents(docs)
+    else:
+        raise NotImplementedError
+
+
+def delete_vectordb(persist_directory: str, vectordb_type: str) -> None:
+    """Deletes vector database."""
+    logger.info(f"Delete vectordb in '{persist_directory}'")
+    if vectordb_type == "faiss":
+        shutil.rmtree(persist_directory)
+    elif vectordb_type == "chroma":
+        vectorstore = Chroma(
+            collection_name="langchain",
+            persist_directory=persist_directory,
+            client_settings=Settings(anonymized_telemetry=False, is_persistent=True),
+        )
+        vectorstore.delete_collection()
     else:
         raise NotImplementedError
 
@@ -77,7 +96,8 @@ def load_chroma(
     logger.info(f"persist_directory = {persist_directory}")
 
     return Chroma(
-        persist_directory=persist_directory,
+        collection_name="langchain",
         embedding_function=embedding_function,
+        persist_directory=persist_directory,
         client_settings=Settings(anonymized_telemetry=False, is_persistent=True),
     )

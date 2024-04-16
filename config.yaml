@@ -1,6 +1,7 @@
 DEVICE: cpu
 
-TEXT_SPLIT_MODE: default
+TEXT_SPLIT_MODE: default  # default or propositionize
+# propositionize uses propositionizer model
 
 MODELS_DIR: ./models
 

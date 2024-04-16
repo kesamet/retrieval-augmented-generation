@@ -6,7 +6,7 @@ from langchain_core.runnables import RunnableConfig
 
 from src import CFG
 from src.retrieval_qa import build_retrieval_chain
-from src.vectordb import build_vectordb, load_faiss, load_chroma
+from src.vectordb import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
 
 st.set_page_config(page_title="Conversational Retrieval QA")
@@ -14,10 +14,6 @@ st.set_page_config(page_title="Conversational Retrieval QA")
 LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
 RERANKER = load_reranker()
-
-
-if "uploaded_filename" not in st.session_state:
-    st.session_state["uploaded_filename"] = ""
 
 
 @st.cache_resource
@@ -58,13 +54,19 @@ def doc_conv_qa():
         if st.button("Build VectorDB"):
             if uploaded_file is None:
                 st.error("No PDF uploaded")
-            else:
-                with st.spinner("Building VectorDB..."):
-                    perform(build_vectordb, uploaded_file.read(), embedding_function=BASE_EMBEDDINGS)
-                st.session_state.uploaded_filename = uploaded_file.name
+                st.stop()
 
-        if st.session_state.uploaded_filename != "":
-            st.info(f"Current document: {st.session_state.uploaded_filename}")
+            if os.path.exists(CFG.VECTORDB_PATH):
+                st.warning("Deleting existing VectorDB")
+                delete_vectordb(CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
+
+            with st.spinner("Building VectorDB..."):
+                perform(
+                    build_vectordb,
+                    uploaded_file.read(),
+                    embedding_function=BASE_EMBEDDINGS,
+                )
+                load_vectordb.clear()
 
         if not os.path.exists(CFG.VECTORDB_PATH):
             st.info("Please build VectorDB first.")
