@@ -24,16 +24,18 @@ def read_pdf(filename: str) -> Sequence:
 
 def text_split(elements: Sequence[Element]) -> Sequence[Document]:
     """Text split."""
-    narrative_elements = [
-        element for element in elements if element.category == "NarrativeText"
+    select_elements = [
+        element
+        for element in elements
+        if element.category in ["Title", "NarrativeText", "ListItem"]
     ]
-    narrative_elements = chunk_by_title(
-        narrative_elements, max_characters=2000, new_after_n_chars=1500
+    chunked_elements = chunk_by_title(
+        select_elements, max_characters=2000, new_after_n_chars=1500
     )
 
     documents = []
-    for element in narrative_elements:
-        text = clean(element.text, extra_whitespace=True)
+    for element in chunked_elements:
+        text = clean(element.text, extra_whitespace=True, bullets=True)
 
         x = element.metadata.to_dict()
         metadata = {

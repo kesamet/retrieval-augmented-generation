@@ -27,7 +27,6 @@ from src.prompt_templates import QA_TEMPLATE, CONDENSE_QUESTION_TEMPLATE
 
 
 class VectorStoreRetrieverWithScores(VectorStoreRetriever):
-
     def get_relevant_documents(self, query: str) -> List[Document]:
         """
         Adapted from https://github.com/langchain-ai/langchain/blob/2f8dd1a1619f25daa4737df4d378b1acd6ff83c4/
