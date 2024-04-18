@@ -14,12 +14,12 @@ from langchain_community.vectorstores.chroma import Chroma
 from langchain_community.vectorstores.faiss import FAISS
 
 from src import CFG, logger
-from src.parser import read_pdf, text_split, propositionize
+from src.parser import load_pdf, text_split, propositionize
 
 
 def build_vectordb(filename: str, embedding_function: Embeddings) -> None:
     """Builds a vector database from a PDF file."""
-    parts = read_pdf(filename)
+    parts = load_pdf(filename)
 
     if CFG.TEXT_SPLIT_MODE == "default":
         docs = text_split(parts)

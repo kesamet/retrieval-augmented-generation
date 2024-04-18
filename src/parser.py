@@ -15,15 +15,15 @@ from unstructured.cleaners.core import clean
 from src import CFG
 
 
-def read_pdf(filename: str) -> Sequence:
-    """Read pdf."""
+def load_pdf(filename: str) -> Sequence:
+    """Loads pdf."""
     # from langchain_community.document_loaders.pdf import PyMuPDFLoader
     # return PyMuPDFLoader(filename).load()
     return partition_pdf(filename, strategy="fast")
 
 
 def text_split(elements: Sequence[Element]) -> Sequence[Document]:
-    """Text split."""
+    """Text chunking using unstructured."""
     select_elements = [
         element
         for element in elements
@@ -53,6 +53,7 @@ def text_split(elements: Sequence[Element]) -> Sequence[Document]:
 def simple_text_split(
     docs: Sequence[Document], chunk_size: int, chunk_overlap: int
 ) -> Sequence[Document]:
+    """Text chunking using langchain RecursiveCharacterTextSplitter."""
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
@@ -70,7 +71,7 @@ def simple_text_split(
 def parent_document_split(
     docs: Sequence[Document],
 ) -> tuple[Sequence[Document], tuple[list[str], Sequence[Document]]]:
-    """ParentDocumentRetriever"""
+    """Text chunking for ParentDocumentRetriever."""
     id_key = "doc_id"
 
     parent_docs = simple_text_split(docs, 2000, 0)
@@ -86,6 +87,7 @@ def parent_document_split(
 
 
 def propositionize(docs: Sequence[Document]) -> Sequence[Document]:
+    """Text chunking with Propositionizer."""
     from src.elements.propositionizer import Propositionizer
 
     propositionizer = Propositionizer()

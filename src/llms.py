@@ -4,9 +4,9 @@ LLM
 
 import os
 
+from langchain.callbacks import StreamingStdOutCallbackHandler
 from langchain_community.llms.ctransformers import CTransformers
 from langchain_community.llms.llamacpp import LlamaCpp
-from langchain.callbacks import StreamingStdOutCallbackHandler
 from langchain_openai import ChatOpenAI
 
 from src import CFG
