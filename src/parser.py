@@ -15,25 +15,27 @@ from unstructured.cleaners.core import clean
 from src import CFG
 
 
-def read_pdf(filename: str) -> Sequence:
-    """Read pdf."""
+def load_pdf(filename: str) -> Sequence:
+    """Loads pdf."""
     # from langchain_community.document_loaders.pdf import PyMuPDFLoader
     # return PyMuPDFLoader(filename).load()
     return partition_pdf(filename, strategy="fast")
 
 
 def text_split(elements: Sequence[Element]) -> Sequence[Document]:
-    """Text split."""
-    narrative_elements = [
-        element for element in elements if element.category == "NarrativeText"
+    """Text chunking using unstructured."""
+    select_elements = [
+        element
+        for element in elements
+        if element.category in ["Title", "NarrativeText", "ListItem"]
     ]
-    narrative_elements = chunk_by_title(
-        narrative_elements, max_characters=2000, new_after_n_chars=1500
+    chunked_elements = chunk_by_title(
+        select_elements, max_characters=2000, new_after_n_chars=1500
     )
 
     documents = []
-    for element in narrative_elements:
-        text = clean(element.text, extra_whitespace=True)
+    for element in chunked_elements:
+        text = clean(element.text, extra_whitespace=True, bullets=True)
 
         x = element.metadata.to_dict()
         metadata = {
@@ -51,6 +53,7 @@ def text_split(elements: Sequence[Element]) -> Sequence[Document]:
 def simple_text_split(
     docs: Sequence[Document], chunk_size: int, chunk_overlap: int
 ) -> Sequence[Document]:
+    """Text chunking using langchain RecursiveCharacterTextSplitter."""
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
@@ -68,7 +71,7 @@ def simple_text_split(
 def parent_document_split(
     docs: Sequence[Document],
 ) -> tuple[Sequence[Document], tuple[list[str], Sequence[Document]]]:
-    """ParentDocumentRetriever"""
+    """Text chunking for ParentDocumentRetriever."""
     id_key = "doc_id"
 
     parent_docs = simple_text_split(docs, 2000, 0)
@@ -84,6 +87,7 @@ def parent_document_split(
 
 
 def propositionize(docs: Sequence[Document]) -> Sequence[Document]:
+    """Text chunking with Propositionizer."""
     from src.elements.propositionizer import Propositionizer
 
     propositionizer = Propositionizer()
