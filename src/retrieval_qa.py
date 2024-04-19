@@ -126,6 +126,7 @@ def build_retrieval_qa(llm: LLM, retriever: BaseRetriever) -> RetrievalQA:
         retriever=retriever,
         return_source_documents=True,
         chain_type_kwargs={"prompt": PromptTemplate.from_template(QA_TEMPLATE)},
+        verbose=True,
     )
     return retrieval_qa
 
@@ -153,5 +154,6 @@ def build_retrieval_chain(
         condense_question_prompt=PromptTemplate.from_template(
             CONDENSE_QUESTION_TEMPLATE
         ),
+        verbose=True,
     )
     return retrieval_chain

@@ -1,35 +1,35 @@
 from src import CFG
 
-llama_format = """<s>[INST] <<SYS>>{system}<</SYS>>
+if CFG.PROMPT_TYPE == "llama2":
+    _chat_format = """<s> [INST] <<SYS>>{system}<</SYS>>
 {user}
 [/INST]"""
 
-mistral_format = """<s>[INST] {system}
+elif CFG.PROMPT_TYPE == "mistral":
+    _chat_format = """<s> [INST] {system}
 {user}
 [/INST]"""
 
-zephyr_format = """<|system|>
+elif CFG.PROMPT_TYPE == "zephyr":
+    _chat_format = """<|system|>
 {system}</s>
 <|user|>
 {user}</s>
 <|assistant|>"""
 
-gemma_format = """<start_of_turn>user
+elif CFG.PROMPT_TYPE == "gemma":
+    _chat_format = """<start_of_turn>user
 {system}
 {user}<end_of_turn>
 <start_of_turn>model"""
 
+elif CFG.PROMPT_TYPE == "llama3":
+    _chat_format = """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+{system}<|eot_id|><|start_header_id|>user<|end_header_id|>
+{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
 
-if CFG.PROMPT_TYPE == "llama":
-    _chat_format = llama_format
-elif CFG.PROMPT_TYPE == "mistral":
-    _chat_format = mistral_format
-elif CFG.PROMPT_TYPE == "zephyr":
-    _chat_format = zephyr_format
-elif CFG.PROMPT_TYPE == "gemma":
-    _chat_format = zephyr_format
 else:
-    raise NotImplementedError
+    raise NotImplementedError("Chat prompt format not implemented")
 
 
 class QA:
@@ -38,7 +38,7 @@ class QA:
         "Use the following pieces of retrieved context to answer the user's question. "
         "If you don't know the answer, just say that you don't know, don't try to make up an answer."
     )
-    user = "Question: {question}\nContext:\n{context}\nAnswer:"
+    user = "Context:\n{context}\nQuestion: {question}\nAnswer:"
 
 
 class CondenseQuestion:

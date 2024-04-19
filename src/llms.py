@@ -28,7 +28,6 @@ def build_llm():
         return build_llamacpp(
             os.path.join(CFG.MODELS_DIR, CFG.LLM_PATH),
             config={
-                "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
                 "temperature": CFG.LLM_CONFIG.TEMPERATURE,
                 "repeat_penalty": CFG.LLM_CONFIG.REPETITION_PENALTY,
                 "n_ctx": CFG.LLM_CONFIG.CONTEXT_LENGTH,
@@ -38,7 +37,6 @@ def build_llm():
         return chatopenai(
             CFG.LLM_PATH,
             config={
-                "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
                 "temperature": CFG.LLM_CONFIG.TEMPERATURE,
             },
         )
@@ -73,7 +71,6 @@ def build_llamacpp(
     """Builds LLM using LlamaCpp."""
     if config is None:
         config = {
-            "max_tokens": 512,
             "temperature": 0.2,
             "repeat_penalty": 1.1,
             "n_ctx": 4000,
@@ -92,7 +89,6 @@ def chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
     """For LLM deployed as an API."""
     if config is None:
         config = {
-            "max_tokens": 512,
             "temperature": 0.2,
         }
 
