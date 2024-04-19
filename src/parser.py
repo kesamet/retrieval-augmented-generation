@@ -30,7 +30,7 @@ def text_split(elements: Sequence[Element]) -> Sequence[Document]:
         if element.category in ["Title", "NarrativeText", "ListItem"]
     ]
     chunked_elements = chunk_by_title(
-        select_elements, max_characters=2000, new_after_n_chars=1500
+        select_elements, max_characters=1200, new_after_n_chars=1000
     )
 
     documents = []

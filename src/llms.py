@@ -11,6 +11,11 @@ from langchain_openai import ChatOpenAI
 
 from src import CFG
 
+DEFAULT_MAX_NEW_TOKENS = 512
+DEFAULT_TEMPERATURE = 0.2
+DEFAULT_REPETITION_PENALTY = 1.1
+DEFAULT_CONTEXT_LENGTH = 4000
+
 
 def build_llm():
     """Builds LLM defined in config."""
@@ -52,10 +57,10 @@ def build_ctransformers(
     """Builds LLM using CTransformers."""
     if config is None:
         config = {
-            "max_new_tokens": 512,
-            "temperature": 0.2,
-            "repetition_penalty": 1.1,
-            "context_length": 4000,
+            "max_new_tokens": DEFAULT_MAX_NEW_TOKENS,
+            "temperature": DEFAULT_TEMPERATURE,
+            "repetition_penalty": DEFAULT_REPETITION_PENALTY,
+            "context_length": DEFAULT_CONTEXT_LENGTH,
         }
 
     llm = CTransformers(
@@ -73,10 +78,10 @@ def build_llamacpp(
     """Builds LLM using LlamaCpp."""
     if config is None:
         config = {
-            "max_tokens": 512,
-            "temperature": 0.2,
-            "repeat_penalty": 1.1,
-            "n_ctx": 4000,
+            "max_tokens": DEFAULT_MAX_NEW_TOKENS,
+            "temperature": DEFAULT_TEMPERATURE,
+            "repeat_penalty": DEFAULT_REPETITION_PENALTY,
+            "n_ctx": DEFAULT_CONTEXT_LENGTH,
         }
 
     llm = LlamaCpp(
@@ -92,8 +97,8 @@ def chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
     """For LLM deployed as an API."""
     if config is None:
         config = {
-            "max_tokens": 512,
-            "temperature": 0.2,
+            "max_tokens": DEFAULT_MAX_NEW_TOKENS,
+            "temperature": DEFAULT_TEMPERATURE,
         }
 
     llm = ChatOpenAI(
