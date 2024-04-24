@@ -1,3 +1,4 @@
+arize-phoenix[evals]==3.16.0
 chromadb==0.4.24
 ctransformers==0.2.27
 faiss-cpu==1.8.0

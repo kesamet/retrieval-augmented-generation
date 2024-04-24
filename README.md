@@ -54,6 +54,15 @@ Assistant:"""
 Refer to the file for more details.
 
 
+### Tracing
+
+We shall use [Phoenix](https://docs.arize.com/phoenix) for LLM tracing. Phoenix is an open-source observability library designed for experimentation, evaluation, and troubleshooting. Before running the app, start a phoenix server
+
+```bash
+python3 -m phoenix.server.main serve
+```
+
+
 ## 💻 App
 
 We use Streamlit as the interface for the demos. There are two demos:
