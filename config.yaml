@@ -1,3 +1,5 @@
+USE_TRACING: True
+
 DEVICE: cpu
 
 TEXT_SPLIT_MODE: default  # default or propositionize
