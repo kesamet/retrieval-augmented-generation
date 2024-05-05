@@ -1,6 +1,7 @@
 import logging
 
 import box
+import requests
 import yaml
 
 logging.basicConfig(
@@ -17,3 +18,22 @@ try:
 
 except Exception as e:
     logger.error(e)
+
+
+if CFG.USE_TRACING:
+    # Setup tracing
+    url = "http://localhost:6006"
+    try:
+        page = requests.get(url)
+        logger.info(
+            "🚀 Phoenix Server 🚀\n"
+        |  "Phoenix UI: http://localhost:6006\n"
+        |  "Log traces: /v1/traces over HTTP"
+        )
+    except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
+        logger.error(f"Phoenix server not started. Skipped tracing")
+    else:
+        from phoenix.trace.langchain import LangChainInstrumentor
+
+        LangChainInstrumentor().instrument()
+    

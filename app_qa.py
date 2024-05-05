@@ -19,12 +19,6 @@ from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_re
 
 st.set_page_config(page_title="Retrieval QA", layout="wide")
 
-if CFG.USE_TRACING:
-    # Setup tracing
-    from phoenix.trace.langchain import LangChainInstrumentor
-
-    LangChainInstrumentor().instrument()
-
 LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
 RERANKER = load_reranker()
