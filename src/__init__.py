@@ -26,14 +26,11 @@ if CFG.USE_TRACING:
     try:
         page = requests.get(url)
         logger.info(
-            "🚀 Phoenix Server 🚀\n"
-        |  "Phoenix UI: http://localhost:6006\n"
-        |  "Log traces: /v1/traces over HTTP"
+            "Phoenix UI: http://localhost:6006\nLog traces: /v1/traces over HTTP"
         )
     except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
-        logger.error(f"Phoenix server not started. Skipped tracing")
+        logger.error("Phoenix server not started. Skipped tracing.")
     else:
         from phoenix.trace.langchain import LangChainInstrumentor
 
         LangChainInstrumentor().instrument()
-    

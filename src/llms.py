@@ -45,7 +45,7 @@ def build_ctransformers(
     model_path: str, config: dict | None = None, debug: bool = False, **kwargs
 ):
     """Builds LLM using CTransformers.
-    
+
     Supports models like llama2 and mistral. See https://github.com/marella/ctransformers
     """
     if config is None:
