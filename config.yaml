@@ -15,25 +15,23 @@ VECTORDB_PATH: vectordb/faiss
 # VECTORDB_TYPE: chroma
 # VECTORDB_PATH: vectordb/chroma
 
-# USE_CTRANSFORMERS: True
 # LLM_PATH: llama-2-7b-chat.Q4_K_M.gguf
 # PROMPT_TYPE: llama2
 
-# USE_CTRANSFORMERS: True
 # LLM_PATH: mistral-7b-instruct-v0.2.Q4_K_M.gguf
 # PROMPT_TYPE: mistral
 
-# USE_CTRANSFORMERS: True
 # LLM_PATH: zephyr-7b-beta.Q4_K_M.gguf
 # PROMPT_TYPE: zephyr
 
-# USE_CTRANSFORMERS: False
 # LLM_PATH: gemma-2b-it-q4_k_m.gguf
 # PROMPT_TYPE: gemma
 
-USE_CTRANSFORMERS: False
-LLM_PATH: Meta-Llama-3-8B-Instruct-Q4_K_M.gguf
-PROMPT_TYPE: llama3
+# LLM_PATH: Meta-Llama-3-8B-Instruct-Q4_K_M.gguf
+# PROMPT_TYPE: llama3
+
+LLM_PATH: Phi-3-mini-4k-instruct-q4.gguf
+PROMPT_TYPE: phi3
 
 LLM_CONFIG:
   MAX_NEW_TOKENS: 512

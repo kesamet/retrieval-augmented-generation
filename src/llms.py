@@ -20,16 +20,6 @@ DEFAULT_CONTEXT_LENGTH = 4000
 def build_llm():
     """Builds LLM defined in config."""
     if CFG.LLM_PATH.endswith(".gguf"):
-        if CFG.USE_CTRANSFORMERS:
-            return build_ctransformers(
-                os.path.join(CFG.MODELS_DIR, CFG.LLM_PATH),
-                config={
-                    "max_new_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
-                    "temperature": CFG.LLM_CONFIG.TEMPERATURE,
-                    "repetition_penalty": CFG.LLM_CONFIG.REPETITION_PENALTY,
-                    "context_length": CFG.LLM_CONFIG.CONTEXT_LENGTH,
-                },
-            )
         return build_llamacpp(
             os.path.join(CFG.MODELS_DIR, CFG.LLM_PATH),
             config={
@@ -54,7 +44,10 @@ def build_llm():
 def build_ctransformers(
     model_path: str, config: dict | None = None, debug: bool = False, **kwargs
 ):
-    """Builds LLM using CTransformers."""
+    """Builds LLM using CTransformers.
+
+    Supports models like llama2 and mistral. See https://github.com/marella/ctransformers
+    """
     if config is None:
         config = {
             "max_new_tokens": DEFAULT_MAX_NEW_TOKENS,
