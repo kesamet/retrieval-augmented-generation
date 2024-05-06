@@ -11,14 +11,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-try:
-    logger.info("Reading config.yaml")
-    with open("config.yaml", "r") as f:
-        CFG = box.Box(yaml.safe_load(f))
-
-except Exception as e:
-    logger.error(e)
-
+logger.info("Reading config.yaml")
+with open("config.yaml", "r") as f:
+    CFG = box.Box(yaml.safe_load(f))
 
 if CFG.USE_TRACING:
     # Setup tracing

@@ -5,9 +5,6 @@ LLM
 import os
 
 from langchain.callbacks import StreamingStdOutCallbackHandler
-from langchain_community.llms.ctransformers import CTransformers
-from langchain_community.llms.llamacpp import LlamaCpp
-from langchain_openai import ChatOpenAI
 
 from src import CFG
 
@@ -48,6 +45,8 @@ def build_ctransformers(
 
     Supports models like llama2 and mistral. See https://github.com/marella/ctransformers
     """
+    from langchain_community.llms.ctransformers import CTransformers
+
     if config is None:
         config = {
             "max_new_tokens": DEFAULT_MAX_NEW_TOKENS,
@@ -69,6 +68,8 @@ def build_llamacpp(
     model_path: str, config: dict | None = None, debug: bool = False, **kwargs
 ):
     """Builds LLM using LlamaCpp."""
+    from langchain_community.llms.llamacpp import LlamaCpp
+
     if config is None:
         config = {
             "max_tokens": DEFAULT_MAX_NEW_TOKENS,
@@ -88,6 +89,8 @@ def build_llamacpp(
 
 def chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
     """For LLM deployed as an API."""
+    from langchain_openai import ChatOpenAI
+
     if config is None:
         config = {
             "max_tokens": DEFAULT_MAX_NEW_TOKENS,
@@ -99,6 +102,26 @@ def chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
         openai_api_key="sk-xxx",
         **config,
         streaming=True,
+        **kwargs,
+    )
+    return llm
+
+
+def ollama(model: str, config: dict | None = None, debug: bool = False, **kwargs):
+    """For LLM deployed as an API."""
+    from langchain_community.llms.ollama import Ollama
+
+    if config is None:
+        config = {
+            "num_predict": DEFAULT_MAX_NEW_TOKENS,
+            "temperature": DEFAULT_TEMPERATURE,
+            "repeat_penalty": DEFAULT_REPETITION_PENALTY,
+        }
+
+    llm = Ollama(
+        model=model,
+        **config,
+        callbacks=[StreamingStdOutCallbackHandler()] if debug else None,
         **kwargs,
     )
     return llm
