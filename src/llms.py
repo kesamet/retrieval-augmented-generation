@@ -16,7 +16,7 @@ DEFAULT_CONTEXT_LENGTH = 4000
 
 def build_llm():
     """Builds LLM defined in config."""
-    if CFG.LLM_PATH.endswith(".gguf"):
+    if CFG.LLM_TYPE == "gguf":
         return build_llamacpp(
             os.path.join(CFG.MODELS_DIR, CFG.LLM_PATH),
             config={
@@ -24,6 +24,26 @@ def build_llm():
                 "temperature": CFG.LLM_CONFIG.TEMPERATURE,
                 "repeat_penalty": CFG.LLM_CONFIG.REPETITION_PENALTY,
                 "n_ctx": CFG.LLM_CONFIG.CONTEXT_LENGTH,
+            },
+        )
+    elif CFG.LLM_TYPE == "groq":
+        from dotenv import load_dotenv
+
+        _ = load_dotenv()
+        return chatgroq(
+            model_name=CFG.LLM_PATH,
+            config={
+                "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
+                "temperature": CFG.LLM_CONFIG.TEMPERATURE,
+            },
+        )
+    elif CFG.LLM_TYPE == "ollama":
+        return ollama(
+            CFG.LLM_PATH,
+            config={
+                "num_predict": DEFAULT_MAX_NEW_TOKENS,
+                "temperature": DEFAULT_TEMPERATURE,
+                "repeat_penalty": DEFAULT_REPETITION_PENALTY,
             },
         )
     elif CFG.LLM_PATH.startswith("http"):
@@ -87,9 +107,11 @@ def build_llamacpp(
     return llm
 
 
-def chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
-    """For LLM deployed as an API."""
-    from langchain_openai import ChatOpenAI
+def chatgroq(
+    model_name: str = "mixtral-8x7b-32768", config: dict | None = None, **kwargs
+):
+    """For Groq LLM."""
+    from langchain_groq import ChatGroq
 
     if config is None:
         config = {
@@ -97,9 +119,8 @@ def chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
             "temperature": DEFAULT_TEMPERATURE,
         }
 
-    llm = ChatOpenAI(
-        openai_api_base=openai_api_base,
-        openai_api_key="sk-xxx",
+    llm = ChatGroq(
+        model_name=model_name,
         **config,
         streaming=True,
         **kwargs,
@@ -122,6 +143,26 @@ def ollama(model: str, config: dict | None = None, debug: bool = False, **kwargs
         model=model,
         **config,
         callbacks=[StreamingStdOutCallbackHandler()] if debug else None,
+        **kwargs,
+    )
+    return llm
+
+
+def chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
+    """For LLM deployed as an OpenAI compatible API."""
+    from langchain_openai import ChatOpenAI
+
+    if config is None:
+        config = {
+            "max_tokens": DEFAULT_MAX_NEW_TOKENS,
+            "temperature": DEFAULT_TEMPERATURE,
+        }
+
+    llm = ChatOpenAI(
+        openai_api_base=openai_api_base,
+        openai_api_key="sk-xxx",
+        **config,
+        streaming=True,
         **kwargs,
     )
     return llm
