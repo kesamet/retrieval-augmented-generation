@@ -45,7 +45,7 @@ Download and save the models in `./models` and update `config.yaml`. The models 
 
 The LLMs can be loaded directly in the app, or they can be first deployed with [**Ollama**](https://github.com/ollama/ollama) server.
 
-You can also choose to use [**Groq**](https://wow.groq.com/why-groq/). Set `GROQ_API_KEY` in `.env`.
+You can also choose to use models from [**Groq**](https://wow.groq.com/). Set `GROQ_API_KEY` in `.env`.
 
 
 ### Add prompt format

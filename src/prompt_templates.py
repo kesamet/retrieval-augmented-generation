@@ -47,9 +47,9 @@ class Prompts:
     def condense_question(self):
         system = ""
         user = (
-            "Given the following conversation and a follow up question, "
+            "Given the following chat history and a follow up question, "
             "rephrase the follow up question to be a standalone question, in its original language.\n\n"
-            "Chat History:\n{chat_history}\n\nFollow Up Input: {question}\nStandalone question:"
+            "Chat History:\n{chat_history}\n\nFollow Up Question: {question}\nStandalone question:"
         )
         return self.chat_format.format(system=system, user=user)
 

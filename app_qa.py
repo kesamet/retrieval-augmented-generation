@@ -2,13 +2,12 @@ import os
 
 import streamlit as st
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
-from langchain_core.runnables import RunnableConfig
 
 from src import CFG
 from src.embeddings import build_hyde_embeddings
 from src.query_expansion import build_multiple_queries_expansion_chain
 from src.retrieval_qa import (
-    build_retrieval_qa,
+    build_rag_chain,
     build_base_retriever,
     build_rerank_retriever,
     build_compression_retriever,
@@ -167,17 +166,16 @@ def doc_qa():
         else:
             db = vectordb_hyde if use_hyde else vectordb
             retriever = load_retriever(db, retrieval_mode)
-            retrieval_qa = build_retrieval_qa(LLM, retriever)
+            retrieval_chain = build_rag_chain(LLM, retriever)
 
             st_callback = StreamlitCallbackHandler(
                 parent_container=c0.container(),
                 expand_new_thoughts=True,
                 collapse_completed_thoughts=True,
             )
-            st.session_state.last_response = retrieval_qa.invoke(
-                user_query, config=RunnableConfig(callbacks=[st_callback])
+            st.session_state.last_response = retrieval_chain.invoke(
+                user_query, config={"callbacks": [st_callback]}
             )
-            st_callback._complete_current_thought()
 
     if st.session_state.last_response:
         with c0:

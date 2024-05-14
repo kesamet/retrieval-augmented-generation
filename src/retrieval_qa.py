@@ -4,8 +4,6 @@ Retrieval QA
 
 from typing import List
 
-from langchain.chains.retrieval_qa.base import RetrievalQA
-from langchain.chains.conversational_retrieval.base import ConversationalRetrievalChain
 from langchain.embeddings.base import Embeddings
 from langchain.llms.base import LLM
 from langchain.prompts import PromptTemplate
@@ -18,6 +16,8 @@ from langchain.retrievers.document_compressors.base import BaseDocumentCompresso
 from langchain.schema import Document
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores.base import VectorStore
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import Runnable, RunnablePassthrough
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_community.document_transformers import EmbeddingsRedundantFilter
@@ -110,8 +110,30 @@ def build_compression_retriever(
     return compression_retriever
 
 
-def build_retrieval_qa(llm: LLM, retriever: BaseRetriever) -> RetrievalQA:
-    """Builds a retrieval QA model.
+def build_question_answer_chain(llm: LLM) -> Runnable:
+    """Builds a question-answer chain.
+    Copied from langchain.chains.combine_documents.stuff.create_stuff_documents_chain
+
+    """
+    qa_prompt = PromptTemplate.from_template(QA_TEMPLATE)
+
+    def format_docs(inputs: dict) -> str:
+        return "\n\n".join(doc.page_content for doc in inputs["context"])
+
+    question_answer_chain = (
+        RunnablePassthrough.assign(context=format_docs).with_config(
+            run_name="format_inputs"
+        )
+        | qa_prompt
+        | llm
+        | StrOutputParser()
+    ).with_config(run_name="stuff_documents_chain")
+    return question_answer_chain
+
+
+def build_rag_chain(llm: LLM, retriever: BaseRetriever) -> Runnable:
+    """Builds a retrieval RAG chain.
+    Adapted from langchain.chains.retrieval.create_retrieval_chain
 
     Args:
         llm (LLM): The language model to use.
@@ -120,7 +142,18 @@ def build_retrieval_qa(llm: LLM, retriever: BaseRetriever) -> RetrievalQA:
     Returns:
         RetrievalQA: The retrieval QA model.
     """
-    retrieval_qa = RetrievalQA.from_chain_type(
+    # retrieval_docs = (lambda x: x["question"]) | retriever
+    # question_answer_chain = build_question_answer_chain(llm)
+    # rag_chain = (
+    #     RunnablePassthrough.assign(
+    #         context=retrieval_docs.with_config(run_name="retrieve_documents"),
+    #     ).assign(answer=question_answer_chain)
+    # ).with_config(run_name="retrieval_chain")
+
+    # FIXME: RetrievalQA deprecated
+    from langchain.chains.retrieval_qa.base import RetrievalQA
+
+    rag_chain = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
         retriever=retriever,
@@ -128,13 +161,15 @@ def build_retrieval_qa(llm: LLM, retriever: BaseRetriever) -> RetrievalQA:
         chain_type_kwargs={"prompt": PromptTemplate.from_template(QA_TEMPLATE)},
         verbose=True,
     )
-    return retrieval_qa
+    return rag_chain
 
 
-def build_retrieval_chain(
+def build_conv_rag_chain(
     vectordb: VectorStore, reranker: BaseDocumentCompressor, llm: LLM
-) -> ConversationalRetrievalChain:
-    """Builds a conversational retrieval chain model.
+) -> Runnable:
+    """Builds a conversational RAG chain.
+    Adapted from langchain.chains.retrieval.create_retrieval_chain,
+    langchain.chains.history_aware_retriever.create_history_aware_retriever
 
     Args:
         vectordb (VectorStore): The vector database to use.
@@ -145,7 +180,34 @@ def build_retrieval_chain(
     """
     retriever = build_rerank_retriever(vectordb, reranker)
 
-    retrieval_chain = ConversationalRetrievalChain.from_llm(
+    # # From langchain.chains.history_aware_retriever.create_history_aware_retriever
+    # condense_question_prompt = PromptTemplate.from_template(CONDENSE_QUESTION_TEMPLATE)
+    # history_aware_retriever = RunnableBranch(
+    #     (
+    #         # Both empty string and empty list evaluate to False
+    #         lambda x: not x.get("chat_history", False),
+    #         # If no chat history, then we just pass input to retriever
+    #         (lambda x: x["question"]) | retriever,
+    #     ),
+    #     # If chat history, then we pass inputs to LLM chain, then to retriever
+    #     condense_question_prompt | llm | StrOutputParser() | retriever,
+    # )
+
+    # question_answer_chain = build_question_answer_chain(llm)
+
+    # # From langchain.chains.retrieval.create_retrieval_chain
+    # rag_chain = (
+    #     RunnablePassthrough.assign(
+    #         context=history_aware_retriever.with_config(run_name="retrieve_documents"),
+    #     ).assign(answer=question_answer_chain)
+    # ).with_config(run_name="retrieval_chain")
+
+    # FIXME: ConversationalRetrievalChain deprecated
+    from langchain.chains.conversational_retrieval.base import (
+        ConversationalRetrievalChain,
+    )
+
+    rag_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         chain_type="stuff",
         retriever=retriever,
@@ -156,4 +218,4 @@ def build_retrieval_chain(
         ),
         verbose=True,
     )
-    return retrieval_chain
+    return rag_chain
