@@ -2,10 +2,9 @@ import os
 
 import streamlit as st
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
-from langchain_core.runnables import RunnableConfig
 
 from src import CFG
-from src.retrieval_qa import build_retrieval_chain
+from src.retrieval_qa import build_conv_rag_chain
 from src.vectordb import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
 
@@ -76,7 +75,7 @@ def doc_conv_qa():
             with st.status("Load retrieval chain", expanded=False) as status:
                 st.write("Loading retrieval chain...")
                 vectordb = load_vectordb()
-                retrieval_chain = build_retrieval_chain(vectordb, RERANKER, LLM)
+                rag_chain = build_conv_rag_chain(vectordb, RERANKER, LLM)
                 status.update(
                     label="Loading complete!", state="complete", expanded=False
                 )
@@ -111,24 +110,25 @@ def doc_conv_qa():
                 expand_new_thoughts=True,
                 collapse_completed_thoughts=True,
             )
-            response = retrieval_chain.invoke(
+            response = rag_chain.invoke(
                 {
                     "question": user_query,
                     "chat_history": st.session_state.chat_history,
                 },
-                config=RunnableConfig(callbacks=[st_callback]),
+                config={"callbacks": [st_callback]},
             )
-            st_callback._complete_current_thought()
-            st.markdown(response["answer"])
+
+            answer = response["answer"]
+            source_documents = response["source_documents"]
+
+            st.markdown(answer)
 
             with st.expander("Sources"):
-                print_docs(response["source_documents"])
+                print_docs(source_documents)
 
-            st.session_state.chat_history.append(
-                (response["question"], response["answer"])
-            )
+            st.session_state.chat_history.append((user_query, answer))
             st.session_state.display_history.append(
-                (response["question"], response["answer"], response["source_documents"])
+                (user_query, answer, source_documents)
             )
 
 
