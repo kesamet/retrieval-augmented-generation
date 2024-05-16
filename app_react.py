@@ -81,7 +81,7 @@ def print_docs(source_documents):
         st.info(row)
 
 
-def doc_conv_qa_react():
+def rag_react():
     with st.sidebar:
         st.title("ReAct RAG")
 
@@ -149,4 +149,4 @@ def doc_conv_qa_react():
 
 
 if __name__ == "__main__":
-    doc_conv_qa_react()
+    rag_react()
