@@ -8,7 +8,7 @@ from src.retrieval_qa import build_conv_rag_chain
 from src.vectordb import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
 
-st.set_page_config(page_title="Conversational Retrieval QA")
+st.set_page_config(page_title="Conversational RAG")
 
 LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()

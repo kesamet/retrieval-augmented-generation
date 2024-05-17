@@ -17,7 +17,7 @@ from langchain.schema import Document
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores.base import VectorStore
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import Runnable, RunnablePassthrough
+from langchain_core.runnables import Runnable, RunnablePassthrough, RunnableBranch
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_community.document_transformers import EmbeddingsRedundantFilter
@@ -219,3 +219,18 @@ def build_conv_rag_chain(
         verbose=True,
     )
     return rag_chain
+
+
+def condense_question_chain(llm: LLM):
+    condense_question_prompt = PromptTemplate.from_template(CONDENSE_QUESTION_TEMPLATE)
+    chain = RunnableBranch(
+        (
+            # Both empty string and empty list evaluate to False
+            lambda x: not x.get("chat_history", False),
+            # If no chat history, then we just pass input
+            (lambda x: x["question"]),
+        ),
+        # If chat history, then we pass inputs to LLM chain
+        condense_question_prompt | llm | StrOutputParser(),
+    )
+    return chain
