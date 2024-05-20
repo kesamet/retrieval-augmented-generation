@@ -1,5 +1,3 @@
-# TODO: allow pdf upload
-
 import streamlit as st
 from langchain_core.prompts import PromptTemplate
 from langchain.tools.retriever import create_retriever_tool
@@ -9,7 +7,7 @@ from langchain.agents import AgentExecutor
 from src import CFG
 from src.agents import create_react_agent, DEFAULT_REACT_TEMPLATE
 from src.prompt_templates import CHAT_FORMAT
-from src.retrieval_qa import build_rerank_retriever
+from src.retrieval_qa import build_rerank_retriever, condense_question_chain
 from src.vectordb import load_faiss
 from streamlit_app.utils import load_base_embeddings, load_llm, load_reranker
 
@@ -18,35 +16,27 @@ st.set_page_config(page_title="ReAct RAG")
 LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
 RERANKER = load_reranker()
+CONDENSE_QUESTION_CHAIN = condense_question_chain(LLM)
 
 
 @st.cache_resource
-def _load_faiss(index_path):
+def _load_faiss_cached(index_path):
     return load_faiss(BASE_EMBEDDINGS, index_path)
 
 
 def build_chain(reranker, llm):
-    uber_index = _load_faiss("./vectordb/faiss_uber")
-    uber_retriever = build_rerank_retriever(uber_index, reranker)
-    # uber_retriever = uber_index.as_retriever()
+    tools = []
+    for vectordb in CFG.VECTORDB:
+        db = _load_faiss_cached(vectordb.PATH)
+        retriever = build_rerank_retriever(db, reranker)
+        # retriever = db.as_retriever()
 
-    uber_tool = create_retriever_tool(
-        retriever=uber_retriever,
-        name="uber_10k",
-        description="Provides information about Uber financials for year 2021",
-    )
-
-    lyft_index = _load_faiss("./vectordb/faiss_lyft")
-    lyft_retriever = build_rerank_retriever(lyft_index, reranker)
-    # lyft_retriever = lyft_index.as_retriever()
-
-    lyft_tool = create_retriever_tool(
-        retriever=lyft_retriever,
-        name="lyft_10k",
-        description="Provides information about Lyft financials for year 2021",
-    )
-
-    tools = [lyft_tool, uber_tool]
+        tool = create_retriever_tool(
+            retriever=retriever,
+            name=vectordb.NAME,
+            description=vectordb.DESCRIPTION,
+        )
+        tools.append(tool)
 
     prompt = PromptTemplate.from_template(
         CHAT_FORMAT[CFG.PROMPT_TYPE].format(system=DEFAULT_REACT_TEMPLATE, user="")
@@ -128,8 +118,14 @@ def rag_react():
                 expand_new_thoughts=True,
                 collapse_completed_thoughts=True,
             )
+            query = CONDENSE_QUESTION_CHAIN.invoke(
+                {
+                    "question": user_query,
+                    "chat_history": st.session_state.chat_history,
+                }
+            )
             response = chain.invoke(
-                {"input": user_query},
+                {"input": query},
                 config={"callbacks": [st_callback]},
             )
             answer = response["output"].replace("$", r"\$")
