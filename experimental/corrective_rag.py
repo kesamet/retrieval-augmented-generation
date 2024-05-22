@@ -9,20 +9,24 @@ from dotenv import load_dotenv
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 from langchain_community.tools.tavily_search import TavilySearchResults
-from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langgraph.graph import END, StateGraph
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 
 from src.embeddings import build_base_embeddings
 from src.vectordb import load_chroma
 from src.reranker import build_reranker
 from src.retrieval_qa import build_rerank_retriever
 from src.llms import build_llm
-from src.prompt_templates import QA_TEMPLATE
+from src.prompt_templates import CHAT_FORMATS, QA_TEMPLATE
 
 _ = load_dotenv()
 
 MODEL = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.0, streaming=False)
+chat_format = CHAT_FORMATS["gemini"]
+# MODEL = ChatGroq(model_name="mixtral-8x7b-32768", temperature=0.0)
+# chat_format = CHAT_FORMATS["mistral"]
 
 # Setup RAG
 embedding_function = build_base_embeddings()
@@ -37,9 +41,11 @@ RAG_CHAIN = prompt | llm | StrOutputParser()
 
 class GraphState(TypedDict):
     question: str
-    documents: List[Document] = None
-    generation: str = None
-    run_web_search: str = None
+    documents: List[Document]
+    generation: str
+    run_web_search: str
+    # groundedness: bool
+    # answer_relevance: bool
 
 
 def retrieve(state):
@@ -62,33 +68,77 @@ def grade_documents(state):
     question = state["question"]
     documents = state["documents"]
 
-    prompt = PromptTemplate(
-        template=(
-            "You are a grader assessing relevance of a retrieved document to a user question.\n"
-            "Retrieved document:\n{context}\n\n"
-            "User question: {question}\n\n"
-            "If the document contains keyword(s) or semantic meaning related to the user question, "
-            "grade it as relevant.\n"
-            "Give a binary answer 'yes' or 'no' to indicate whether the document is relevant to the question."
-        ),
-        input_variables=["context", "question"],
+    system = "You are a grader assessing relevance of a retrieved document to a user question."
+    user = (
+        "If the document contains keyword(s) or semantic meaning related to the user question, "
+        "grade it as relevant.\n"
+        "Give a binary answer 'yes' or 'no' to indicate whether the document is relevant to the question. "
+        "Provide the binary score as a JSON with a single key 'score' and no preamble or explanation.\n"
+        "Retrieved document:\n{context}\n\n"
+        "User question: {question}"
     )
-    chain = prompt | MODEL | StrOutputParser()
+    prompt = PromptTemplate.from_template(chat_format.format(system=system, user=user))
+    chain = prompt | MODEL | JsonOutputParser()
 
-    # Score
     filtered_docs = []
-    search = "No"  # Default: no web search
     for d in documents:
         grade = chain.invoke({"question": question, "context": d.page_content})
-        if grade == "yes":
+        if grade["score"] == "yes":
             print("---GRADE: DOCUMENT RELEVANT---")
             filtered_docs.append(d)
         else:
             print("---GRADE: DOCUMENT NOT RELEVANT---")
-            search = "Yes"
-            continue
+    return {
+        "question": question,
+        "documents": filtered_docs,
+        "run_web_search": len(filtered_docs) == 0,
+    }
 
-    return {"question": question, "documents": filtered_docs, "run_web_search": search}
+
+def grade_groundedness(state):
+    documents = state["documents"]
+    generation = state["generation"]
+
+    system = (
+        "You are a grader assessing whether an answer is grounded in / supported by a set of facts. "
+        "Give a binary answer 'yes' or 'no' to indicate whether the answer is grounded in / supported by a set of facts. "
+        "Provide the binary score as a JSON with a single key 'score' and no preamble or explanation."
+    )
+    user = "Here are the facts:\n{documents}\n\nHere is the answer: {generation}"
+    prompt = PromptTemplate.from_template(chat_format.format(system=system, user=user))
+
+    chain = prompt | MODEL | JsonOutputParser()
+
+    res = chain.invoke({"documents": documents, "generation": generation})
+    if res["score"] == "yes":
+        print("---GRADE: ANSWER GROUNDED---")
+        return {"groundedness": True}
+    else:
+        print("---GRADE: ANSWER NOT GROUNDED---")
+        return {"groundedness": False}
+
+
+def grade_answer_relevance(state):
+    question = state["question"]
+    generation = state["generation"]
+
+    system = (
+        "You are a grader assessing whether an answer is useful to resolve a question. "
+        "Give a binary score 'yes' or 'no' to indicate whether the answer is useful to resolve a question. "
+        "Provide the binary score as a JSON with a single key 'score' and no preamble or explanation."
+    )
+    user = "Here is the answer: {generation}\nHere is the question: {question}"
+    prompt = PromptTemplate.from_template(chat_format.format(system=system, user=user))
+
+    answer_grader = prompt | MODEL | JsonOutputParser()
+
+    res = answer_grader.invoke({"question": question, "generation": generation})
+    if res["score"] == "yes":
+        print("---GRADE: ANSWER RELEVANT---")
+        return {"answer_relevance": True}
+    else:
+        print("---GRADE: ANSWER NOT RELEVANT---")
+        return {"answer_relevance": False}
 
 
 def transform_query(state):
@@ -96,16 +146,15 @@ def transform_query(state):
     question = state["question"]
     documents = state["documents"]
 
-    prompt = PromptTemplate(
-        template=(
-            "You are generating questions that is well optimized for retrieval. "
-            "Look at the input and try to reason about the underlying sematic intent / meaning.\n"
-            "Initial question:\n{question}\n"
-            "Formulate an improved question:"
-        ),
-        input_variables=["question"],
+    user = (
+        "You are generating questions that is well optimized for retrieval. "
+        "Look at the input and try to reason about the underlying sematic intent / meaning.\n"
+        "Initial question:\n{question}\n"
+        "Formulate an improved question:"
     )
+    prompt = PromptTemplate.from_template(chat_format.format(system="", user=user))
     chain = prompt | MODEL | StrOutputParser()
+
     better_question = chain.invoke({"question": question})
     return {"documents": documents, "question": better_question}
 
@@ -125,15 +174,12 @@ def web_search(state):
 
 def decide_to_generate(state):
     print("---DECIDE TO GENERATE---")
-    search = state["run_web_search"]
+    run_web_search = state["run_web_search"]
 
-    if search == "Yes":
-        # All documents have been filtered check_relevance
-        # We will re-generate a new query
+    if run_web_search:
         print("---DECISION: TRANSFORM QUERY and RUN WEB SEARCH---")
         return "transform_query"
     else:
-        # We have relevant documents, so generate answer
         print("---DECISION: GENERATE---")
         return "generate"
 

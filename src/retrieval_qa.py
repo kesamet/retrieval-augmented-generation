@@ -110,10 +110,25 @@ def build_compression_retriever(
     return compression_retriever
 
 
+def condense_question_chain(llm: LLM) -> Runnable:
+    """Builds a chain that condenses question and chat history to create a standalone question."""
+    condense_question_prompt = PromptTemplate.from_template(CONDENSE_QUESTION_TEMPLATE)
+    chain = RunnableBranch(
+        (
+            # Both empty string and empty list evaluate to False
+            lambda x: not x.get("chat_history", False),
+            # If no chat history, then we just pass input
+            (lambda x: x["question"]),
+        ),
+        # If chat history, then we pass inputs to LLM chain
+        condense_question_prompt | llm | StrOutputParser(),
+    )
+    return chain
+
+
 def build_question_answer_chain(llm: LLM) -> Runnable:
     """Builds a question-answer chain.
     Copied from langchain.chains.combine_documents.stuff.create_stuff_documents_chain
-
     """
     qa_prompt = PromptTemplate.from_template(QA_TEMPLATE)
 
@@ -219,18 +234,3 @@ def build_conv_rag_chain(
         verbose=True,
     )
     return rag_chain
-
-
-def condense_question_chain(llm: LLM):
-    condense_question_prompt = PromptTemplate.from_template(CONDENSE_QUESTION_TEMPLATE)
-    chain = RunnableBranch(
-        (
-            # Both empty string and empty list evaluate to False
-            lambda x: not x.get("chat_history", False),
-            # If no chat history, then we just pass input
-            (lambda x: x["question"]),
-        ),
-        # If chat history, then we pass inputs to LLM chain
-        condense_question_prompt | llm | StrOutputParser(),
-    )
-    return chain

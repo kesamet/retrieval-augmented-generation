@@ -117,6 +117,7 @@ def doc_conv_qa():
                 },
                 config={"callbacks": [st_callback]},
             )
+            st_callback._complete_current_thought()
 
             answer = response["answer"]
             source_documents = response["source_documents"]
