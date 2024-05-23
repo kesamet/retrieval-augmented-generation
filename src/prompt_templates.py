@@ -23,6 +23,8 @@ CHAT_FORMATS = {
 {system}
 {user}<|end|>
 <|assistant|>""",
+    "gemini": "{system}\n{user}",
+    "gpt": "{system}\n{user}",
 }
 
 

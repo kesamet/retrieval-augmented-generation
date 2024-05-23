@@ -8,6 +8,7 @@ from src import CFG
 from src.agents import create_react_agent, DEFAULT_REACT_TEMPLATE
 from src.prompt_templates import prompts
 from src.retrieval_qa import build_rerank_retriever, condense_question_chain
+from src.tools import tavily_tool
 from src.vectordb import load_faiss
 from streamlit_app.utils import load_base_embeddings, load_llm, load_reranker
 
@@ -26,7 +27,7 @@ def _load_faiss_cached(index_path):
 
 
 def build_chain(reranker, llm):
-    tools = []
+    tools = [tavily_tool]
     for vectordb in CFG.VECTORDB:
         db = _load_faiss_cached(vectordb.PATH)
         retriever = build_rerank_retriever(db, reranker)

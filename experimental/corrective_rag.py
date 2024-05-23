@@ -12,7 +12,7 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langgraph.graph import END, StateGraph
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_groq import ChatGroq
+# from langchain_groq import ChatGroq
 
 from src.embeddings import build_base_embeddings
 from src.vectordb import load_chroma
