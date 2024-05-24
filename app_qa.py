@@ -176,6 +176,7 @@ def doc_qa():
             st.session_state.last_response = retrieval_chain.invoke(
                 user_query, config={"callbacks": [st_callback]}
             )
+            st_callback._complete_current_thought()
 
     if st.session_state.last_response:
         with c0:

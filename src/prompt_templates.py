@@ -1,6 +1,6 @@
 from src import CFG, logger
 
-CHAT_FORMAT = {
+CHAT_FORMATS = {
     "llama2": """<s> [INST] <<SYS>>{system}<</SYS>>
 {user}
 [/INST]""",
@@ -23,12 +23,14 @@ CHAT_FORMAT = {
 {system}
 {user}<|end|>
 <|assistant|>""",
+    "gemini": "{system}\n{user}",
+    "gpt": "{system}\n{user}",
 }
 
 
 class Prompts:
     def __init__(self, prompt_type: str):
-        self.chat_format = CHAT_FORMAT.get(prompt_type)
+        self.chat_format = CHAT_FORMATS.get(prompt_type)
         if self.chat_format is None:
             logger.warning("Chat prompt format not implemented. Using generic format.")
             self.chat_format = "{system}\n{user}"

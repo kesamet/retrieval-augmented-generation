@@ -6,13 +6,15 @@ from langchain.agents import AgentExecutor
 
 from src import CFG
 from src.agents import create_react_agent, DEFAULT_REACT_TEMPLATE
-from src.prompt_templates import CHAT_FORMAT
+from src.prompt_templates import prompts
 from src.retrieval_qa import build_rerank_retriever, condense_question_chain
+from src.tools import tavily_tool
 from src.vectordb import load_faiss
 from streamlit_app.utils import load_base_embeddings, load_llm, load_reranker
 
 st.set_page_config(page_title="ReAct RAG")
 
+CHAT_FORMAT = prompts.chat_format
 LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
 RERANKER = load_reranker()
@@ -25,11 +27,10 @@ def _load_faiss_cached(index_path):
 
 
 def build_chain(reranker, llm):
-    tools = []
+    tools = [tavily_tool]
     for vectordb in CFG.VECTORDB:
         db = _load_faiss_cached(vectordb.PATH)
         retriever = build_rerank_retriever(db, reranker)
-        # retriever = db.as_retriever()
 
         tool = create_retriever_tool(
             retriever=retriever,
@@ -39,7 +40,7 @@ def build_chain(reranker, llm):
         tools.append(tool)
 
     prompt = PromptTemplate.from_template(
-        CHAT_FORMAT[CFG.PROMPT_TYPE].format(system=DEFAULT_REACT_TEMPLATE, user="")
+        CHAT_FORMAT.format(system=DEFAULT_REACT_TEMPLATE, user="")
     )
     agent = create_react_agent(
         llm=llm,
@@ -122,7 +123,8 @@ def rag_react():
                 {
                     "question": user_query,
                     "chat_history": st.session_state.chat_history,
-                }
+                },
+                config={"callbacks": [st_callback]},
             )
             response = chain.invoke(
                 {"input": query},
