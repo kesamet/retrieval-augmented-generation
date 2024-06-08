@@ -4,7 +4,7 @@ VectorDB
 
 import shutil
 import os
-from typing import Literal, Optional, Sequence
+from typing import Literal, Sequence
 
 from chromadb.config import Settings
 from langchain.embeddings.base import Embeddings
@@ -14,6 +14,8 @@ from langchain_community.vectorstores import Chroma, FAISS
 
 from src import CFG, logger
 from src.parser import load_pdf, text_split, propositionize
+
+_VECTORDB_TYPE = Literal["faiss", "chroma"]
 
 
 def build_vectordb(filename: str, embedding_function: Embeddings) -> None:
@@ -35,7 +37,7 @@ def save_vectordb(
     docs: Sequence[Document],
     embedding_function: Embeddings,
     persist_directory: str,
-    vectordb_type: Literal["faiss", "chroma"],
+    vectordb_type: _VECTORDB_TYPE,
 ) -> None:
     """Saves a vector database to disk."""
     logger.info(f"Save vectordb to '{persist_directory}'")
@@ -49,7 +51,7 @@ def save_vectordb(
 
 
 def delete_vectordb(
-    persist_directory: str, vectordb_type: Literal["faiss", "chroma"]
+    persist_directory: str, vectordb_type: _VECTORDB_TYPE
 ) -> None:
     """Deletes vector database."""
     logger.info(f"Delete vectordb in '{persist_directory}'")
