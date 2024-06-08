@@ -16,19 +16,21 @@ from src.vectordb import build_vectordb, delete_vectordb, load_faiss, load_chrom
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
 
-st.set_page_config(page_title="Retrieval QA", layout="wide")
+TITLE = "Retrieval QA"
+st.set_page_config(page_title=TITLE, layout="wide")
 
 LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
 RERANKER = load_reranker()
+VECTORDB_PATH = CFG.VECTORDB[0].PATH
 
 
 @st.cache_resource
 def load_vectordb():
     if CFG.VECTORDB_TYPE == "faiss":
-        return load_faiss(BASE_EMBEDDINGS)
+        return load_faiss(BASE_EMBEDDINGS, VECTORDB_PATH)
     if CFG.VECTORDB_TYPE == "chroma":
-        return load_chroma(BASE_EMBEDDINGS)
+        return load_chroma(BASE_EMBEDDINGS, VECTORDB_PATH)
     raise NotImplementedError
 
 
@@ -71,7 +73,7 @@ def doc_qa():
     init_sess_state()
 
     with st.sidebar:
-        st.header("RAG with quantized LLM")
+        st.header(TITLE)
 
         with st.expander("Models used"):
             st.info(f"LLM: `{CFG.LLM_PATH}`")
@@ -86,9 +88,9 @@ def doc_qa():
                 st.error("No PDF uploaded")
                 st.stop()
 
-            if os.path.exists(CFG.VECTORDB_PATH):
+            if os.path.exists(VECTORDB_PATH):
                 st.warning("Deleting existing VectorDB")
-                delete_vectordb(CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
+                delete_vectordb(VECTORDB_PATH, CFG.VECTORDB_TYPE)
 
             with st.spinner("Building VectorDB..."):
                 perform(
@@ -98,7 +100,7 @@ def doc_qa():
                 )
                 load_vectordb.clear()
 
-        if not os.path.exists(CFG.VECTORDB_PATH):
+        if not os.path.exists(VECTORDB_PATH):
             st.info("Please build VectorDB first.")
             st.stop()
 

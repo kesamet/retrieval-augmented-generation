@@ -8,11 +8,11 @@ from src import CFG
 from src.agents import create_react_agent, DEFAULT_REACT_TEMPLATE
 from src.prompt_templates import prompts
 from src.retrieval_qa import build_rerank_retriever, condense_question_chain
-from src.tools import tavily_tool
-from src.vectordb import load_faiss
+from src.vectordb import load_faiss, load_chroma
 from streamlit_app.utils import load_base_embeddings, load_llm, load_reranker
 
-st.set_page_config(page_title="ReAct RAG")
+TITLE = "Conversational RAG using ReAct"
+st.set_page_config(page_title=TITLE)
 
 CHAT_FORMAT = prompts.chat_format
 LLM = load_llm()
@@ -22,14 +22,18 @@ CONDENSE_QUESTION_CHAIN = condense_question_chain(LLM)
 
 
 @st.cache_resource
-def _load_faiss_cached(index_path):
-    return load_faiss(BASE_EMBEDDINGS, index_path)
+def load_vectordb(vectordb_path):
+    if CFG.VECTORDB_TYPE == "faiss":
+        return load_faiss(BASE_EMBEDDINGS, vectordb_path)
+    if CFG.VECTORDB_TYPE == "chroma":
+        return load_chroma(BASE_EMBEDDINGS, vectordb_path)
+    raise NotImplementedError
 
 
 def build_chain(reranker, llm):
-    tools = [tavily_tool]
+    tools = []
     for vectordb in CFG.VECTORDB:
-        db = _load_faiss_cached(vectordb.PATH)
+        db = load_vectordb(vectordb.PATH)
         retriever = build_rerank_retriever(db, reranker)
 
         tool = create_retriever_tool(
@@ -74,7 +78,7 @@ def print_docs(source_documents):
 
 def rag_react():
     with st.sidebar:
-        st.title("ReAct RAG")
+        st.title(TITLE)
 
         with st.expander("Models used"):
             st.info(f"LLM: `{CFG.LLM_PATH}`")
@@ -132,7 +136,7 @@ def rag_react():
             )
             answer = response["output"].replace("$", r"\$")
             source_documents = [
-                r[1].replace("$", r"\$") for r in response["intermediate_steps"]
+                r[1] for r in response["intermediate_steps"]
             ]
 
             st.markdown(answer)
