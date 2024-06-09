@@ -68,7 +68,12 @@ The traces can be viewed at `http://localhost:6006`.
 
 ## 💻 App
 
-We use Streamlit as the interface for the demos. There are two demos:
+We use Streamlit as the interface for the demos. There are three demos:
+
+- Conversational Retrieval using ReAct
+```bash
+streamlit run app_react.py
+```
 
 - Conversational Retrieval
 ```bash

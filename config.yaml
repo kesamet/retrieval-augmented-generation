@@ -1,4 +1,4 @@
-USE_TRACING: True
+USE_TRACING: False
 
 DEVICE: cpu
 
@@ -10,21 +10,11 @@ MODELS_DIR: ./models
 # EMBEDDINGS_PATH: all-mpnet-base-v2
 EMBEDDINGS_PATH: bge-small-en-v1.5
 
-# VECTORDB_TYPE: faiss
-# VECTORDB_PATH: vectordb/faiss
-
-# VECTORDB_TYPE: chroma
-# VECTORDB_PATH: vectordb/chroma
-
 VECTORDB_TYPE: faiss
 VECTORDB:
-  - PATH: ./vectordb/faiss_uber
-    NAME: uber_10k
-    DESCRIPTION: Provides information about Uber financials for year 2021
-
-  - PATH: ./vectordb/faiss_lyft
-    NAME: lyft_10k
-    DESCRIPTION: Provides information about Lyft financials for year 2021
+  - PATH: ./vectordb/faiss
+    NAME: document
+    DESCRIPTION: Provides information about the document. Always use this first.
 
 # LLM_TYPE: gguf
 # LLM_PATH: llama-2-7b-chat.Q4_K_M.gguf

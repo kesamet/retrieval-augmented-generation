@@ -4,7 +4,7 @@ VectorDB
 
 import shutil
 import os
-from typing import Literal, Optional, Sequence
+from typing import Literal, Sequence
 
 from chromadb.config import Settings
 from langchain.embeddings.base import Embeddings
@@ -15,17 +15,20 @@ from langchain_community.vectorstores import Chroma, FAISS
 from src import CFG, logger
 from src.parser import load_pdf, text_split, propositionize
 
+_VECTORDB_TYPE = Literal["faiss", "chroma"]
+
 
 def build_vectordb(filename: str, embedding_function: Embeddings) -> None:
     """Builds a vector database from a PDF file."""
     parts = load_pdf(filename)
+    vectordb_path = CFG.VECTORDB[0].PATH
 
     if CFG.TEXT_SPLIT_MODE == "default":
         docs = text_split(parts)
-        save_vectordb(docs, embedding_function, CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
+        save_vectordb(docs, embedding_function, vectordb_path, CFG.VECTORDB_TYPE)
     elif CFG.TEXT_SPLIT_MODE == "propositionize":
         docs = propositionize(parts)
-        save_vectordb(docs, embedding_function, CFG.VECTORDB_PATH, CFG.VECTORDB_TYPE)
+        save_vectordb(docs, embedding_function, vectordb_path, CFG.VECTORDB_TYPE)
     else:
         raise NotImplementedError
 
@@ -34,7 +37,7 @@ def save_vectordb(
     docs: Sequence[Document],
     embedding_function: Embeddings,
     persist_directory: str,
-    vectordb_type: Literal["faiss", "chroma"],
+    vectordb_type: _VECTORDB_TYPE,
 ) -> None:
     """Saves a vector database to disk."""
     logger.info(f"Save vectordb to '{persist_directory}'")
@@ -48,7 +51,7 @@ def save_vectordb(
 
 
 def delete_vectordb(
-    persist_directory: str, vectordb_type: Literal["faiss", "chroma"]
+    persist_directory: str, vectordb_type: _VECTORDB_TYPE
 ) -> None:
     """Deletes vector database."""
     logger.info(f"Delete vectordb in '{persist_directory}'")
@@ -76,12 +79,8 @@ def save_faiss(
     return vectorstore
 
 
-def load_faiss(
-    embedding_function: Embeddings, persist_directory: Optional[str] = None
-) -> VectorStore:
+def load_faiss(embedding_function: Embeddings, persist_directory: str) -> VectorStore:
     """Loads a FAISS index from disk."""
-    if persist_directory is None:
-        persist_directory = CFG.VECTORDB_PATH
     logger.info(f"persist_directory = {persist_directory}")
 
     return FAISS.load_local(
@@ -106,14 +105,8 @@ def save_chroma(
     return vectorstore
 
 
-def load_chroma(
-    embedding_function: Embeddings, persist_directory: Optional[str] = None
-) -> VectorStore:
+def load_chroma(embedding_function: Embeddings, persist_directory: str) -> VectorStore:
     """Loads a Chroma index from disk."""
-    if persist_directory is None:
-        persist_directory = CFG.VECTORDB_PATH
-    if not os.path.exists(persist_directory):
-        raise FileNotFoundError
     logger.info(f"persist_directory = {persist_directory}")
 
     return Chroma(
