@@ -108,13 +108,21 @@ def propositionize(docs: Sequence[Document]) -> Sequence[Document]:
     return prop_texts
 
 
-def raptorize(docs: Sequence[Document]) -> Sequence[Document]:
-    from src.elements.raptor import recursive_embed_cluster_summarize
+def raptorize(docs: Sequence[Document], title: str) -> Sequence[Document]:
+    from src.embeddings import build_base_embeddings
+    from src.llms import googlegenerativeai
+    from src.elements.raptor import Raptorizer
+
+    base_embeddings = build_base_embeddings()
+    llm = googlegenerativeai("gemini-1.5-flash")
+    raptorizer = Raptorizer(base_embeddings, llm, "gemini")
 
     leaf_texts = [doc.page_content for doc in docs]
-    results = recursive_embed_cluster_summarize(leaf_texts, title, level=1, n_levels=3)
+    results = raptorizer.recursive_embed_cluster_summarize(
+        leaf_texts, title, level=1, n_levels=3
+    )
 
-    # Flatten all summaries and add them to texts
+    # Flatten all summaries and add them to docs
     metadata = docs[0].metadata
     summarize_docs = []
     for level in sorted(results.keys()):

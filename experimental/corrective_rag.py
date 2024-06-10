@@ -5,38 +5,30 @@ with langgraph
 
 from typing import List, TypedDict
 
-from dotenv import load_dotenv
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langgraph.graph import END, StateGraph
-from langchain_google_genai import ChatGoogleGenerativeAI
-# from langchain_groq import ChatGroq
+from langchain_google_genai import GoogleGenerativeAI
 
 from src.embeddings import build_base_embeddings
 from src.vectordb import load_chroma
 from src.reranker import build_reranker
 from src.retrieval_qa import build_rerank_retriever
-from src.llms import build_llm
 from src.prompt_templates import CHAT_FORMATS, QA_TEMPLATE
 
-_ = load_dotenv()
-
-MODEL = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.0, streaming=False)
+MODEL = GoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.0, streaming=False)
 chat_format = CHAT_FORMATS["gemini"]
-# MODEL = ChatGroq(model_name="mixtral-8x7b-32768", temperature=0.0)
-# chat_format = CHAT_FORMATS["mistral"]
 
 # Setup RAG
 embedding_function = build_base_embeddings()
-vectordb = load_chroma(embedding_function)
+vectordb = load_chroma(embedding_function, "./vectordb/faiss")
 reranker = build_reranker()
 RETRIEVER = build_rerank_retriever(vectordb, reranker)
 
 prompt = PromptTemplate.from_template(QA_TEMPLATE)
-llm = build_llm()
-RAG_CHAIN = prompt | llm | StrOutputParser()
+RAG_CHAIN = prompt | MODEL | StrOutputParser()
 
 
 class GraphState(TypedDict):

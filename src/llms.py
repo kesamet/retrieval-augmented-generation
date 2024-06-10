@@ -186,9 +186,5 @@ def googlegenerativeai(
             "temperature": DEFAULT_TEMPERATURE,
         }
 
-    llm = GoogleGenerativeAI(
-        model=model,
-        **config,
-        **kwargs,
-    )
+    llm = GoogleGenerativeAI(model=model, **config, **kwargs)
     return llm

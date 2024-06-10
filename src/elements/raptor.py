@@ -1,8 +1,8 @@
 """
-Copied from https://github.com/run-llama/llama_index/blob/main/llama-index-packs/llama-index-packs-raptor/llama_index/packs/raptor/clustering.py
+Adpated from
+https://github.com/langchain-ai/langchain/blob/master/cookbook/RAPTOR.ipynb
 """
 
-import random
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -16,7 +16,6 @@ from sklearn.mixture import GaussianMixture
 from src.prompt_templates import CHAT_FORMATS
 
 RANDOM_SEED = 224  # Fixed seed for reproducibility
-random.seed(RANDOM_SEED)
 
 
 def global_cluster_embeddings(
@@ -69,7 +68,8 @@ def get_optimal_clusters(
     embeddings: np.ndarray, max_clusters: int = 50, random_state: int = RANDOM_SEED
 ) -> int:
     """
-    Determine the optimal number of clusters using the Bayesian Information Criterion (BIC) with a Gaussian Mixture Model.
+    Determine the optimal number of clusters using the Bayesian Information Criterion (BIC)
+    with a Gaussian Mixture Model.
 
     Parameters:
     - embeddings: The input embeddings as a numpy array.
@@ -181,11 +181,9 @@ def perform_clustering(
 
 
 class Raptorizer:
-
     def __init__(self, embedding_function, model, prompt_type):
         self.embedding_function = embedding_function
         self.model = model
-        self.prompt_type = prompt_type
         self.chat_format = CHAT_FORMATS[prompt_type]
 
     def embed(self, texts):
@@ -205,7 +203,8 @@ class Raptorizer:
 
     def embed_cluster_texts(self, texts: List[str]) -> pd.DataFrame:
         """
-        Embeds a list of texts and clusters them, returning a DataFrame with texts, their embeddings, and cluster labels.
+        Embeds a list of texts and clusters them, returning a DataFrame with texts, their embeddings,
+        and cluster labels.
 
         This function combines embedding generation and clustering into a single step. It assumes the existence
         of a previously defined `perform_clustering` function that performs clustering on the embeddings.
@@ -214,7 +213,8 @@ class Raptorizer:
         - texts: List[str], a list of text documents to be processed.
 
         Returns:
-        - pandas.DataFrame: A DataFrame containing the original texts, their embeddings, and the assigned cluster labels.
+        - pandas.DataFrame: A DataFrame containing the original texts, their embeddings,
+          and the assigned cluster labels.
         """
         text_embeddings_np = self.embed(texts)
         cluster_labels = perform_clustering(text_embeddings_np, 10, 0.1)
