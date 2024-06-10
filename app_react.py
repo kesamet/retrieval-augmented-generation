@@ -135,9 +135,7 @@ def rag_react():
                 config={"callbacks": [st_callback]},
             )
             answer = response["output"].replace("$", r"\$")
-            source_documents = [
-                r[1] for r in response["intermediate_steps"]
-            ]
+            source_documents = [r[1] for r in response["intermediate_steps"]]
 
             st.markdown(answer)
 

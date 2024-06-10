@@ -50,9 +50,7 @@ def save_vectordb(
         raise NotImplementedError
 
 
-def delete_vectordb(
-    persist_directory: str, vectordb_type: _VECTORDB_TYPE
-) -> None:
+def delete_vectordb(persist_directory: str, vectordb_type: _VECTORDB_TYPE) -> None:
     """Deletes vector database."""
     logger.info(f"Delete vectordb in '{persist_directory}'")
     if vectordb_type == "faiss":

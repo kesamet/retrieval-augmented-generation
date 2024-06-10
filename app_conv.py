@@ -36,7 +36,8 @@ def init_chat_history():
 
 def print_docs(source_documents):
     for row in source_documents:
-        st.write(f"**Page {row.metadata['page_number']}**")
+        if row.metadata.get("page_number"):
+            st.write(f"**Page {row.metadata['page_number']}**")
         st.info(row.page_content)
 
 

@@ -7,12 +7,12 @@ TEXT_SPLIT_MODE: default  # default or propositionize
 
 MODELS_DIR: ./models
 
-# EMBEDDINGS_PATH: all-mpnet-base-v2
-EMBEDDINGS_PATH: bge-small-en-v1.5
+EMBEDDINGS_PATH: all-mpnet-base-v2
+# EMBEDDINGS_PATH: bge-small-en-v1.5
 
 VECTORDB_TYPE: faiss
 VECTORDB:
-  - PATH: ./vectordb/faiss
+  - PATH: ./vectordb/faiss_raptor
     NAME: document
     DESCRIPTION: Provides information about the document. Always use this first.
 
@@ -28,9 +28,9 @@ VECTORDB:
 # LLM_PATH: zephyr-7b-beta.Q4_K_M.gguf
 # PROMPT_TYPE: zephyr
 
-# LLM_TYPE: gguf
-# LLM_PATH: gemma-2b-it-q4_k_m.gguf
-# PROMPT_TYPE: gemma
+LLM_TYPE: gguf
+LLM_PATH: gemma-2b-it-q4_k_m.gguf
+PROMPT_TYPE: gemma
 
 # LLM_TYPE: gguf
 # LLM_PATH: Meta-Llama-3-8B-Instruct-Q4_K_M.gguf
@@ -40,9 +40,9 @@ VECTORDB:
 # LLM_PATH: Phi-3-mini-4k-instruct-q4.gguf
 # PROMPT_TYPE: phi3
 
-LLM_TYPE: groq
-LLM_PATH: mixtral-8x7b-32768
-PROMPT_TYPE: mistral
+# LLM_TYPE: groq
+# LLM_PATH: mixtral-8x7b-32768
+# PROMPT_TYPE: mistral
 
 # LLM_TYPE: ollama
 # LLM_PATH: llama3
