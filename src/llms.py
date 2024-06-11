@@ -54,8 +54,16 @@ def build_llm():
                 "temperature": CFG.LLM_CONFIG.TEMPERATURE,
             },
         )
+    elif CFG.LLM_TYPE == "gemini":
+        return googlegenerativeai(
+            CFG.LLM_PATH,
+            config={
+                "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
+                "temperature": CFG.LLM_CONFIG.TEMPERATURE,
+            },
+        )
     else:
-        raise NotImplementedError
+        raise NotImplementedError(f"{CFG.LLM_PATH} not implemented")
 
 
 def build_ctransformers(
@@ -165,4 +173,18 @@ def chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
         streaming=True,
         **kwargs,
     )
+    return llm
+
+
+def googlegenerativeai(
+    model: str = "gemini-1.5-flash", config: dict | None = None, **kwargs
+):
+    from langchain_google_genai import GoogleGenerativeAI
+
+    if config is None:
+        config = {
+            "temperature": DEFAULT_TEMPERATURE,
+        }
+
+    llm = GoogleGenerativeAI(model=model, **config, **kwargs)
     return llm

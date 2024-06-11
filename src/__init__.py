@@ -3,6 +3,9 @@ import logging
 import box
 import requests
 import yaml
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,

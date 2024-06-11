@@ -22,6 +22,12 @@ def load_pdf(filename: str) -> Sequence:
     return partition_pdf(filename, strategy="fast")
 
 
+def get_title(elements: Sequence[Element]) -> str:
+    for element in elements:
+        if element.category == "Title":
+            return element.text
+
+
 def text_split(elements: Sequence[Element]) -> Sequence[Document]:
     """Text chunking using unstructured."""
     select_elements = [
@@ -100,3 +106,29 @@ def propositionize(docs: Sequence[Document]) -> Sequence[Document]:
 
     prop_texts = propositionizer.batch(texts)
     return prop_texts
+
+
+def raptorize(docs: Sequence[Document], title: str) -> Sequence[Document]:
+    from src.embeddings import build_base_embeddings
+    from src.llms import googlegenerativeai
+    from src.elements.raptor import Raptorizer
+
+    base_embeddings = build_base_embeddings()
+    llm = googlegenerativeai("gemini-1.5-flash")
+    raptorizer = Raptorizer(base_embeddings, llm, "gemini")
+
+    leaf_texts = [doc.page_content for doc in docs]
+    results = raptorizer.recursive_embed_cluster_summarize(
+        leaf_texts, title, level=1, n_levels=3
+    )
+
+    # Flatten all summaries and add them to docs
+    metadata = docs[0].metadata
+    summarize_docs = []
+    for level in sorted(results.keys()):
+        summaries = results[level][1]["summaries"].tolist()
+        summaries = [
+            Document(page_content=text, metadata=metadata) for text in summaries
+        ]
+        summarize_docs.extend(summaries)
+    return docs + summarize_docs

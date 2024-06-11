@@ -71,6 +71,12 @@ The traces can be viewed at `http://localhost:6006`.
 We use Streamlit as the interface for the demos. There are three demos:
 
 - Conversational Retrieval using ReAct
+
+Create vectorstore first and update `config.yaml`
+```bash
+python -m vectorize --filepaths <your-filepath>
+```
+Run the app
 ```bash
 streamlit run app_react.py
 ```
