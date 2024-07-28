@@ -2,7 +2,8 @@ arize-phoenix[evals]==3.16.0
 chromadb==0.4.24
 ctransformers==0.2.27
 faiss-cpu==1.8.0
-langchain==0.2.3
+langchain==0.2.11
+langchain-huggingface==0.0.3
 langchain-google-genai==1.0.6
 langchain-groq==0.1.5
 langchain-openai==0.1.8
@@ -12,10 +13,10 @@ pillow_heif==0.16.0
 PyMuPDF==1.23.26
 python-box==7.1.1
 rank-bm25==0.2.2
-sentence-transformers==2.6.0
+sentence-transformers==3.0.1
 simsimd==3.3.0
-streamlit==1.35.0
-torch==2.2.1
-transformers==4.40.1
-umap-learn==0.5.5
+streamlit==1.37.0
+transformers==4.43.3
+umap-learn==0.5.6
 unstructured==0.13.6
+torch==2.4.0 --index-url https://download.pytorch.org/whl/cpu

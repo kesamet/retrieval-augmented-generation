@@ -1,5 +1,5 @@
 # retrieval-augmented-generation
-Retrieval augmented generation (RAG) demos with Llama-2-7b, Mistral-7b, Zephyr-7b, Gemma-2b, Llama-3-8b, Phi-3-mini
+Retrieval augmented generation (RAG) demos with Llama-2-7b, Mistral-7b, Zephyr-7b, Gemma-2b, Llama-3-8b, Phi-3-mini, Llama-3.1-8b
 
 The demos use quantized models and run on CPU with acceptable inference time. They can run **offline** without Internet access, thus allowing deployment in an air-gapped environment.
 
@@ -24,11 +24,14 @@ Activate the environment.
 conda activate rag
 ```
 
-### Download model artefacts
+### 🧠 Use different LLMs
+
+**Using a different LLM might lead to poor responses and even fail to output a response. It will require testing, prompt engineering and code refactoring.**
 
 Download and save the models in `./models` and update `config.yaml`. The models used in this demo are:
 - Embeddings
     - [BAAI/bge-small-en-v1.5](https://huggingface.co/BAAI/bge-small-en-v1.5)
+    - [sentence-transformers/all-mpnet-base-v2](https://huggingface.co/sentence-transformers/all-mpnet-base-v2)
     - [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
 - Rerankers:
     - [BAAI/bge-reranker-base](https://huggingface.co/BAAI/bge-reranker-base): save in `models/bge-reranker-base/`
@@ -36,6 +39,7 @@ Download and save the models in `./models` and update `config.yaml`. The models 
 - Propositionizer
     - [chentong00/propositionizer-wiki-flan-t5-large](https://huggingface.co/chentong00/propositionizer-wiki-flan-t5-large) save in `models/propositionizer-wiki-flan-t5-large/`
 - LLMs
+    - [bartowski/Meta-Llama-3.1-8B-Instruct-GGUF](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)
     - [microsoft/Phi-3-mini-4k-instruct-gguf](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf)
     - [QuantFactory/Meta-Llama-3-8B-Instruct-GGUF](https://huggingface.co/QuantFactory/Meta-Llama-3-8B-Instruct-GGUF)
     - [lmstudio-ai/gemma-2b-it-GGUF](https://huggingface.co/lmstudio-ai/gemma-2b-it-GGUF)
@@ -70,6 +74,12 @@ The traces can be viewed at `http://localhost:6006`.
 
 We use Streamlit as the interface for the demos. There are three demos:
 
+- Conversational Retrieval
+
+```bash
+streamlit run app_conv.py
+```
+
 - Conversational Retrieval using ReAct
 
 Create vectorstore first and update `config.yaml`
@@ -81,12 +91,8 @@ Run the app
 streamlit run app_react.py
 ```
 
-- Conversational Retrieval
-```bash
-streamlit run app_conv.py
-```
-
 - Retrieval QA
+
 ```bash
 streamlit run app_qa.py
 ```

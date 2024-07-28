@@ -19,7 +19,7 @@ class BGEReranker(BaseDocumentCompressor):
     model_path: str = os.path.join(CFG.MODELS_DIR, CFG.RERANKER_PATH)
     top_n: int = 4
     """Number of documents to return."""
-    model: CrossEncoder = CrossEncoder(model_path)
+    model: CrossEncoder = CrossEncoder(model_path, device=CFG.DEVICE)
     """CrossEncoder instance to use for reranking."""
 
     class Config:
