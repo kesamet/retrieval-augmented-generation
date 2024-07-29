@@ -6,7 +6,7 @@ import os
 
 from langchain.chains.hyde.base import HypotheticalDocumentEmbedder, LLMChain
 from langchain.prompts import PromptTemplate
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from src import CFG
 from src.prompt_templates import HYDE_TEMPLATE
