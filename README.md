@@ -19,6 +19,18 @@ conda activate rag
 pip install -r requirements.txt
 ```
 
+We shall use `unstructured` to process PDFs. Refer to [nstallation Instructions for Local Development](https://github.com/Unstructured-IO/unstructured?tab=readme-ov-file#installation-instructions-for-local-development).
+
+You would also need to download `punkt_tab` and `averaged_perceptron_tagger_eng` from nltk.
+
+```python
+import nltk
+nltk.download('punkt_tab')
+nltk.download('averaged_perceptron_tagger_eng')
+```
+
+Note that we shall only use `strategy="fast"` in this demo. WIP for extraction of tables from PDFs.
+
 Activate the environment.
 ```bash
 conda activate rag
@@ -81,6 +93,8 @@ streamlit run app_conv.py
 ```
 
 - Conversational Retrieval using ReAct
+
+**Note that this works only for models that can handle reasoning tasks and tool calls.**
 
 Create vectorstore first and update `config.yaml`
 ```bash

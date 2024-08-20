@@ -1,4 +1,6 @@
-from src import CFG, logger
+from loguru import logger
+
+from src import CFG
 
 CHAT_FORMATS = {
     "llama2": """<s> [INST] <<SYS>>{system}<</SYS>>

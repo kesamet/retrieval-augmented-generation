@@ -8,15 +8,18 @@ langchain-google-genai==1.0.6
 langchain-groq==0.1.5
 langchain-openai==0.1.8
 llama-cpp-python==0.2.69
-pikepdf==8.15.0
+loguru==0.7.2
+omegaconf==2.3.0
+pikepdf==9.1.1
 pillow_heif==0.16.0
 PyMuPDF==1.23.26
-python-box==7.1.1
+python-dotenv==1.0.1
 rank-bm25==0.2.2
 sentence-transformers==3.0.1
 simsimd==3.3.0
-streamlit==1.37.0
+streamlit==1.37.1
 transformers==4.43.3
 umap-learn==0.5.6
-unstructured==0.13.6
+unstructured==0.15.5
+unstructured-inference==0.7.36
 torch==2.4.0 --index-url https://download.pytorch.org/whl/cpu
