@@ -23,7 +23,7 @@ def build_vectordb(filename: str, embedding_function: Embeddings) -> None:
     """Builds a vector database from a PDF file."""
     parts = load_pdf(filename)
     if len(parts) == 0:
-        raise Exception("Unable to load pdf.") 
+        raise Exception("Unable to load pdf.")
     vectordb_path = CFG.VECTORDB[0].PATH
 
     if CFG.TEXT_SPLIT_MODE == "default":
