@@ -5,8 +5,7 @@ from typing import List
 import fitz
 from PIL import Image
 from langchain.schema import Document
-
-from src import logger
+from loguru import logger
 
 
 def extract_images(filename: str, image_output_dir_path: str) -> None:

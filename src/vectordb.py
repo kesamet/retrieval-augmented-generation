@@ -11,8 +11,9 @@ from langchain.embeddings.base import Embeddings
 from langchain.schema import Document
 from langchain.vectorstores.base import VectorStore
 from langchain_community.vectorstores import Chroma, FAISS
+from loguru import logger
 
-from src import CFG, logger
+from src import CFG
 from src.parser import load_pdf, text_split, propositionize
 
 _VECTORDB_TYPE = Literal["faiss", "chroma"]
@@ -21,6 +22,8 @@ _VECTORDB_TYPE = Literal["faiss", "chroma"]
 def build_vectordb(filename: str, embedding_function: Embeddings) -> None:
     """Builds a vector database from a PDF file."""
     parts = load_pdf(filename)
+    if len(parts) == 0:
+        raise Exception("Unable to load pdf.") 
     vectordb_path = CFG.VECTORDB[0].PATH
 
     if CFG.TEXT_SPLIT_MODE == "default":
