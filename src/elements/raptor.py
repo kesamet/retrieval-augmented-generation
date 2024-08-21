@@ -31,7 +31,7 @@ def global_cluster_embeddings(
     - embeddings: The input embeddings as a numpy array.
     - dim: The target dimensionality for the reduced space.
     - n_neighbors: Optional; the number of neighbors to consider for each point.
-                   If not provided, it defaults to the square root of the number of embeddings.
+        If not provided, it defaults to the square root of the number of embeddings.
     - metric: The distance metric to use for UMAP.
 
     Returns:
@@ -48,7 +48,8 @@ def local_cluster_embeddings(
     embeddings: np.ndarray, dim: int, num_neighbors: int = 10, metric: str = "cosine"
 ) -> np.ndarray:
     """
-    Perform local dimensionality reduction on the embeddings using UMAP, typically after global clustering.
+    Perform local dimensionality reduction on the embeddings using UMAP,
+    typically after global clustering.
 
     Parameters:
     - embeddings: The input embeddings as a numpy array.
@@ -115,8 +116,9 @@ def perform_clustering(
     threshold: float,
 ) -> List[np.ndarray]:
     """
-    Perform clustering on the embeddings by first reducing their dimensionality globally, then clustering
-    using a Gaussian Mixture Model, and finally performing local clustering within each global cluster.
+    Perform clustering on the embeddings by first reducing their dimensionality globally,
+    then clustering using a Gaussian Mixture Model, and finally performing local clustering
+    within each global cluster.
 
     Parameters:
     - embeddings: The input embeddings as a numpy array.
@@ -180,7 +182,8 @@ class Raptorizer:
 
         Parameters:
         - texts: List[str], a list of text documents to be embedded.
-        - embedding_function: A function that takes a list of text documents and returns the corresponding embeddings.
+        - embedding_function: A function that takes a list of text documents and
+            returns the corresponding embeddings.
 
         Returns:
         - numpy.ndarray: An array of embeddings for the given text documents.
@@ -191,11 +194,12 @@ class Raptorizer:
 
     def embed_cluster_texts(self, texts: List[str]) -> pd.DataFrame:
         """
-        Embeds a list of texts and clusters them, returning a DataFrame with texts, their embeddings,
-        and cluster labels.
+        Embeds a list of texts and clusters them, returning a DataFrame with texts,
+        their embeddings, and cluster labels.
 
-        This function combines embedding generation and clustering into a single step. It assumes the existence
-        of a previously defined `perform_clustering` function that performs clustering on the embeddings.
+        This function combines embedding generation and clustering into a single step.
+        It assumes the existence of a previously defined `perform_clustering` function
+        that performs clustering on the embeddings.
 
         Parameters:
         - texts: List[str], a list of text documents to be processed.
@@ -245,9 +249,9 @@ class Raptorizer:
         self, texts: List[str], title: str, level: int
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
-        Embeds, clusters, and summarizes a list of texts. This function first generates embeddings for the texts,
-        clusters them based on similarity, expands the cluster assignments for easier processing, and then summarizes
-        the content within each cluster.
+        Embeds, clusters, and summarizes a list of texts. This function first generates embeddings
+        for the texts, clusters them based on similarity, expands the cluster assignments
+        for easier processing, and then summarizes the content within each cluster.
 
         Parameters:
         - texts: A list of text documents to be processed.
@@ -255,12 +259,14 @@ class Raptorizer:
 
         Returns:
         - Tuple containing two DataFrames:
-        1. The first DataFrame (`df_clusters`) includes the original texts, their embeddings, and cluster assignments.
-        2. The second DataFrame (`df_summary`) contains summaries for each cluster, the specified level of detail,
-            and the cluster identifiers.
+        1. The first DataFrame (`df_clusters`) includes the original texts, their embeddings,
+            and cluster assignments.
+        2. The second DataFrame (`df_summary`) contains summaries for each cluster,
+            the specified level of detail, and the cluster identifiers.
         """
 
-        # Embed and cluster the texts, resulting in a DataFrame with 'text', 'embd', and 'cluster' columns
+        # Embed and cluster the texts, resulting in a DataFrame
+        # with 'text', 'embd', and 'cluster' columns
         df_clusters = self.embed_cluster_texts(texts)
 
         # Prepare to expand the DataFrame for easier manipulation of clusters
@@ -312,7 +318,8 @@ class Raptorizer:
 
         Returns:
         - Dict[int, Tuple[pd.DataFrame, pd.DataFrame]], a dictionary where keys are the recursion
-        levels and values are tuples containing the clusters DataFrame and summaries DataFrame at that level.
+            levels and values are tuples containing the clusters DataFrame and summaries DataFrame
+            at that level.
         """
         results = {}  # Dictionary to store results at each level
 

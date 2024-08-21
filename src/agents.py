@@ -10,13 +10,14 @@ from langchain.agents.output_parsers import ReActJsonSingleInputOutputParser
 from langchain.tools.render import render_text_description
 
 
-DEFAULT_REACT_TEMPLATE = """Answer the following questions as best you can. You have access to the following tools:
+DEFAULT_REACT_TEMPLATE = """Answer the following questions as best you can. \
+You have access to the following tools:
 
 {tools}
 
 The way you use the tools is by specifying a json blob.
-Specifically, this json should have a `action` key (with the name of the tool to use) and a `action_input` key \
-(with the input to the tool going here).
+Specifically, this json should have a `action` key (with the name of the tool to use) \
+and a `action_input` key (with the input to the tool going here).
 
 The only values that should be in the "action" field are: {tool_names}
 

@@ -42,7 +42,8 @@ class Prompts:
         system = (
             "You are a helpful, respectful and honest assistant for question-answering tasks."
             "Use the following pieces of retrieved context to answer the user's question. "
-            "If you don't know the answer, just say that you don't know, don't try to make up an answer."
+            "If you don't know the answer, just say that you don't know, "
+            "don't try to make up an answer."
         )
         user = "Context:\n{context}\n\nQuestion: {question}\nAnswer:"
         return self.chat_format.format(system=system, user=user)
@@ -52,8 +53,10 @@ class Prompts:
         system = ""
         user = (
             "Given the following chat history and a follow up question, "
-            "rephrase the follow up question to be a standalone question, in its original language.\n\n"
-            "Chat History:\n{chat_history}\n\nFollow Up Question: {question}\nStandalone question:"
+            "rephrase the follow up question to be a standalone question, "
+            "in its original language.\n\n"
+            "Chat History:\n{chat_history}\n\nFollow Up Question: {question}\n"
+            "Standalone question:"
         )
         return self.chat_format.format(system=system, user=user)
 
@@ -68,11 +71,12 @@ class Prompts:
         system = (
             "You are a helpful, respectful and honest assistant for question-answering tasks. "
             "Your users are asking questions about documents. "
-            "Suggest up to three additional related questions to help them find the information they need "
-            "for the provided question.\n"
+            "Suggest up to three additional related questions to help them find the information "
+            "they need for the provided question.\n"
             "Suggest only short questions without compound sentences.\n"
             "Suggest a variety of questions that cover different aspects of the topic.\n"
-            "Make sure they are complete questions, and that they are related to the original question.\n"
+            "Make sure they are complete questions, and that they are related to "
+            "the original question.\n"
             "Output one question per line and without numbering."
         )
         user = "Question: {question}"
