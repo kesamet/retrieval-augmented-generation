@@ -92,9 +92,7 @@ def build_ctransformers(
     return llm
 
 
-def build_llamacpp(
-    model_path: str, config: dict | None = None, debug: bool = False, **kwargs
-):
+def build_llamacpp(model_path: str, config: dict | None = None, debug: bool = False, **kwargs):
     """Builds LLM using LlamaCpp."""
     from langchain_community.llms.llamacpp import LlamaCpp
 
@@ -115,9 +113,7 @@ def build_llamacpp(
     return llm
 
 
-def chatgroq(
-    model_name: str = "mixtral-8x7b-32768", config: dict | None = None, **kwargs
-):
+def chatgroq(model_name: str = "mixtral-8x7b-32768", config: dict | None = None, **kwargs):
     """For Groq LLM."""
     from langchain_groq import ChatGroq
 
@@ -176,9 +172,7 @@ def chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
     return llm
 
 
-def googlegenerativeai(
-    model: str = "gemini-1.5-flash", config: dict | None = None, **kwargs
-):
+def googlegenerativeai(model: str = "gemini-1.5-flash", config: dict | None = None, **kwargs):
     from langchain_google_genai import GoogleGenerativeAI
 
     if config is None:

@@ -14,14 +14,10 @@ def build_llm_chain(llm: LLM, template: str) -> RunnableSequence:
 
 
 def build_multiple_queries_expansion_chain(llm: LLM) -> RunnableSequence:
-    chain = {"question": RunnablePassthrough()} | build_llm_chain(
-        llm, MULTI_QUERIES_TEMPLATE
-    )
+    chain = {"question": RunnablePassthrough()} | build_llm_chain(llm, MULTI_QUERIES_TEMPLATE)
     return chain
 
 
 def build_generated_result_expansion_chain(llm: LLM) -> RunnableSequence:
-    chain = {"question": RunnablePassthrough()} | build_llm_chain(
-        llm, GENERATED_RESULT_TEMPLATE
-    )
+    chain = {"question": RunnablePassthrough()} | build_llm_chain(llm, GENERATED_RESULT_TEMPLATE)
     return chain

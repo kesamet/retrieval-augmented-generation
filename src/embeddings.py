@@ -26,7 +26,5 @@ def build_hyde_embeddings(llm, base_embeddings):
     prompt = PromptTemplate.from_template(HYDE_TEMPLATE)
     llm_chain = LLMChain(llm=llm, prompt=prompt)
 
-    embeddings = HypotheticalDocumentEmbedder(
-        llm_chain=llm_chain, base_embeddings=base_embeddings
-    )
+    embeddings = HypotheticalDocumentEmbedder(llm_chain=llm_chain, base_embeddings=base_embeddings)
     return embeddings

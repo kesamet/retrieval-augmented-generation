@@ -40,18 +40,14 @@ class VectorStoreRetrieverWithScores(VectorStoreRetriever):
                 doc.metadata = {**doc.metadata, "similarity_score": f"{score}:.4f"}
             docs = [doc for doc, _ in docs_and_scores]
         elif self.search_type == "similarity_score_threshold":
-            docs_and_similarities = (
-                self.vectorstore.similarity_search_with_relevance_scores(
-                    query, **self.search_kwargs
-                )
+            docs_and_similarities = self.vectorstore.similarity_search_with_relevance_scores(
+                query, **self.search_kwargs
             )
             for doc, score in docs_and_similarities:
                 doc.metadata = {**doc.metadata, "similarity_score": f"{score:.4f}"}
             docs = [doc for doc, _ in docs_and_similarities]
         elif self.search_type == "mmr":
-            docs = self.vectorstore.max_marginal_relevance_search(
-                query, **self.search_kwargs
-            )
+            docs = self.vectorstore.max_marginal_relevance_search(query, **self.search_kwargs)
         else:
             raise ValueError(f"search_type of {self.search_type} not allowed.")
         return docs
@@ -63,9 +59,7 @@ def build_base_retriever(vectordb: VectorStore) -> VectorStoreRetriever:
     )
 
 
-def build_multivector_retriever(
-    vectorstore: VectorStore, docstore
-) -> VectorStoreRetriever:
+def build_multivector_retriever(vectorstore: VectorStore, docstore) -> VectorStoreRetriever:
     from langchain.retrievers.multi_vector import MultiVectorRetriever, SearchType
 
     return MultiVectorRetriever(
@@ -82,9 +76,7 @@ def build_rerank_retriever(
     base_retriever = VectorStoreRetrieverWithScores(
         vectorstore=vectordb, search_kwargs={"k": CFG.RERANK_RETRIEVER_CONFIG.SEARCH_K}
     )
-    return ContextualCompressionRetriever(
-        base_compressor=reranker, base_retriever=base_retriever
-    )
+    return ContextualCompressionRetriever(base_compressor=reranker, base_retriever=base_retriever)
 
 
 def build_compression_retriever(
@@ -136,9 +128,7 @@ def build_question_answer_chain(llm: LLM) -> Runnable:
         return "\n\n".join(doc.page_content for doc in inputs["context"])
 
     question_answer_chain = (
-        RunnablePassthrough.assign(context=format_docs).with_config(
-            run_name="format_inputs"
-        )
+        RunnablePassthrough.assign(context=format_docs).with_config(run_name="format_inputs")
         | qa_prompt
         | llm
         | StrOutputParser()
@@ -228,9 +218,7 @@ def build_conv_rag_chain(
         retriever=retriever,
         return_source_documents=True,
         combine_docs_chain_kwargs={"prompt": PromptTemplate.from_template(QA_TEMPLATE)},
-        condense_question_prompt=PromptTemplate.from_template(
-            CONDENSE_QUESTION_TEMPLATE
-        ),
+        condense_question_prompt=PromptTemplate.from_template(CONDENSE_QUESTION_TEMPLATE),
         verbose=True,
     )
     return rag_chain

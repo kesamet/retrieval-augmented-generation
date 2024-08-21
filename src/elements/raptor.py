@@ -31,7 +31,7 @@ def global_cluster_embeddings(
     - embeddings: The input embeddings as a numpy array.
     - dim: The target dimensionality for the reduced space.
     - n_neighbors: Optional; the number of neighbors to consider for each point.
-                   If not provided, it defaults to the square root of the number of embeddings.
+        If not provided, it defaults to the square root of the number of embeddings.
     - metric: The distance metric to use for UMAP.
 
     Returns:
@@ -39,16 +39,17 @@ def global_cluster_embeddings(
     """
     if n_neighbors is None:
         n_neighbors = int((len(embeddings) - 1) ** 0.5)
-    return umap.UMAP(
-        n_neighbors=n_neighbors, n_components=dim, metric=metric
-    ).fit_transform(embeddings)
+    return umap.UMAP(n_neighbors=n_neighbors, n_components=dim, metric=metric).fit_transform(
+        embeddings
+    )
 
 
 def local_cluster_embeddings(
     embeddings: np.ndarray, dim: int, num_neighbors: int = 10, metric: str = "cosine"
 ) -> np.ndarray:
     """
-    Perform local dimensionality reduction on the embeddings using UMAP, typically after global clustering.
+    Perform local dimensionality reduction on the embeddings using UMAP,
+    typically after global clustering.
 
     Parameters:
     - embeddings: The input embeddings as a numpy array.
@@ -59,9 +60,9 @@ def local_cluster_embeddings(
     Returns:
     - A numpy array of the embeddings reduced to the specified dimensionality.
     """
-    return umap.UMAP(
-        n_neighbors=num_neighbors, n_components=dim, metric=metric
-    ).fit_transform(embeddings)
+    return umap.UMAP(n_neighbors=num_neighbors, n_components=dim, metric=metric).fit_transform(
+        embeddings
+    )
 
 
 def get_optimal_clusters(
@@ -115,8 +116,9 @@ def perform_clustering(
     threshold: float,
 ) -> List[np.ndarray]:
     """
-    Perform clustering on the embeddings by first reducing their dimensionality globally, then clustering
-    using a Gaussian Mixture Model, and finally performing local clustering within each global cluster.
+    Perform clustering on the embeddings by first reducing their dimensionality globally,
+    then clustering using a Gaussian Mixture Model, and finally performing local clustering
+    within each global cluster.
 
     Parameters:
     - embeddings: The input embeddings as a numpy array.
@@ -133,9 +135,7 @@ def perform_clustering(
     # Global dimensionality reduction
     reduced_embeddings_global = global_cluster_embeddings(embeddings, dim)
     # Global clustering
-    global_clusters, n_global_clusters = GMM_cluster(
-        reduced_embeddings_global, threshold
-    )
+    global_clusters, n_global_clusters = GMM_cluster(reduced_embeddings_global, threshold)
 
     all_local_clusters = [np.array([]) for _ in range(len(embeddings))]
     total_clusters = 0
@@ -143,9 +143,7 @@ def perform_clustering(
     # Iterate through each global cluster to perform local clustering
     for i in range(n_global_clusters):
         # Extract embeddings belonging to the current global cluster
-        global_cluster_embeddings_ = embeddings[
-            np.array([i in gc for gc in global_clusters])
-        ]
+        global_cluster_embeddings_ = embeddings[np.array([i in gc for gc in global_clusters])]
 
         if len(global_cluster_embeddings_) == 0:
             continue
@@ -155,25 +153,17 @@ def perform_clustering(
             n_local_clusters = 1
         else:
             # Local dimensionality reduction and clustering
-            reduced_embeddings_local = local_cluster_embeddings(
-                global_cluster_embeddings_, dim
-            )
-            local_clusters, n_local_clusters = GMM_cluster(
-                reduced_embeddings_local, threshold
-            )
+            reduced_embeddings_local = local_cluster_embeddings(global_cluster_embeddings_, dim)
+            local_clusters, n_local_clusters = GMM_cluster(reduced_embeddings_local, threshold)
 
         # Assign local cluster IDs, adjusting for total clusters already processed
         for j in range(n_local_clusters):
             local_cluster_embeddings_ = global_cluster_embeddings_[
                 np.array([j in lc for lc in local_clusters])
             ]
-            indices = np.where(
-                (embeddings == local_cluster_embeddings_[:, None]).all(-1)
-            )[1]
+            indices = np.where((embeddings == local_cluster_embeddings_[:, None]).all(-1))[1]
             for idx in indices:
-                all_local_clusters[idx] = np.append(
-                    all_local_clusters[idx], j + total_clusters
-                )
+                all_local_clusters[idx] = np.append(all_local_clusters[idx], j + total_clusters)
 
         total_clusters += n_local_clusters
 
@@ -192,7 +182,8 @@ class Raptorizer:
 
         Parameters:
         - texts: List[str], a list of text documents to be embedded.
-        - embedding_function: A function that takes a list of text documents and returns the corresponding embeddings.
+        - embedding_function: A function that takes a list of text documents and
+            returns the corresponding embeddings.
 
         Returns:
         - numpy.ndarray: An array of embeddings for the given text documents.
@@ -203,11 +194,12 @@ class Raptorizer:
 
     def embed_cluster_texts(self, texts: List[str]) -> pd.DataFrame:
         """
-        Embeds a list of texts and clusters them, returning a DataFrame with texts, their embeddings,
-        and cluster labels.
+        Embeds a list of texts and clusters them, returning a DataFrame with texts,
+        their embeddings, and cluster labels.
 
-        This function combines embedding generation and clustering into a single step. It assumes the existence
-        of a previously defined `perform_clustering` function that performs clustering on the embeddings.
+        This function combines embedding generation and clustering into a single step.
+        It assumes the existence of a previously defined `perform_clustering` function
+        that performs clustering on the embeddings.
 
         Parameters:
         - texts: List[str], a list of text documents to be processed.
@@ -249,9 +241,7 @@ class Raptorizer:
             "Give a detailed summary of the context provided.\n\n"
             "Context:\n{context}"
         )
-        prompt = PromptTemplate.from_template(
-            self.chat_format.format(system=system, user=user)
-        )
+        prompt = PromptTemplate.from_template(self.chat_format.format(system=system, user=user))
         chain = prompt | self.model | StrOutputParser()
         return chain
 
@@ -259,9 +249,9 @@ class Raptorizer:
         self, texts: List[str], title: str, level: int
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
-        Embeds, clusters, and summarizes a list of texts. This function first generates embeddings for the texts,
-        clusters them based on similarity, expands the cluster assignments for easier processing, and then summarizes
-        the content within each cluster.
+        Embeds, clusters, and summarizes a list of texts. This function first generates embeddings
+        for the texts, clusters them based on similarity, expands the cluster assignments
+        for easier processing, and then summarizes the content within each cluster.
 
         Parameters:
         - texts: A list of text documents to be processed.
@@ -269,12 +259,14 @@ class Raptorizer:
 
         Returns:
         - Tuple containing two DataFrames:
-        1. The first DataFrame (`df_clusters`) includes the original texts, their embeddings, and cluster assignments.
-        2. The second DataFrame (`df_summary`) contains summaries for each cluster, the specified level of detail,
-            and the cluster identifiers.
+        1. The first DataFrame (`df_clusters`) includes the original texts, their embeddings,
+            and cluster assignments.
+        2. The second DataFrame (`df_summary`) contains summaries for each cluster,
+            the specified level of detail, and the cluster identifiers.
         """
 
-        # Embed and cluster the texts, resulting in a DataFrame with 'text', 'embd', and 'cluster' columns
+        # Embed and cluster the texts, resulting in a DataFrame
+        # with 'text', 'embd', and 'cluster' columns
         df_clusters = self.embed_cluster_texts(texts)
 
         # Prepare to expand the DataFrame for easier manipulation of clusters
@@ -326,14 +318,13 @@ class Raptorizer:
 
         Returns:
         - Dict[int, Tuple[pd.DataFrame, pd.DataFrame]], a dictionary where keys are the recursion
-        levels and values are tuples containing the clusters DataFrame and summaries DataFrame at that level.
+            levels and values are tuples containing the clusters DataFrame and summaries DataFrame
+            at that level.
         """
         results = {}  # Dictionary to store results at each level
 
         # Perform embedding, clustering, and summarization for the current level
-        df_clusters, df_summary = self.embed_cluster_summarize_texts(
-            texts, title, level
-        )
+        df_clusters, df_summary = self.embed_cluster_summarize_texts(texts, title, level)
 
         # Store the results of the current level
         results[level] = (df_clusters, df_summary)

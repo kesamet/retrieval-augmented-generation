@@ -67,8 +67,9 @@ class EncT5ForSequenceClassification(T5PreTrainedModel):
 
     def _prune_heads(self, heads_to_prune):
         """
-        Prunes heads of the model. heads_to_prune: dict of {layer_num: list of heads to prune in this layer} See base
-        class PreTrainedModel
+        Prunes heads of the model. heads_to_prune: dict of
+        {layer_num: list of heads to prune in this layer}
+        See base class PreTrainedModel
         """
         for layer, heads in heads_to_prune.items():
             self.encoder.layer[layer].attention.prune_heads(heads)
@@ -84,9 +85,7 @@ class EncT5ForSequenceClassification(T5PreTrainedModel):
         output_hidden_states=None,
         return_dict=None,
     ):
-        return_dict = (
-            return_dict if return_dict is not None else self.config.use_return_dict
-        )
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         outputs = self.encoder(
             input_ids=input_ids,

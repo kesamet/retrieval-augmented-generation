@@ -89,9 +89,7 @@ def rag_react():
             with st.status("Load agent", expanded=False) as status:
                 st.write("Loading agent...")
                 chain = build_chain(RERANKER, LLM)
-                status.update(
-                    label="Loading complete!", state="complete", expanded=False
-                )
+                status.update(label="Loading complete!", state="complete", expanded=False)
             st.success("Reading from existing VectorDB")
         except Exception as e:
             st.error(e)
@@ -143,9 +141,7 @@ def rag_react():
                 print_docs(source_documents)
 
             st.session_state.chat_history.append((user_query, answer))
-            st.session_state.display_history.append(
-                (user_query, answer, source_documents)
-            )
+            st.session_state.display_history.append((user_query, answer, source_documents))
 
 
 if __name__ == "__main__":

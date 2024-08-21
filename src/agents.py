@@ -1,23 +1,12 @@
-from typing import List, Sequence, Tuple, Union
+from typing import List, Sequence, Union
 
 from langchain_core.language_models import BaseLanguageModel
-from langchain_core.messages import AIMessage, HumanMessage
-from langchain_core.prompts import (
-    BasePromptTemplate,
-    ChatPromptTemplate,
-    PromptTemplate,
-)
+from langchain_core.prompts import BasePromptTemplate, PromptTemplate
 from langchain_core.runnables import Runnable, RunnablePassthrough
 from langchain_core.tools import BaseTool
 
-from langchain.agents.format_scratchpad import (
-    format_log_to_str,
-    format_to_openai_function_messages,
-)
-from langchain.agents.output_parsers import (
-    ReActSingleInputOutputParser,
-    OpenAIFunctionsAgentOutputParser,
-)
+from langchain.agents.format_scratchpad import format_log_to_str
+from langchain.agents.output_parsers import ReActJsonSingleInputOutputParser
 from langchain.tools.render import render_text_description
 
 
@@ -26,59 +15,39 @@ You have access to the following tools:
 
 {tools}
 
-Use the following format:
+The way you use the tools is by specifying a json blob.
+Specifically, this json should have a `action` key (with the name of the tool to use) \
+and a `action_input` key (with the input to the tool going here).
+
+The only values that should be in the "action" field are: {tool_names}
+
+The $JSON_BLOB should only contain a SINGLE action, do NOT return a list of multiple actions. \
+Here is an example of a valid $JSON_BLOB:
+
+```
+{{
+  "action": $TOOL_NAME,
+  "action_input": $INPUT
+}}
+```
+
+ALWAYS use the following format:
 
 Question: the input question you must answer
 Thought: you should always think about what to do
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
+Action:
+```
+$JSON_BLOB
+```
 Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat N times)
+... (this Thought/Action/Observation can repeat N times)
 Thought: I now know the final answer
 Final Answer: the final answer to the original input question
 
-Begin!
+Begin! Reminder to always use the exact characters `Final Answer` when responding.
 
 Question: {input}
 Thought: {agent_scratchpad}"""
-
-# DEFAULT_REACT_TEMPLATE = """Answer the following questions as best you can. You have access to the following tools:
-
-# {tools}
-
-# The way you use the tools is by specifying a json blob.
-# Specifically, this json should have a `action` key (with the name of the tool to use) and a `action_input` key \
-# (with the input to the tool going here).
-
-# The only values that should be in the "action" field are: {tool_names}
-
-# The $JSON_BLOB should only contain a SINGLE action, do NOT return a list of multiple actions. \
-# Here is an example of a valid $JSON_BLOB:
-
-# ```
-# {{
-#   "action": $TOOL_NAME,
-#   "action_input": $INPUT
-# }}
-# ```
-
-# ALWAYS use the following format:
-
-# Question: the input question you must answer
-# Thought: you should always think about what to do
-# Action:
-# ```
-# $JSON_BLOB
-# ```
-# Observation: the result of the action
-# ... (this Thought/Action/Observation can repeat N times)
-# Thought: I now know the final answer
-# Final Answer: the final answer to the original input question
-
-# Begin! Reminder to always use the exact characters `Final Answer` when responding.
-
-# Question: {input}
-# Thought: {agent_scratchpad}"""
 
 
 def create_react_agent(
@@ -196,35 +165,6 @@ def create_react_agent(
         )
         | prompt
         | llm_with_stop
-        | ReActSingleInputOutputParser()
+        | ReActJsonSingleInputOutputParser()
     )
     return agent
-
-
-def create_gemini_functions_agent(
-    llm: BaseLanguageModel,
-    tools: Sequence[BaseTool],
-    prompt: ChatPromptTemplate,
-) -> Runnable:
-    llm_with_tools = llm.bind(functions=tools)
-    agent = (
-        {
-            "input": lambda x: x["input"],
-            "chat_history": lambda x: _format_chat_history(x["chat_history"]),
-            "agent_scratchpad": lambda x: format_to_openai_function_messages(
-                x["intermediate_steps"]
-            ),
-        }
-        | prompt
-        | llm_with_tools
-        | OpenAIFunctionsAgentOutputParser()
-    )
-    return agent
-
-
-def _format_chat_history(chat_history: List[Tuple[str, str]]):
-    buffer = []
-    for human, ai in chat_history:
-        buffer.append(HumanMessage(content=human))
-        buffer.append(AIMessage(content=ai))
-    return buffer

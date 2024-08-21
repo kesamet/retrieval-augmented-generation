@@ -92,9 +92,17 @@ We use Streamlit as the interface for the demos. There are three demos:
 streamlit run app_conv.py
 ```
 
+- Retrieval QA
+
+```bash
+streamlit run app_qa.py
+```
+
 - Conversational Retrieval using ReAct
 
-**Note that this works only for models that can handle reasoning tasks and tool calls.**
+---
+> **_NOTE:_** This works only for models that can handle reasoning tasks and tool calls. The quantized models above do not seem to work.
+---
 
 Create vectorstore first and update `config.yaml`
 ```bash
@@ -103,12 +111,6 @@ python -m vectorize --filepaths <your-filepath>
 Run the app
 ```bash
 streamlit run app_react.py
-```
-
-- Retrieval QA
-
-```bash
-streamlit run app_qa.py
 ```
 
 

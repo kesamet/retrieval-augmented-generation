@@ -17,9 +17,7 @@ class Propositionizer:
     def __init__(self):
         model_path = os.path.join(CFG.MODELS_DIR, CFG.PROPOSITIONIZER_PATH)
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(
-            model_path, device_map=CFG.DEVICE
-        )
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(model_path, device_map=CFG.DEVICE)
         self.model.eval()
 
     def _predict(self, texts: Union[str, List[str]]) -> List[str]:
@@ -30,17 +28,11 @@ class Propositionizer:
         output_texts = self.tokenizer.decode(outputs, skip_special_tokens=True)
         return output_texts
 
-    def generate(
-        self, passage: Document, title: str = "", section: str = ""
-    ) -> List[Document]:
-        input_text = (
-            f"Title: {title}. Section: {section}. Content: {passage.page_content}"
-        )
+    def generate(self, passage: Document, title: str = "", section: str = "") -> List[Document]:
+        input_text = f"Title: {title}. Section: {section}. Content: {passage.page_content}"
         output_text = self._predict(input_text)[0]
         metadata = passage.metadata.copy()
-        return [
-            Document(page_content=x, metadata=metadata) for x in json.loads(output_text)
-        ]
+        return [Document(page_content=x, metadata=metadata) for x in json.loads(output_text)]
 
     def batch(
         self,
@@ -49,17 +41,13 @@ class Propositionizer:
         section: str = "",
     ) -> List[Document]:
         data_set = DocDataset(passages, title=title, section=section)
-        data_loader = DataLoader(
-            data_set, batch_size=16, shuffle=False, drop_last=False
-        )
+        data_loader = DataLoader(data_set, batch_size=16, shuffle=False, drop_last=False)
         prop_texts = []
         for data in data_loader:
             input_texts, sources = data
             output_texts = self._predict(input_texts)
 
-            for output_text, source, input_text in zip(
-                output_texts, sources, input_texts
-            ):
+            for output_text, source, input_text in zip(output_texts, sources, input_texts):
                 try:
                     prop_texts.extend(
                         [

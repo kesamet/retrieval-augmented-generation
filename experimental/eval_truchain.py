@@ -65,9 +65,7 @@ for lens in all_queries(app_json):
     except Exception:
         pass
 
-context = (
-    (Select.RecordCalls + retrievers[0][0]).get_relevant_documents.rets[:].page_content
-)
+context = (Select.RecordCalls + retrievers[0][0]).get_relevant_documents.rets[:].page_content
 
 f_qa_relevance = Feedback(
     provider.relevance_with_cot_reasonse, name="Answer Relevance"

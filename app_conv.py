@@ -50,9 +50,7 @@ def doc_conv_qa():
             st.info(f"Embeddings: `{CFG.EMBEDDINGS_PATH}`")
             st.info(f"Reranker: `{CFG.RERANKER_PATH}`")
 
-        uploaded_file = st.file_uploader(
-            "Upload a PDF and build VectorDB", type=["pdf"]
-        )
+        uploaded_file = st.file_uploader("Upload a PDF and build VectorDB", type=["pdf"])
         if st.button("Build VectorDB"):
             if uploaded_file is None:
                 st.error("No PDF uploaded")
@@ -79,9 +77,7 @@ def doc_conv_qa():
                 st.write("Loading retrieval chain...")
                 vectordb = load_vectordb()
                 rag_chain = build_conv_rag_chain(vectordb, RERANKER, LLM)
-                status.update(
-                    label="Loading complete!", state="complete", expanded=False
-                )
+                status.update(label="Loading complete!", state="complete", expanded=False)
             st.success("Reading from existing VectorDB")
         except Exception as e:
             st.error(e)
@@ -131,9 +127,7 @@ def doc_conv_qa():
                 print_docs(source_documents)
 
             st.session_state.chat_history.append((user_query, answer))
-            st.session_state.display_history.append(
-                (user_query, answer, source_documents)
-            )
+            st.session_state.display_history.append((user_query, answer, source_documents))
 
 
 if __name__ == "__main__":
