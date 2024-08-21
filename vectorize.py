@@ -46,9 +46,7 @@ if __name__ == "__main__":
         summarize_docs = []
         for level in sorted(results.keys()):
             summaries = results[level][1]["summaries"].tolist()
-            summaries = [
-                Document(page_content=text, metadata=metadata) for text in summaries
-            ]
+            summaries = [Document(page_content=text, metadata=metadata) for text in summaries]
             summarize_docs.extend(summaries)
 
         docs.extend(summarize_docs)

@@ -39,9 +39,9 @@ def global_cluster_embeddings(
     """
     if n_neighbors is None:
         n_neighbors = int((len(embeddings) - 1) ** 0.5)
-    return umap.UMAP(
-        n_neighbors=n_neighbors, n_components=dim, metric=metric
-    ).fit_transform(embeddings)
+    return umap.UMAP(n_neighbors=n_neighbors, n_components=dim, metric=metric).fit_transform(
+        embeddings
+    )
 
 
 def local_cluster_embeddings(
@@ -59,9 +59,9 @@ def local_cluster_embeddings(
     Returns:
     - A numpy array of the embeddings reduced to the specified dimensionality.
     """
-    return umap.UMAP(
-        n_neighbors=num_neighbors, n_components=dim, metric=metric
-    ).fit_transform(embeddings)
+    return umap.UMAP(n_neighbors=num_neighbors, n_components=dim, metric=metric).fit_transform(
+        embeddings
+    )
 
 
 def get_optimal_clusters(
@@ -133,9 +133,7 @@ def perform_clustering(
     # Global dimensionality reduction
     reduced_embeddings_global = global_cluster_embeddings(embeddings, dim)
     # Global clustering
-    global_clusters, n_global_clusters = GMM_cluster(
-        reduced_embeddings_global, threshold
-    )
+    global_clusters, n_global_clusters = GMM_cluster(reduced_embeddings_global, threshold)
 
     all_local_clusters = [np.array([]) for _ in range(len(embeddings))]
     total_clusters = 0
@@ -143,9 +141,7 @@ def perform_clustering(
     # Iterate through each global cluster to perform local clustering
     for i in range(n_global_clusters):
         # Extract embeddings belonging to the current global cluster
-        global_cluster_embeddings_ = embeddings[
-            np.array([i in gc for gc in global_clusters])
-        ]
+        global_cluster_embeddings_ = embeddings[np.array([i in gc for gc in global_clusters])]
 
         if len(global_cluster_embeddings_) == 0:
             continue
@@ -155,25 +151,17 @@ def perform_clustering(
             n_local_clusters = 1
         else:
             # Local dimensionality reduction and clustering
-            reduced_embeddings_local = local_cluster_embeddings(
-                global_cluster_embeddings_, dim
-            )
-            local_clusters, n_local_clusters = GMM_cluster(
-                reduced_embeddings_local, threshold
-            )
+            reduced_embeddings_local = local_cluster_embeddings(global_cluster_embeddings_, dim)
+            local_clusters, n_local_clusters = GMM_cluster(reduced_embeddings_local, threshold)
 
         # Assign local cluster IDs, adjusting for total clusters already processed
         for j in range(n_local_clusters):
             local_cluster_embeddings_ = global_cluster_embeddings_[
                 np.array([j in lc for lc in local_clusters])
             ]
-            indices = np.where(
-                (embeddings == local_cluster_embeddings_[:, None]).all(-1)
-            )[1]
+            indices = np.where((embeddings == local_cluster_embeddings_[:, None]).all(-1))[1]
             for idx in indices:
-                all_local_clusters[idx] = np.append(
-                    all_local_clusters[idx], j + total_clusters
-                )
+                all_local_clusters[idx] = np.append(all_local_clusters[idx], j + total_clusters)
 
         total_clusters += n_local_clusters
 
@@ -249,9 +237,7 @@ class Raptorizer:
             "Give a detailed summary of the context provided.\n\n"
             "Context:\n{context}"
         )
-        prompt = PromptTemplate.from_template(
-            self.chat_format.format(system=system, user=user)
-        )
+        prompt = PromptTemplate.from_template(self.chat_format.format(system=system, user=user))
         chain = prompt | self.model | StrOutputParser()
         return chain
 
@@ -331,9 +317,7 @@ class Raptorizer:
         results = {}  # Dictionary to store results at each level
 
         # Perform embedding, clustering, and summarization for the current level
-        df_clusters, df_summary = self.embed_cluster_summarize_texts(
-            texts, title, level
-        )
+        df_clusters, df_summary = self.embed_cluster_summarize_texts(texts, title, level)
 
         # Store the results of the current level
         results[level] = (df_clusters, df_summary)

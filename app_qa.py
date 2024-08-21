@@ -80,9 +80,7 @@ def doc_qa():
             st.info(f"Embeddings: `{CFG.EMBEDDINGS_PATH}`")
             st.info(f"Reranker: `{CFG.RERANKER_PATH}`")
 
-        uploaded_file = st.file_uploader(
-            "Upload a PDF and build VectorDB", type=["pdf"]
-        )
+        uploaded_file = st.file_uploader("Upload a PDF and build VectorDB", type=["pdf"])
         if st.button("Build VectorDB"):
             if uploaded_file is None:
                 st.error("No PDF uploaded")
@@ -110,9 +108,7 @@ def doc_qa():
                 vectordb = load_vectordb()
                 st.write("Loading HyDE VectorDB ...")
                 vectordb_hyde = load_vectordb_hyde()
-                status.update(
-                    label="Loading complete!", state="complete", expanded=False
-                )
+                status.update(label="Loading complete!", state="complete", expanded=False)
             st.success("Reading from existing VectorDB")
         except Exception as e:
             st.error(e)
@@ -162,9 +158,7 @@ def doc_qa():
 
             chain = build_multiple_queries_expansion_chain(LLM)
             res = chain.invoke(user_query)
-            st.session_state.last_related = [
-                x.strip() for x in res.split("\n") if x.strip()
-            ]
+            st.session_state.last_related = [x.strip() for x in res.split("\n") if x.strip()]
         else:
             db = vectordb_hyde if use_hyde else vectordb
             retriever = load_retriever(db, retrieval_mode)
@@ -204,14 +198,10 @@ def doc_qa():
 
 def _display_pdf_from_docs(source_documents):
     n = len(source_documents)
-    i = st.radio(
-        "View in PDF", list(range(n)), format_func=lambda x: f"Extract {x + 1}"
-    )
+    i = st.radio("View in PDF", list(range(n)), format_func=lambda x: f"Extract {x + 1}")
     row = source_documents[i]
     try:
-        extracted_doc, page_nums = get_doc_highlighted(
-            row.metadata["source"], row.page_content
-        )
+        extracted_doc, page_nums = get_doc_highlighted(row.metadata["source"], row.page_content)
         if extracted_doc is None:
             st.error("No page found")
         else:

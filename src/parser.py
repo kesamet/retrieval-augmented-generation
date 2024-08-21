@@ -35,9 +35,7 @@ def text_split(elements: Sequence[Element]) -> Sequence[Document]:
         for element in elements
         if element.category in ["Title", "NarrativeText", "ListItem"]
     ]
-    chunked_elements = chunk_by_title(
-        select_elements, max_characters=1200, new_after_n_chars=1000
-    )
+    chunked_elements = chunk_by_title(select_elements, max_characters=1200, new_after_n_chars=1000)
 
     documents = []
     for element in chunked_elements:
@@ -118,17 +116,13 @@ def raptorize(docs: Sequence[Document], title: str) -> Sequence[Document]:
     raptorizer = Raptorizer(base_embeddings, llm, "gemini")
 
     leaf_texts = [doc.page_content for doc in docs]
-    results = raptorizer.recursive_embed_cluster_summarize(
-        leaf_texts, title, level=1, n_levels=3
-    )
+    results = raptorizer.recursive_embed_cluster_summarize(leaf_texts, title, level=1, n_levels=3)
 
     # Flatten all summaries and add them to docs
     metadata = docs[0].metadata
     summarize_docs = []
     for level in sorted(results.keys()):
         summaries = results[level][1]["summaries"].tolist()
-        summaries = [
-            Document(page_content=text, metadata=metadata) for text in summaries
-        ]
+        summaries = [Document(page_content=text, metadata=metadata) for text in summaries]
         summarize_docs.extend(summaries)
     return docs + summarize_docs

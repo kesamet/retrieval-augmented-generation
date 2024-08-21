@@ -60,9 +60,7 @@ class Prompts:
     @property
     def hyde(self):
         system = "You are a helpful, respectful and honest assistant for question-answering tasks."
-        user = (
-            "Please answer the user's question about a document.\nQuestion: {question}"
-        )
+        user = "Please answer the user's question about a document.\nQuestion: {question}"
         return self.chat_format.format(system=system, user=user)
 
     @property
