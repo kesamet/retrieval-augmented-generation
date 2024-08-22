@@ -3,50 +3,19 @@ from loguru import logger
 from src import CFG
 
 CHAT_FORMATS = {
-    "llama2": (
-        "<s> [INST] <<SYS>>{system}<</SYS>>\n"
-        "{user}\n"
-        "[/INST]"
-    ),
-
-    "mistral": (
-        "<s> [INST] {system}\n"
-        "{user}\n"
-        "[/INST]"
-    ),
-
-    "zephyr": (
-        "<|system|>\n"
-        "{system}</s>\n"
-        "<|user|>\n"
-        "{user}</s>\n"
-        "<|assistant|>"
-    ),
-
-    # RuntimeWarning: Detected duplicate leading "<bos>" in prompt, this will likely reduce response quality, consider removing it...
-    "gemma": (
-        "<start_of_turn>user\n"
-        "{system}\n{user}<end_of_turn>\n"
-        "<start_of_turn>model"
-    ),
-
-
+    "llama2": "<s> [INST] <<SYS>>{system}<</SYS>>\n{user}\n[/INST]",
+    "mistral": "<s> [INST] {system}\n{user}\n[/INST]",
+    "zephyr": "<|system|>\n{system}</s>\n<|user|>\n{user}</s>\n<|assistant|>",
+    # RuntimeWarning: Detected duplicate leading "<bos>" in prompt,
+    # this will likely reduce response quality, consider removing it...
+    "gemma": "<start_of_turn>user\n{system}\n{user}<end_of_turn>\n<start_of_turn>model",
     "llama3": (
         "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n"
         "{system}<|eot_id|><|start_header_id|>user<|end_header_id|>\n"
         "{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
     ),
-
-    "phi3": (
-        "<|system|>\n"
-        "{system}<|end|>\n"
-        "<|user|>\n"
-        "{user}<|end|>\n"
-        "<|assistant|>"
-    ),
-
+    "phi3": "<|system|>\n{system}<|end|>\n<|user|>\n{user}<|end|>\n<|assistant|>",
     "gemini": "{system}\n{user}",
-
     "gpt": "{system}\n{user}",
 }
 
