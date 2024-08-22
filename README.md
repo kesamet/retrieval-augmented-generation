@@ -1,5 +1,5 @@
 # retrieval-augmented-generation
-Retrieval augmented generation (RAG) demos with Llama-2-7b, Mistral-7b, Zephyr-7b, Gemma-2b, Llama-3-8b, Phi-3-mini, Llama-3.1-8b
+Retrieval augmented generation (RAG) demos with Mistral, Zephyr, Phi-3, Gemma-2, Llama-3, Llama-3.1
 
 The demos use quantized models and run on CPU with acceptable inference time. They can run **offline** without Internet access, thus allowing deployment in an air-gapped environment.
 
@@ -101,7 +101,7 @@ streamlit run app_qa.py
 - Conversational Retrieval using ReAct
 
 ---
-> **_NOTE:_** This works only for models that can handle reasoning tasks and tool calls. The quantized models above do not seem to work.
+> **_NOTE:_** This works for larger models like `mixtral-8x7b-32768` that can handle reasoning tasks and tool calls. Smaller 7b models do not seem to work.
 ---
 
 Create vectorstore first and update `config.yaml`
