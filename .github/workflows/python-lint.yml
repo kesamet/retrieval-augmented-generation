@@ -1,0 +1,16 @@
+name: Python Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run lint checks
+        uses: chartboost/ruff-action@v1
+        with:
+          src: "./src/"

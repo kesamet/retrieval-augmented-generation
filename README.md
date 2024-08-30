@@ -1,4 +1,7 @@
-# retrieval-augmented-generation
+<h2 align="center">
+  <b>Retrieval augmented generation with quantized LLM</b><br>
+</h2>
+
 Retrieval augmented generation (RAG) demos with Mistral, Zephyr, Phi-3, Gemma-2, Llama-3, Llama-3.1
 
 The demos use quantized models and run on CPU with acceptable inference time. They can run **offline** without Internet access, thus allowing deployment in an air-gapped environment.
@@ -73,7 +76,7 @@ User: {user}
 Assistant:"""
 ```
 
-### Tracing
+### 🤖 Tracing
 
 We shall use [Phoenix](https://docs.arize.com/phoenix) for LLM tracing. Phoenix is an open-source observability library designed for experimentation, evaluation, and troubleshooting. Before running the app, start a phoenix server
 ```bash

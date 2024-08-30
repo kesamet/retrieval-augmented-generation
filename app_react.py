@@ -57,6 +57,7 @@ def build_chain(reranker, llm):
         return_intermediate_steps=True,
         handle_parsing_errors=True,
         verbose=True,
+        max_iterations=5,
     )
     return agent_executor
 

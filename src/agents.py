@@ -138,7 +138,7 @@ def create_react_agent(
             Begin!
 
             Question: {input}
-            Thought:{agent_scratchpad}'''
+            Thought: {agent_scratchpad}'''
 
             prompt = PromptTemplate.from_template(template)
     """

@@ -5,7 +5,8 @@ DEVICE: cpu  # used only by embeddings and propositionizer
 TEXT_SPLIT_MODE: default  # default or propositionize
 # propositionize uses propositionizer model
 
-MODELS_DIR: ./models
+# MODELS_DIR: ./models
+MODELS_DIR: /Users/user/Desktop/Dvorak/Work/models
 
 EMBEDDINGS_PATH: bge-small-en-v1.5
 # EMBEDDINGS_PATH: all-mpnet-base-v2
@@ -30,7 +31,7 @@ VECTORDB:
 # PROMPT_TYPE: zephyr
 
 # LLM_TYPE: gguf
-# LLM_PATH: gemma-2b-it-q4_k_m.gguf
+# LLM_PATH: gemma-2-2b-it-Q4_K_M.gguf
 # PROMPT_TYPE: gemma
 
 # LLM_TYPE: gguf
@@ -41,17 +42,21 @@ VECTORDB:
 # LLM_PATH: Phi-3-mini-4k-instruct-q4.gguf
 # PROMPT_TYPE: phi3
 
-LLM_TYPE: gguf
-LLM_PATH: Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf
-PROMPT_TYPE: llama3
+# LLM_TYPE: gguf
+# LLM_PATH: Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf
+# PROMPT_TYPE: llama3
 
 # LLM_TYPE: groq
 # LLM_PATH: mixtral-8x7b-32768
 # PROMPT_TYPE: mistral
 
-# LLM_TYPE: ollama
-# LLM_PATH: llama3
-# PROMPT_TYPE: llama3
+LLM_TYPE: ollama
+LLM_PATH: mymodel
+PROMPT_TYPE: llama3
+
+# LLM_TYPE: gemini
+# LLM_PATH: gemini-1.5-flash
+# PROMPT_TYPE: gemini
 
 LLM_CONFIG:
   MAX_NEW_TOKENS: 512
