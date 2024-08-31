@@ -13,4 +13,4 @@ jobs:
       - name: Run lint checks
         uses: chartboost/ruff-action@v1
         with:
-          src: ["./src", "./streamlit_app"]
+          src: "./src ./streamlit_app"

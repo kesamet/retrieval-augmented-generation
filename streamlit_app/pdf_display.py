@@ -62,11 +62,7 @@ def search_for_phrase(
             cleaned_text = re.sub(r"\W+", "", text)
             if len(cleaned_text) == 0:
                 continue
-            slen = (
-                SequenceMatcher(None, cleaned_phrase, cleaned_text)
-                .find_longest_match()
-                .size
-            )
+            slen = SequenceMatcher(None, cleaned_phrase, cleaned_text).find_longest_match().size
             if slen / len(cleaned_phrase) > cutoff or slen / len(cleaned_text) > cutoff:
                 instances.append(fitz.Rect(x0, x1, y0, y1))
 
