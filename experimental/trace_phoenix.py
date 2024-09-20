@@ -4,8 +4,8 @@ Tracing with arize-phoenix[evals] (https://github.com/Arize-ai/phoenix)
 
 import phoenix as px
 from phoenix.trace.langchain import LangChainInstrumentor
+from langchain_core.prompts import PromptTemplate
 from langchain.chains.retrieval_qa.base import RetrievalQA
-from langchain.prompts import PromptTemplate
 
 from src.embeddings import build_base_embeddings
 from src.vectordb import load_chroma

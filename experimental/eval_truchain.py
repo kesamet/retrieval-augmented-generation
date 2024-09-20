@@ -4,10 +4,10 @@ LLM used here is gemini-pro
 """
 
 import numpy as np
-from langchain.prompts import PromptTemplate
-from langchain.schema import StrOutputParser, BaseRetriever
-from langchain.schema.runnable import RunnablePassthrough
-
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
+from langchain_core.retrievers import BaseRetriever
+from langchain_core.runnables import RunnablePassthrough
 from langchain_google_genai import ChatGoogleGenerativeAI
 from trulens_eval.feedback.provider.langchain import Langchain
 from trulens_eval import Tru, Feedback, TruChain

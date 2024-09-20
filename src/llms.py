@@ -4,7 +4,7 @@ LLM
 
 import os
 
-from langchain.callbacks import StreamingStdOutCallbackHandler
+from langchain_core.callbacks import StreamingStdOutCallbackHandler
 
 from src import CFG
 

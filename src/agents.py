@@ -4,10 +4,10 @@ from langchain_core.language_models import BaseLanguageModel
 from langchain_core.prompts import BasePromptTemplate, PromptTemplate
 from langchain_core.runnables import Runnable, RunnablePassthrough
 from langchain_core.tools import BaseTool
+from langchain_core.tools.render import render_text_description
 
 from langchain.agents.format_scratchpad import format_log_to_str
 from langchain.agents.output_parsers import ReActJsonSingleInputOutputParser
-from langchain.tools.render import render_text_description
 
 
 DEFAULT_REACT_TEMPLATE = """Answer the following questions as best you can. \

@@ -1,8 +1,7 @@
-from langchain.llms.base import LLM
-from langchain.prompts import PromptTemplate
-from langchain.schema import StrOutputParser
-from langchain.schema.runnable import RunnablePassthrough
-from langchain.schema.runnable.base import RunnableSequence
+from langchain_core.language_models import LLM
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnablePassthrough, RunnableSequence
 
 from src.prompt_templates import MULTI_QUERIES_TEMPLATE, GENERATED_RESULT_TEMPLATE
 

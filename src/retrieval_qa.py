@@ -4,22 +4,22 @@ Retrieval QA
 
 from typing import List
 
-from langchain.embeddings.base import Embeddings
-from langchain.llms.base import LLM
-from langchain.prompts import PromptTemplate
+from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
+from langchain_core.language_models import LLM
+from langchain_core.prompts import PromptTemplate
+from langchain_core.vectorstores import VectorStore
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import Runnable, RunnablePassthrough, RunnableBranch
+from langchain_core.retrievers import BaseRetriever
+from langchain_core.vectorstores import VectorStoreRetriever
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import (
     DocumentCompressorPipeline,
     EmbeddingsFilter,
 )
 from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
-from langchain.schema import Document
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.vectorstores.base import VectorStore
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import Runnable, RunnablePassthrough, RunnableBranch
-from langchain_core.retrievers import BaseRetriever
-from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_community.document_transformers import EmbeddingsRedundantFilter
 
 from src import CFG
