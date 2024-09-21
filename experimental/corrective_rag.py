@@ -5,11 +5,11 @@ with langgraph
 
 from typing import List, TypedDict
 
-from langchain.prompts import PromptTemplate
-from langchain.schema import Document
-from langchain_community.tools.tavily_search import TavilySearchResults
-from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langgraph.graph import END, StateGraph
+from langchain_core.prompts import PromptTemplate
+from langchain_core.documents import Document
+from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
+from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_google_genai import GoogleGenerativeAI
 
 from src.embeddings import build_base_embeddings

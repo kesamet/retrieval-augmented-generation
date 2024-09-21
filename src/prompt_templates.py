@@ -15,6 +15,7 @@ CHAT_FORMATS = {
         "{user}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
     ),
     "phi3": "<|system|>\n{system}<|end|>\n<|user|>\n{user}<|end|>\n<|assistant|>",
+    "olmoe": "<|endoftext|><|user|>\n{system}\n{user}\n<|assistant|>",
     "gemini": "{system}\n{user}",
     "gpt": "{system}\n{user}",
 }

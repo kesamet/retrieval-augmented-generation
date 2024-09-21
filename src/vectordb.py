@@ -7,9 +7,9 @@ import os
 from typing import Literal, Sequence
 
 from chromadb.config import Settings
-from langchain.embeddings.base import Embeddings
-from langchain.schema import Document
-from langchain.vectorstores.base import VectorStore
+from langchain_core.embeddings import Embeddings
+from langchain_core.documents import Document
+from langchain_core.vectorstores import VectorStore
 from langchain_community.vectorstores import Chroma, FAISS
 from loguru import logger
 
