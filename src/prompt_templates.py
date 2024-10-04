@@ -131,7 +131,8 @@ Question: {input}
 Thought: {agent_scratchpad}"""
 
 
-REACT_TEMPLATE = """Answer the following questions as best you can. You have access to the following tools:
+REACT_TEMPLATE = """Answer the following questions as best you can. \
+You have access to the following tools:
 
 {tools}
 
