@@ -16,35 +16,13 @@ VECTORDB_TYPE: faiss
 VECTORDB:
   - PATH: ./vectordb/faiss
     NAME: document
-    DESCRIPTION: Provides information about the document. Always use this first.
+    DESCRIPTION: A tool useful for when you need to answer questions about the source document. Input should be a search query.
 
-# LLM_TYPE: gguf
-# LLM_PATH: llama-2-7b-chat.Q4_K_M.gguf
-# PROMPT_TYPE: llama2
 
+# TODO: OLMoE does not seem to work on ollama
 # LLM_TYPE: gguf
-# LLM_PATH: mistral-7b-instruct-v0.2.Q4_K_M.gguf
-# PROMPT_TYPE: mistral
-
-# LLM_TYPE: gguf
-# LLM_PATH: zephyr-7b-beta.Q4_K_M.gguf
-# PROMPT_TYPE: zephyr
-
-# LLM_TYPE: gguf
-# LLM_PATH: gemma-2-2b-it-Q4_K_M.gguf
-# PROMPT_TYPE: gemma
-
-# LLM_TYPE: gguf
-# LLM_PATH: Meta-Llama-3-8B-Instruct-Q4_K_M.gguf
-# PROMPT_TYPE: llama3
-
-# LLM_TYPE: gguf
-# LLM_PATH: Phi-3-mini-4k-instruct-q4.gguf
-# PROMPT_TYPE: phi3
-
-# LLM_TYPE: gguf
-# LLM_PATH: Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf
-# PROMPT_TYPE: llama3
+# LLM_PATH: olmoe-1b-7b-0924-instruct-q4_k_m.gguf
+# PROMPT_TYPE: olmoe
 
 # LLM_TYPE: groq
 # LLM_PATH: mixtral-8x7b-32768

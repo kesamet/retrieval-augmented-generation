@@ -2,7 +2,7 @@
   <b>Retrieval augmented generation with quantized LLM</b><br>
 </h2>
 
-Retrieval augmented generation (RAG) demos with Mistral, Zephyr, Phi-3, Gemma-2, Llama-3, Llama-3.1
+Retrieval augmented generation (RAG) demos with Mistral, Zephyr, Phi, Gemma, Llama, OLMoE
 
 The demos use quantized models and run on CPU with acceptable inference time. They can run **offline** without Internet access, thus allowing deployment in an air-gapped environment.
 
@@ -54,6 +54,8 @@ Download and save the models in `./models` and update `config.yaml`. The models 
 - Propositionizer
     - [chentong00/propositionizer-wiki-flan-t5-large](https://huggingface.co/chentong00/propositionizer-wiki-flan-t5-large) save in `models/propositionizer-wiki-flan-t5-large/`
 - LLMs
+    - [bartowski/Llama-3.2-3B-Instruct-GGUF](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)
+    - [allenai/OLMoE-1B-7B-0924-Instruct-GGUF](https://huggingface.co/allenai/OLMoE-1B-7B-0924-Instruct-GGUF)
     - [bartowski/Meta-Llama-3.1-8B-Instruct-GGUF](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)
     - [microsoft/Phi-3-mini-4k-instruct-gguf](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf)
     - [QuantFactory/Meta-Llama-3-8B-Instruct-GGUF](https://huggingface.co/QuantFactory/Meta-Llama-3-8B-Instruct-GGUF)
@@ -104,7 +106,7 @@ streamlit run app_qa.py
 - Conversational Retrieval using ReAct
 
 ---
-> **_NOTE:_** This works for larger models like `mixtral-8x7b-32768` that can handle reasoning tasks and tool calls. Smaller 7b models do not seem to work.
+> **_NOTE:_** Using gemini-1.5-flash as LLM
 ---
 
 Create vectorstore first and update `config.yaml`
