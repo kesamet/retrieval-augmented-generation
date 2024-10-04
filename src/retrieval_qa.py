@@ -26,6 +26,7 @@ from src import CFG
 from src.prompt_templates import QA_TEMPLATE, CONDENSE_QUESTION_TEMPLATE
 
 
+# FIXME
 class VectorStoreRetrieverWithScores(VectorStoreRetriever):
     def get_relevant_documents(self, query: str) -> List[Document]:
         """
@@ -54,7 +55,7 @@ class VectorStoreRetrieverWithScores(VectorStoreRetriever):
 
 
 def build_base_retriever(vectordb: VectorStore) -> VectorStoreRetriever:
-    return VectorStoreRetrieverWithScores(
+    return VectorStoreRetriever(
         vectorstore=vectordb, search_kwargs={"k": CFG.BASE_RETRIEVER_CONFIG.SEARCH_K}
     )
 
@@ -73,7 +74,7 @@ def build_multivector_retriever(vectorstore: VectorStore, docstore) -> VectorSto
 def build_rerank_retriever(
     vectordb: VectorStore, reranker: BaseDocumentCompressor
 ) -> ContextualCompressionRetriever:
-    base_retriever = VectorStoreRetrieverWithScores(
+    base_retriever = VectorStoreRetriever(
         vectorstore=vectordb, search_kwargs={"k": CFG.RERANK_RETRIEVER_CONFIG.SEARCH_K}
     )
     return ContextualCompressionRetriever(base_compressor=reranker, base_retriever=base_retriever)
@@ -82,7 +83,7 @@ def build_rerank_retriever(
 def build_compression_retriever(
     vectordb: VectorStore, embeddings: Embeddings
 ) -> ContextualCompressionRetriever:
-    base_retriever = VectorStoreRetrieverWithScores(
+    base_retriever = VectorStoreRetriever(
         vectorstore=vectordb,
         search_kwargs={"k": CFG.COMPRESSION_RETRIEVER_CONFIG.SEARCH_K},
     )

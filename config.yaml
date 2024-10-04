@@ -5,8 +5,7 @@ DEVICE: cpu  # used only by embeddings and propositionizer
 TEXT_SPLIT_MODE: default  # default or propositionize
 # propositionize uses propositionizer model
 
-# MODELS_DIR: ./models
-MODELS_DIR: /Users/user/Desktop/Dvorak/Work/models
+MODELS_DIR: ./models
 
 EMBEDDINGS_PATH: bge-small-en-v1.5
 # EMBEDDINGS_PATH: all-mpnet-base-v2
@@ -45,10 +44,7 @@ LLM_CONFIG:
 BASE_RETRIEVER_CONFIG:
   SEARCH_K: 4
 
-# RERANKER_PATH: tart-full-flan-t5-xl
-# RERANKER_TYPE: tart
 RERANKER_PATH: bge-reranker-base
-RERANKER_TYPE: bge
 
 RERANK_RETRIEVER_CONFIG:
   SEARCH_K: 10
