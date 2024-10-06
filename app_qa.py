@@ -39,9 +39,9 @@ def load_vectordb_hyde():
     hyde_embeddings = build_hyde_embeddings(LLM, BASE_EMBEDDINGS)
 
     if CFG.VECTORDB_TYPE == "faiss":
-        return load_faiss(hyde_embeddings)
+        return load_faiss(hyde_embeddings, VECTORDB_PATH)
     if CFG.VECTORDB_TYPE == "chroma":
-        return load_chroma(hyde_embeddings)
+        return load_chroma(hyde_embeddings, VECTORDB_PATH)
     raise NotImplementedError
 
 
@@ -149,7 +149,7 @@ def doc_qa():
             retriever = load_retriever(vectordb, retrieval_mode)
             with c0:
                 with st.spinner("Retrieving ..."):
-                    relevant_docs = retriever.get_relevant_documents(user_query)
+                    relevant_docs = retriever.invoke(user_query)
 
             st.session_state.last_response = {
                 "query": user_query,
@@ -162,23 +162,24 @@ def doc_qa():
         else:
             db = vectordb_hyde if use_hyde else vectordb
             retriever = load_retriever(db, retrieval_mode)
-            retrieval_chain = build_rag_chain(LLM, retriever)
+            retrieval_qa_chain = build_rag_chain(LLM, retriever)
 
             st_callback = StreamlitCallbackHandler(
                 parent_container=c0.container(),
                 expand_new_thoughts=True,
                 collapse_completed_thoughts=True,
             )
-            st.session_state.last_response = retrieval_chain.invoke(
-                user_query, config={"callbacks": [st_callback]}
+            st.session_state.last_response = retrieval_qa_chain.invoke(
+                user_query,
+                config={"callbacks": [st_callback]}
             )
             st_callback._complete_current_thought()
 
     if st.session_state.last_response:
         with c0:
             st.warning(f"##### {st.session_state.last_query}")
-            if st.session_state.last_response.get("result") is not None:
-                st.success(st.session_state.last_response["result"])
+            if st.session_state.last_response.get("answer") is not None:
+                st.success(st.session_state.last_response["answer"])
 
             if st.session_state.last_related:
                 st.write("#### Related")

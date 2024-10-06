@@ -16,7 +16,7 @@ pillow_heif==0.16.0
 PyMuPDF==1.23.26
 python-dotenv==1.0.1
 rank-bm25==0.2.2
-sentence-transformers==3.0.1
+sentence-transformers==3.1.1
 simsimd==3.3.0
 streamlit==1.38.0
 transformers==4.44.2
