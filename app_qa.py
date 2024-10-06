@@ -178,8 +178,8 @@ def doc_qa():
     if st.session_state.last_response:
         with c0:
             st.warning(f"##### {st.session_state.last_query}")
-            if st.session_state.last_response.get("answer") is not None:
-                st.success(st.session_state.last_response["answer"])
+            if st.session_state.last_response.get("result") is not None:
+                st.success(st.session_state.last_response["result"])
 
             if st.session_state.last_related:
                 st.write("#### Related")
