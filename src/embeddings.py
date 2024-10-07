@@ -4,7 +4,7 @@ Embeddings
 
 import os
 
-from langchain.chains.hyde.base import HypotheticalDocumentEmbedder, LLMChain
+from langchain.chains.hyde.base import HypotheticalDocumentEmbedder
 from langchain_core.prompts import PromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 
@@ -24,7 +24,7 @@ def build_base_embeddings():
 def build_hyde_embeddings(llm, base_embeddings):
     """Builds hypothetical document embeddings."""
     prompt = PromptTemplate.from_template(HYDE_TEMPLATE)
-    llm_chain = LLMChain(llm=llm, prompt=prompt)
+    llm_chain = prompt | llm
 
     embeddings = HypotheticalDocumentEmbedder(llm_chain=llm_chain, base_embeddings=base_embeddings)
     return embeddings

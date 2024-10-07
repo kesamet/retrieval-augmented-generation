@@ -2,12 +2,13 @@ arize-phoenix[evals]==3.16.0
 chromadb==0.4.24
 ctransformers==0.2.27
 faiss-cpu==1.8.0
-langchain==0.2.16
-langchain-huggingface==0.0.3
-langchain-google-genai==1.0.8
-langchain-groq==0.1.9
-langchain-openai==0.1.8
-llama-cpp-python==0.2.89 --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+langchain==0.3.2
+langchain-community==0.3.1
+langchain-huggingface==0.1.0
+langchain-google-genai==2.0.0
+langchain-groq==0.2.0
+langchain-openai==0.2.1
+llama-cpp-python==0.3.1 --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
 loguru==0.7.2
 omegaconf==2.3.0
 pikepdf==9.1.1
@@ -15,7 +16,7 @@ pillow_heif==0.16.0
 PyMuPDF==1.23.26
 python-dotenv==1.0.1
 rank-bm25==0.2.2
-sentence-transformers==3.0.1
+sentence-transformers==3.1.1
 simsimd==3.3.0
 streamlit==1.38.0
 transformers==4.44.2

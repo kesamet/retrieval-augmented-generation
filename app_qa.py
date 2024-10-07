@@ -7,10 +7,10 @@ from src import CFG
 from src.embeddings import build_hyde_embeddings
 from src.query_expansion import build_multiple_queries_expansion_chain
 from src.retrieval_qa import (
-    build_rag_chain,
     build_base_retriever,
     build_rerank_retriever,
     build_compression_retriever,
+    build_question_answer_chain,
 )
 from src.vectordb import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
@@ -23,6 +23,8 @@ LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
 RERANKER = load_reranker()
 VECTORDB_PATH = CFG.VECTORDB[0].PATH
+
+QA_CHAIN = build_question_answer_chain(LLM)
 
 
 @st.cache_resource
@@ -39,9 +41,9 @@ def load_vectordb_hyde():
     hyde_embeddings = build_hyde_embeddings(LLM, BASE_EMBEDDINGS)
 
     if CFG.VECTORDB_TYPE == "faiss":
-        return load_faiss(hyde_embeddings)
+        return load_faiss(hyde_embeddings, VECTORDB_PATH)
     if CFG.VECTORDB_TYPE == "chroma":
-        return load_chroma(hyde_embeddings)
+        return load_chroma(hyde_embeddings, VECTORDB_PATH)
     raise NotImplementedError
 
 
@@ -67,6 +69,10 @@ def init_sess_state():
 
     if "last_related" not in st.session_state:
         st.session_state["last_related"] = list()
+
+
+def _format_text(text):
+    return text.replace("$", r"\$")
 
 
 def doc_qa():
@@ -131,7 +137,7 @@ def doc_qa():
                 ["Base", "Rerank", "Contextual compression"],
                 index=1,
             )
-            use_hyde = st.checkbox("Use HyDE (for Retrieval QA only)")
+            use_hyde = st.checkbox("Use HyDE")
 
         submitted = st.form_submit_button("Query")
         if submitted:
@@ -145,40 +151,50 @@ def doc_qa():
         st.session_state.last_query = user_query
         st.session_state.last_form = [mode, retrieval_mode, use_hyde]
 
+        retriever = load_retriever(
+            vectordb_hyde if use_hyde else vectordb,
+            retrieval_mode,
+        )
+
         if mode == "Retrieval only":
-            retriever = load_retriever(vectordb, retrieval_mode)
             with c0:
                 with st.spinner("Retrieving ..."):
-                    relevant_docs = retriever.get_relevant_documents(user_query)
+                    source_documents = retriever.invoke(user_query)
 
             st.session_state.last_response = {
                 "query": user_query,
-                "source_documents": relevant_docs,
+                "source_documents": source_documents,
             }
 
             chain = build_multiple_queries_expansion_chain(LLM)
             res = chain.invoke(user_query)
             st.session_state.last_related = [x.strip() for x in res.split("\n") if x.strip()]
         else:
-            db = vectordb_hyde if use_hyde else vectordb
-            retriever = load_retriever(db, retrieval_mode)
-            retrieval_chain = build_rag_chain(LLM, retriever)
-
             st_callback = StreamlitCallbackHandler(
                 parent_container=c0.container(),
                 expand_new_thoughts=True,
                 collapse_completed_thoughts=True,
             )
-            st.session_state.last_response = retrieval_chain.invoke(
-                user_query, config={"callbacks": [st_callback]}
+            source_documents = retriever.invoke(user_query)
+            answer = QA_CHAIN.invoke(
+                {
+                    "context": source_documents,
+                    "question": user_query,
+                },
+                config={"callbacks": [st_callback]},
             )
-            st_callback._complete_current_thought()
+
+            st.session_state.last_response = {
+                "query": user_query,
+                "answer": answer,
+                "source_documents": source_documents,
+            }
 
     if st.session_state.last_response:
         with c0:
             st.warning(f"##### {st.session_state.last_query}")
-            if st.session_state.last_response.get("result") is not None:
-                st.success(st.session_state.last_response["result"])
+            if st.session_state.last_response.get("answer") is not None:
+                st.success(_format_text(st.session_state.last_response["answer"]))
 
             if st.session_state.last_related:
                 st.write("#### Related")
@@ -189,7 +205,7 @@ def doc_qa():
             st.write("#### Sources")
             for row in st.session_state.last_response["source_documents"]:
                 st.write(f"**Page {row.metadata['page_number']}**")
-                st.info(row.page_content.replace("$", r"\$"))
+                st.info(_format_text(row.page_content))
 
             # Display PDF
             st.write("---")

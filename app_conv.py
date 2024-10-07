@@ -3,8 +3,12 @@ import os
 import streamlit as st
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 
-from src import CFG
-from src.retrieval_qa import build_conv_rag_chain
+from src import CFG, logger
+from src.retrieval_qa import (
+    build_rerank_retriever,
+    build_condense_question_chain,
+    build_question_answer_chain,
+)
 from src.vectordb import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
 
@@ -15,6 +19,8 @@ LLM = load_llm()
 BASE_EMBEDDINGS = load_base_embeddings()
 RERANKER = load_reranker()
 VECTORDB_PATH = CFG.VECTORDB[0].PATH
+CONDENSE_QUESTION_CHAIN = build_condense_question_chain(LLM)
+QA_CHAIN = build_question_answer_chain(LLM)
 
 
 @st.cache_resource
@@ -38,7 +44,11 @@ def print_docs(source_documents):
     for row in source_documents:
         if row.metadata.get("page_number"):
             st.write(f"**Page {row.metadata['page_number']}**")
-        st.info(row.page_content)
+        st.info(_format_text(row.page_content))
+
+
+def _format_text(text):
+    return text.replace("$", r"\$")
 
 
 def doc_conv_qa():
@@ -76,7 +86,7 @@ def doc_conv_qa():
             with st.status("Load retrieval chain", expanded=False) as status:
                 st.write("Loading retrieval chain...")
                 vectordb = load_vectordb()
-                rag_chain = build_conv_rag_chain(vectordb, RERANKER, LLM)
+                RETRIEVER = build_rerank_retriever(vectordb, RERANKER)
                 status.update(label="Loading complete!", state="complete", expanded=False)
             st.success("Reading from existing VectorDB")
         except Exception as e:
@@ -109,20 +119,24 @@ def doc_conv_qa():
                 expand_new_thoughts=True,
                 collapse_completed_thoughts=True,
             )
-            response = rag_chain.invoke(
+
+            question = CONDENSE_QUESTION_CHAIN.invoke(
                 {
                     "question": user_query,
                     "chat_history": st.session_state.chat_history,
                 },
+            )
+            logger.info(question)
+            source_documents = RETRIEVER.invoke(question)
+            answer = QA_CHAIN.invoke(
+                {
+                    "context": source_documents,
+                    "question": question,
+                },
                 config={"callbacks": [st_callback]},
             )
-            st_callback._complete_current_thought()
 
-            answer = response["answer"]
-            source_documents = response["source_documents"]
-
-            st.markdown(answer)
-
+            st.success(_format_text(answer))
             with st.expander("Sources"):
                 print_docs(source_documents)
 
