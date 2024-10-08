@@ -1,26 +1,28 @@
 import streamlit as st
-from langchain_core.prompts import PromptTemplate
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
-from langchain.agents import AgentExecutor, create_react_agent
-from langchain.agents.output_parsers import ReActJsonSingleInputOutputParser
-from langchain.tools.retriever import create_retriever_tool
-from langchain_google_genai import GoogleGenerativeAI
 
-from src import CFG
-from src.prompt_templates import prompts, REACT_JSON_TEMPLATE
-from src.retrieval_qa import build_rerank_retriever, condense_question_chain
-from src.tools import tavily_tool
+from src import CFG, logger
+from src.agents import build_agent_executor
+from src.prompt_templates import prompts
+from src.retrieval_qa import build_rerank_retriever, build_condense_question_chain
 from src.vectordb import load_faiss, load_chroma
 from streamlit_app.utils import load_base_embeddings, load_reranker
 
 TITLE = "Conversational RAG using ReAct"
 st.set_page_config(page_title=TITLE)
 
+from langchain_community.llms.ollama import Ollama
+
+LLM = Ollama(model="mymodel")
+
+# from langchain_google_genai import GoogleGenerativeAI
+# LLM = GoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.0)
+
+CONDENSE_QUESTION_CHAIN = build_condense_question_chain(LLM)
+
 CHAT_FORMAT = prompts.chat_format
 BASE_EMBEDDINGS = load_base_embeddings()
 RERANKER = load_reranker()
-LLM = GoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.0)
-CONDENSE_QUESTION_CHAIN = condense_question_chain(LLM)
 
 
 @st.cache_resource
@@ -32,11 +34,14 @@ def load_vectordb(vectordb_path):
     raise NotImplementedError
 
 
-def build_agent_executor(reranker, llm):
+def get_tools():
+    from langchain.tools.retriever import create_retriever_tool
+    from src.tools import tavily_tool
+
     tools = []
     for vectordb in CFG.VECTORDB:
         db = load_vectordb(vectordb.PATH)
-        retriever = build_rerank_retriever(db, reranker)
+        retriever = build_rerank_retriever(db, RERANKER)
 
         tool = create_retriever_tool(
             retriever=retriever,
@@ -46,25 +51,7 @@ def build_agent_executor(reranker, llm):
         tools.append(tool)
 
     tools.extend([tavily_tool])  # add default tools
-
-    prompt = PromptTemplate.from_template(
-        CHAT_FORMAT.format(system="You are a helpful assistant.", user=REACT_JSON_TEMPLATE)
-    )
-    agent = create_react_agent(
-        llm=llm,
-        tools=tools,
-        prompt=prompt,
-        output_parser=ReActJsonSingleInputOutputParser(),
-    )
-    agent_executor = AgentExecutor(
-        agent=agent,
-        tools=tools,
-        return_intermediate_steps=True,
-        handle_parsing_errors=True,
-        verbose=True,
-        max_iterations=2,
-    )
-    return agent_executor
+    return tools
 
 
 def init_chat_history():
@@ -78,8 +65,12 @@ def init_chat_history():
 def print_docs(source_documents):
     for row in source_documents:
         # st.write(f"**Page {row.metadata['page_number']}**")
-        # st.info(row.page_content)
+        # st.info(_format_text(row.page_content))
         st.info(row)
+
+
+def _format_text(text):
+    return text.replace("$", r"\$")
 
 
 def rag_react():
@@ -94,7 +85,8 @@ def rag_react():
         try:
             with st.status("Load agent", expanded=False) as status:
                 st.write("Loading agent...")
-                agent_executor = build_agent_executor(RERANKER, LLM)
+                tools = get_tools()
+                agent_executor = build_agent_executor(LLM, tools, CHAT_FORMAT)
                 status.update(label="Loading complete!", state="complete", expanded=False)
             st.success("Reading from existing VectorDB")
         except Exception as e:
@@ -127,22 +119,22 @@ def rag_react():
                 expand_new_thoughts=True,
                 collapse_completed_thoughts=True,
             )
-            query = CONDENSE_QUESTION_CHAIN.invoke(
+
+            question = CONDENSE_QUESTION_CHAIN.invoke(
                 {
                     "question": user_query,
                     "chat_history": st.session_state.chat_history,
                 },
-                config={"callbacks": [st_callback]},
             )
+            logger.info(question)
             response = agent_executor.invoke(
-                {"input": query},
+                {"input": question},
                 config={"callbacks": [st_callback]},
             )
-            answer = response["output"].replace("$", r"\$")
+            answer = _format_text(response["output"])
             source_documents = [r[1] for r in response["intermediate_steps"]]
 
             st.markdown(answer)
-
             with st.expander("Sources"):
                 print_docs(source_documents)
 
