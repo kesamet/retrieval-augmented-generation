@@ -2,7 +2,7 @@
   <b>Retrieval augmented generation with quantized LLM</b><br>
 </h2>
 
-Retrieval augmented generation (RAG) demos with Mistral, Zephyr, Phi, Gemma, Llama, OLMoE
+Retrieval augmented generation (RAG) demos with Mistral, Zephyr, Phi, Gemma, Llama, Aya-Expanse
 
 The demos use quantized models and run on CPU with acceptable inference time. They can run **offline** without Internet access, thus allowing deployment in an air-gapped environment.
 
@@ -54,6 +54,7 @@ Download and save the models in `./models` and update `config.yaml`. The models 
 - Propositionizer
     - [chentong00/propositionizer-wiki-flan-t5-large](https://huggingface.co/chentong00/propositionizer-wiki-flan-t5-large) save in `models/propositionizer-wiki-flan-t5-large/`
 - LLMs
+    - [bartowski/aya-expanse-8b-GGUF](https://huggingface.co/bartowski/aya-expanse-8b-GGUF)
     - [bartowski/Llama-3.2-3B-Instruct-GGUF](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)
     - [allenai/OLMoE-1B-7B-0924-Instruct-GGUF](https://huggingface.co/allenai/OLMoE-1B-7B-0924-Instruct-GGUF)
     - [bartowski/Meta-Llama-3.1-8B-Instruct-GGUF](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)
