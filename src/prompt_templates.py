@@ -16,6 +16,13 @@ CHAT_FORMATS = {
     ),
     "phi3": "<|system|>\n{system}<|end|>\n<|user|>\n{user}<|end|>\n<|assistant|>",
     "olmoe": "<|endoftext|><|user|>\n{system}\n{user}\n<|assistant|>",
+    # RuntimeWarning: Detected duplicate leading "<BOS_TOKEN>" in prompt,
+    # this will likely reduce response quality, consider removing it...
+    "aya-expanse": (
+        "<|START_OF_TURN_TOKEN|><|SYSTEM_TOKEN|>{system}<|END_OF_TURN_TOKEN|>"
+        "<|START_OF_TURN_TOKEN|><|USER_TOKEN|>{user}<|END_OF_TURN_TOKEN|>"
+        "<|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|>"
+    ),
     "gemini": "{system}\n{user}",
     "gpt": "{system}\n{user}",
 }
