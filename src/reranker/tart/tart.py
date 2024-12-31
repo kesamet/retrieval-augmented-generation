@@ -4,17 +4,17 @@ from typing import Optional, Sequence, Tuple
 import torch
 import torch.nn.functional as F
 from langchain.schema import Document
-from langchain.pydantic_v1 import Extra
 from langchain.callbacks.manager import Callbacks
 from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
+from pydantic import ConfigDict
 
 from src import CFG
 from .modeling_enc_t5 import EncT5ForSequenceClassification
 from .tokenization_enc_t5 import EncT5Tokenizer
 
 
-class TARTReranker(BaseDocumentCompressor):
-    """Reranker based on TART (https://github.com/facebookresearch/tart)."""
+class TARTRerank(BaseDocumentCompressor):
+    """Document compressor based on TART (https://github.com/facebookresearch/tart)."""
 
     model_path: str = os.path.join(CFG.MODELS_DIR, CFG.RERANKER_PATH)
     tokenizer = EncT5Tokenizer.from_pretrained(model_path)
@@ -25,11 +25,7 @@ class TARTReranker(BaseDocumentCompressor):
     top_n: int = 4
     """Number of documents to return."""
 
-    class Config:
-        """Configuration for this pydantic object."""
-
-        extra = Extra.forbid
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
     def compress_documents(
         self,

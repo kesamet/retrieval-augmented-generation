@@ -3,23 +3,19 @@ from typing import Optional, Sequence, Tuple
 from rank_bm25 import BM25Okapi
 from transformers import AutoTokenizer
 from langchain.schema import Document
-from langchain.pydantic_v1 import Extra
+from pydantic import ConfigDict
 
 from langchain.callbacks.manager import Callbacks
 from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
 
 
-class BM25Reranker(BaseDocumentCompressor):
-    """Reranker based on BM25."""
+class BM25Rerank(BaseDocumentCompressor):
+    """Dcoument compressor based on BM25."""
 
     tokenizer: AutoTokenizer = AutoTokenizer.from_pretrained("gpt2")
     top_n: int = 4
 
-    class Config:
-        """Configuration for this pydantic object."""
-
-        extra = Extra.forbid
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
     def compress_documents(
         self,
