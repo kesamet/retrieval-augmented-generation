@@ -15,13 +15,13 @@ def build_reranker():
     return compressor
 
     # if CFG.RERANKER_TYPE == "bge":
-    #     from src.reranker.bge import BGEReranker
+    #     from src.reranker.bge import BGERerank
 
-    #     return BGEReranker(top_n=CFG.RERANK_RETRIEVER_CONFIG.TOP_N)
+    #     return BGERerank(top_n=CFG.RERANK_RETRIEVER_CONFIG.TOP_N)
 
     # if CFG.RERANKER_TYPE == "tart":
-    #     from src.reranker.tart import TARTReranker
+    #     from src.reranker.tart import TARTRerank
 
-    #     return TARTReranker(top_n=CFG.RERANK_RETRIEVER_CONFIG.TOP_N)
+    #     return TARTRerank(top_n=CFG.RERANK_RETRIEVER_CONFIG.TOP_N)
 
     # raise NotImplementedError

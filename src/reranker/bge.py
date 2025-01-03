@@ -1,20 +1,17 @@
-from __future__ import annotations
-
 import os
 from typing import Optional, Sequence, Tuple
 
 from langchain.schema import Document
-from langchain.pydantic_v1 import Extra
-
 from langchain.callbacks.manager import Callbacks
 from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
+from pydantic import ConfigDict
 from sentence_transformers import CrossEncoder
 
 from src import CFG
 
 
-class BGEReranker(BaseDocumentCompressor):
-    """Reranker based on BGE-reranker (https://huggingface.co/BAAI/bge-reranker-base)."""
+class BGERerank(BaseDocumentCompressor):
+    """Document compressor based on BGE-reranker."""
 
     model_path: str = os.path.join(CFG.MODELS_DIR, CFG.RERANKER_PATH)
     top_n: int = 4
@@ -22,11 +19,7 @@ class BGEReranker(BaseDocumentCompressor):
     model: CrossEncoder = CrossEncoder(model_path, device=CFG.DEVICE)
     """CrossEncoder instance to use for reranking."""
 
-    class Config:
-        """Configuration for this pydantic object."""
-
-        extra = Extra.forbid
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
     def compress_documents(
         self,
