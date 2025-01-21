@@ -23,6 +23,10 @@ CHAT_FORMATS = {
         "<|START_OF_TURN_TOKEN|><|USER_TOKEN|>{user}<|END_OF_TURN_TOKEN|>"
         "<|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|>"
     ),
+    "qwen": (
+        "<|im_start|>system\n{system}<|im_end|>\n<|im_start|>user\n"
+        "{user}<|im_end|>\n<|im_start|>assistant"
+    ),
     "gemini": "{system}\n{user}",
     "gpt": "{system}\n{user}",
 }
