@@ -5,8 +5,7 @@ DEVICE: cpu  # used only by embeddings and propositionizer
 TEXT_SPLIT_MODE: default  # default or propositionize
 # propositionize uses propositionizer model
 
-# MODELS_DIR: ./models
-MODELS_DIR: /Users/user/Desktop/Dvorak/Work/models
+MODELS_DIR: ./models
 
 EMBEDDINGS_PATH: bge-small-en-v1.5
 # EMBEDDINGS_PATH: all-mpnet-base-v2
