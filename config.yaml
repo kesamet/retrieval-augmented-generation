@@ -5,7 +5,8 @@ DEVICE: cpu  # used only by embeddings and propositionizer
 TEXT_SPLIT_MODE: default  # default or propositionize
 # propositionize uses propositionizer model
 
-MODELS_DIR: ./models
+# MODELS_DIR: ./models
+MODELS_DIR: /Users/user/Desktop/Dvorak/Work/models
 
 EMBEDDINGS_PATH: bge-small-en-v1.5
 # EMBEDDINGS_PATH: all-mpnet-base-v2
@@ -15,28 +16,28 @@ VECTORDB_TYPE: faiss
 VECTORDB:
   - PATH: ./vectordb/faiss
     NAME: document
-    DESCRIPTION: A tool useful for when you need to answer questions about the source document. Input should be a search query.
+    DESCRIPTION: A tool useful for when you need to answer questions about the source document. Always use this first.
 
 
 # TODO: OLMoE does not seem to work on ollama
-# LLM_TYPE: gguf
+# LLM_PROVIDER: llamacpp
 # LLM_PATH: olmoe-1b-7b-0924-instruct-q4_k_m.gguf
 # PROMPT_TYPE: olmoe
 
-# LLM_TYPE: groq
+# LLM_PROVIDER: groq
 # LLM_PATH: mixtral-8x7b-32768
 # PROMPT_TYPE: mistral
 
-LLM_TYPE: ollama
-LLM_PATH: mymodel
-PROMPT_TYPE: llama3
+LLM_PROVIDER: ollama
+LLM_PATH: qwen
+PROMPT_TYPE: qwen
 
-# LLM_TYPE: gemini
+# LLM_PROVIDER: gemini
 # LLM_PATH: gemini-1.5-flash
 # PROMPT_TYPE: gemini
 
 LLM_CONFIG:
-  MAX_NEW_TOKENS: 512
+  MAX_NEW_TOKENS: 1024
   TEMPERATURE: 0.2
   REPETITION_PENALTY: 1.1
   CONTEXT_LENGTH: 4000
