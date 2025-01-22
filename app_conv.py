@@ -15,20 +15,20 @@ from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_re
 TITLE = "Conversational RAG"
 st.set_page_config(page_title=TITLE)
 
-LLM = load_llm()
-BASE_EMBEDDINGS = load_base_embeddings()
+EMBEDDING_FUNCTION = load_base_embeddings()
 RERANKER = load_reranker()
-VECTORDB_PATH = CFG.VECTORDB[0].PATH
+LLM = load_llm()
 CONDENSE_QUESTION_CHAIN = build_condense_question_chain(LLM)
 QA_CHAIN = build_question_answer_chain(LLM)
+VECTORDB_PATH = CFG.VECTORDB[0].PATH
 
 
 @st.cache_resource
 def load_vectordb():
     if CFG.VECTORDB_TYPE == "faiss":
-        return load_faiss(BASE_EMBEDDINGS, VECTORDB_PATH)
+        return load_faiss(EMBEDDING_FUNCTION, VECTORDB_PATH)
     if CFG.VECTORDB_TYPE == "chroma":
-        return load_chroma(BASE_EMBEDDINGS, VECTORDB_PATH)
+        return load_chroma(EMBEDDING_FUNCTION, VECTORDB_PATH)
     raise NotImplementedError
 
 
@@ -74,7 +74,7 @@ def doc_conv_qa():
                 perform(
                     build_vectordb,
                     uploaded_file.read(),
-                    embedding_function=BASE_EMBEDDINGS,
+                    embedding_function=EMBEDDING_FUNCTION,
                 )
                 load_vectordb.clear()
 

@@ -1,46 +1,37 @@
 import streamlit as st
+from langchain_core.tools.retriever import create_retriever_tool
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 
+    
 from src import CFG, logger
 from src.agents import build_agent_executor
-from src.prompt_templates import prompts
 from src.retrieval_qa import build_rerank_retriever, build_condense_question_chain
 from src.vectordb import load_faiss, load_chroma
-from streamlit_app.utils import load_base_embeddings, load_reranker
+from src.tools import tavily_tool
+from streamlit_app.utils import load_base_embeddings, load_llm, load_reranker
 
 TITLE = "Conversational RAG using ReAct"
 st.set_page_config(page_title=TITLE)
 
-from langchain_community.llms.ollama import Ollama
-
-LLM = Ollama(model="mymodel")
-
-# from langchain_google_genai import GoogleGenerativeAI
-# LLM = GoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.0)
-
-CONDENSE_QUESTION_CHAIN = build_condense_question_chain(LLM)
-
-CHAT_FORMAT = prompts.chat_format
-BASE_EMBEDDINGS = load_base_embeddings()
+EMBEDDING_FUNCTION = load_base_embeddings()
 RERANKER = load_reranker()
+LLM = load_llm()
+CONDENSE_QUESTION_CHAIN = build_condense_question_chain(LLM)
 
 
 @st.cache_resource
-def load_vectordb(vectordb_path):
+def load_vectordb(vectordb_config: dict):
     if CFG.VECTORDB_TYPE == "faiss":
-        return load_faiss(BASE_EMBEDDINGS, vectordb_path)
+        return load_faiss(EMBEDDING_FUNCTION, vectordb_config["PATH"])
     if CFG.VECTORDB_TYPE == "chroma":
-        return load_chroma(BASE_EMBEDDINGS, vectordb_path)
+        return load_chroma(EMBEDDING_FUNCTION, vectordb_config["PATH"])
     raise NotImplementedError
 
 
 def get_tools():
-    from langchain.tools.retriever import create_retriever_tool
-    from src.tools import tavily_tool
-
     tools = []
     for vectordb in CFG.VECTORDB:
-        db = load_vectordb(vectordb.PATH)
+        db = load_vectordb(dict(vectordb))
         retriever = build_rerank_retriever(db, RERANKER)
 
         tool = create_retriever_tool(
@@ -64,7 +55,6 @@ def init_chat_history():
 
 def print_docs(source_documents):
     for row in source_documents:
-        # st.write(f"**Page {row.metadata['page_number']}**")
         # st.info(_format_text(row.page_content))
         st.info(row)
 
@@ -78,7 +68,7 @@ def rag_react():
         st.title(TITLE)
 
         with st.expander("Models used"):
-            st.info(f"LLM: `gemini-1.5-flash`")
+            st.info(f"LLM: `{CFG.LLM_PATH}`")
             st.info(f"Embeddings: `{CFG.EMBEDDINGS_PATH}`")
             st.info(f"Reranker: `{CFG.RERANKER_PATH}`")
 
@@ -86,7 +76,7 @@ def rag_react():
             with st.status("Load agent", expanded=False) as status:
                 st.write("Loading agent...")
                 tools = get_tools()
-                agent_executor = build_agent_executor(LLM, tools, CHAT_FORMAT)
+                agent_executor = build_agent_executor(LLM, tools, max_iterations=4)
                 status.update(label="Loading complete!", state="complete", expanded=False)
             st.success("Reading from existing VectorDB")
         except Exception as e:
@@ -132,9 +122,11 @@ def rag_react():
                 config={"callbacks": [st_callback]},
             )
             answer = _format_text(response["output"])
-            source_documents = [r[1] for r in response["intermediate_steps"]]
+            if answer == "Agent stopped due to iteration limit or time limit.":
+                answer = "I am unable to find an answer from the context. Try rephrasing your question."
 
-            st.markdown(answer)
+            st.success(answer)
+            source_documents = [r[1] for r in response["intermediate_steps"]]
             with st.expander("Sources"):
                 print_docs(source_documents)
 

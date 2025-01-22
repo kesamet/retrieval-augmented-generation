@@ -16,7 +16,7 @@ DEFAULT_CONTEXT_LENGTH = 4000
 
 def build_llm():
     """Builds LLM defined in config."""
-    if CFG.LLM_TYPE == "gguf":
+    if CFG.LLM_PROVIDER == "llamacpp":
         return build_llamacpp(
             os.path.join(CFG.MODELS_DIR, CFG.LLM_PATH),
             config={
@@ -26,10 +26,7 @@ def build_llm():
                 "n_ctx": CFG.LLM_CONFIG.CONTEXT_LENGTH,
             },
         )
-    elif CFG.LLM_TYPE == "groq":
-        from dotenv import load_dotenv
-
-        _ = load_dotenv()
+    elif CFG.LLM_PROVIDER == "groq":
         return chatgroq(
             model_name=CFG.LLM_PATH,
             config={
@@ -37,7 +34,7 @@ def build_llm():
                 "temperature": CFG.LLM_CONFIG.TEMPERATURE,
             },
         )
-    elif CFG.LLM_TYPE == "ollama":
+    elif CFG.LLM_PROVIDER == "ollama":
         return ollama(
             CFG.LLM_PATH,
             config={
@@ -46,7 +43,7 @@ def build_llm():
                 "repeat_penalty": DEFAULT_REPETITION_PENALTY,
             },
         )
-    elif CFG.LLM_PATH.startswith("http"):
+    elif CFG.LLM_PROVIDER == "openai":
         return chatopenai(
             CFG.LLM_PATH,
             config={
@@ -54,7 +51,7 @@ def build_llm():
                 "temperature": CFG.LLM_CONFIG.TEMPERATURE,
             },
         )
-    elif CFG.LLM_TYPE == "gemini":
+    elif CFG.LLM_PROVIDER == "gemini":
         return googlegenerativeai(
             CFG.LLM_PATH,
             config={
@@ -134,7 +131,7 @@ def chatgroq(model_name: str = "mixtral-8x7b-32768", config: dict | None = None,
 
 def ollama(model: str, config: dict | None = None, debug: bool = False, **kwargs):
     """For LLM deployed as an API."""
-    from langchain_community.llms.ollama import Ollama
+    from langchain_ollama import ChatOllama
 
     if config is None:
         config = {
@@ -143,7 +140,7 @@ def ollama(model: str, config: dict | None = None, debug: bool = False, **kwargs
             "repeat_penalty": DEFAULT_REPETITION_PENALTY,
         }
 
-    llm = Ollama(
+    llm = ChatOllama(
         model=model,
         **config,
         callbacks=[StreamingStdOutCallbackHandler()] if debug else None,

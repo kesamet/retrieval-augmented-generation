@@ -14,9 +14,9 @@ from src.vectordb import load_pdf, text_split, save_faiss
 from src.parser import get_title
 from src.elements.raptor import Raptorizer
 
-BASE_EMBEDDINGS = build_base_embeddings()
+EMBEDDING_FUNCTION = build_base_embeddings()
 LLM = googlegenerativeai("gemini-1.5-flash")
-RAPTORIZER = Raptorizer(BASE_EMBEDDINGS, LLM, "gemini")
+RAPTORIZER = Raptorizer(EMBEDDING_FUNCTION, LLM, "gemini")
 
 VECTORDB_DIR = "./vectordb"
 VECTORDB_TYPE = "faiss"
@@ -55,4 +55,4 @@ if __name__ == "__main__":
             VECTORDB_DIR,
             VECTORDB_TYPE + "_" + os.path.splitext(os.path.basename(filepath))[0],
         )
-        save_faiss(docs, BASE_EMBEDDINGS, dest)
+        save_faiss(docs, EMBEDDING_FUNCTION, dest)

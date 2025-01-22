@@ -19,26 +19,25 @@ from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_re
 TITLE = "Retrieval QA"
 st.set_page_config(page_title=TITLE, layout="wide")
 
-LLM = load_llm()
-BASE_EMBEDDINGS = load_base_embeddings()
+EMBEDDING_FUNCTION = load_base_embeddings()
 RERANKER = load_reranker()
-VECTORDB_PATH = CFG.VECTORDB[0].PATH
-
+LLM = load_llm()
 QA_CHAIN = build_question_answer_chain(LLM)
+VECTORDB_PATH = CFG.VECTORDB[0].PATH
 
 
 @st.cache_resource
 def load_vectordb():
     if CFG.VECTORDB_TYPE == "faiss":
-        return load_faiss(BASE_EMBEDDINGS, VECTORDB_PATH)
+        return load_faiss(EMBEDDING_FUNCTION, VECTORDB_PATH)
     if CFG.VECTORDB_TYPE == "chroma":
-        return load_chroma(BASE_EMBEDDINGS, VECTORDB_PATH)
+        return load_chroma(EMBEDDING_FUNCTION, VECTORDB_PATH)
     raise NotImplementedError
 
 
 @st.cache_resource
 def load_vectordb_hyde():
-    hyde_embeddings = build_hyde_embeddings(LLM, BASE_EMBEDDINGS)
+    hyde_embeddings = build_hyde_embeddings(LLM, EMBEDDING_FUNCTION)
 
     if CFG.VECTORDB_TYPE == "faiss":
         return load_faiss(hyde_embeddings, VECTORDB_PATH)
@@ -53,7 +52,7 @@ def load_retriever(_vectordb, retrieval_mode):
     if retrieval_mode == "Rerank":
         return build_rerank_retriever(_vectordb, RERANKER)
     if retrieval_mode == "Contextual compression":
-        return build_compression_retriever(_vectordb, BASE_EMBEDDINGS)
+        return build_compression_retriever(_vectordb, EMBEDDING_FUNCTION)
     raise NotImplementedError
 
 
@@ -100,7 +99,7 @@ def doc_qa():
                 perform(
                     build_vectordb,
                     uploaded_file.read(),
-                    embedding_function=BASE_EMBEDDINGS,
+                    embedding_function=EMBEDDING_FUNCTION,
                 )
                 load_vectordb.clear()
 
