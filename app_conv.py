@@ -4,15 +4,12 @@ import streamlit as st
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 
 from src import CFG, logger
-from src.retrieval_qa import (
-    build_rerank_retriever,
-    build_condense_question_chain,
-    build_question_answer_chain,
-)
-from src.vectordb import build_vectordb, delete_vectordb, load_faiss, load_chroma
+from src.retrievers import build_rerank_retriever
+from src.chains import build_condense_question_chain, build_question_answer_chain
+from src.vectordbs import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
 
-TITLE = "Conversational RAG"
+TITLE = "Conversational QA"
 st.set_page_config(page_title=TITLE)
 
 EMBEDDING_FUNCTION = load_base_embeddings()
@@ -51,7 +48,7 @@ def _format_text(text):
     return text.replace("$", r"\$")
 
 
-def doc_conv_qa():
+def convqa():
     with st.sidebar:
         st.title(TITLE)
 
@@ -145,4 +142,4 @@ def doc_conv_qa():
 
 
 if __name__ == "__main__":
-    doc_conv_qa()
+    convqa()

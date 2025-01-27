@@ -42,10 +42,10 @@ class Prompts:
     @property
     def qa(self):
         system = (
-            "You are a helpful, respectful and honest assistant for question-answering tasks."
+            "You are a helpful, respectful and honest assistant for question-answering tasks. "
             "Use the following pieces of retrieved context to answer the user's question. "
             "If you don't know the answer, just say that you don't know, "
-            "don't try to make up an answer."
+            "don't try to make up an answer. Answer in the same language as the question."
         )
         user = "Context:\n{context}\n\nQuestion: {question}\nAnswer:"
         return self.chat_format.format(system=system, user=user)

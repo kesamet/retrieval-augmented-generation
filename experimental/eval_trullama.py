@@ -1,6 +1,5 @@
 """
 Evaluate and track LLM experiments in llama-index with trulens-eval
-LLM used here is gemini-pro
 """
 
 import numpy as np
@@ -18,14 +17,14 @@ index = load_index_from_storage(
     embed_model="local:../models/bge-small-en-v1.5",
 )
 
-llm = LiteLLM(model="gemini/gemini-pro", temperature=0.1)
+llm = LiteLLM(model="gemini/gemini-1.5-flash", temperature=0.1)
 query_engine = index.as_query_engine(llm=llm)
 
 
 # Evaluate with trulens-eval
 
 # Define provider and database
-_llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
+_llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
 provider = Langchain(chain=_llm)
 
 database_url = "sqlite:///data/trulens.db"

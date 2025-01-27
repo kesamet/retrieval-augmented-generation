@@ -4,7 +4,10 @@ from langchain_community.callbacks import StreamlitCallbackHandler
 from langchain_ollama import ChatOllama
 from loguru import logger
 
-from src.retrieval_qa import build_condense_question_chain
+from src.chains import build_condense_question_chain
+
+TITLE = "Conversational QA with VLM"
+st.set_page_config(page_title=TITLE)
 
 LLM = ChatOllama(model="vision")
 CONDENSE_QUESTION_CHAIN = build_condense_question_chain(LLM)
@@ -12,12 +15,14 @@ CONDENSE_QUESTION_CHAIN = build_condense_question_chain(LLM)
 
 def get_response(question, images=[]):
     resp = ollama.chat(
-        model='vision',
-        messages=[{
-            'role': 'user',
-            'content': question,
-            'images': images,
-        }]
+        model="vision",
+        messages=[
+            {
+                "role": "user",
+                "content": question,
+                "images": images,
+            }
+        ],
     )
     return resp.message.content
 
@@ -31,8 +36,8 @@ def init_chat_history():
         st.session_state["image_bytes"] = None
 
 
-def main():
-    st.sidebar.title("Conv QA")
+def convqa_vlm():
+    st.sidebar.title(TITLE)
     init_chat_history()
 
     uploaded_file = st.sidebar.file_uploader(
@@ -77,4 +82,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    convqa_vlm()

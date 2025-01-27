@@ -13,9 +13,9 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_google_genai import GoogleGenerativeAI
 
 from src.embeddings import build_base_embeddings
-from src.vectordb import load_chroma
-from src.reranker import build_reranker
-from src.retrieval_qa import build_rerank_retriever
+from src.vectordbs import load_chroma
+from src.rerankers import build_reranker
+from src.retrievers import build_rerank_retriever
 from src.prompt_templates import CHAT_FORMATS, QA_TEMPLATE
 
 MODEL = GoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.0, streaming=False)
