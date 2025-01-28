@@ -74,7 +74,7 @@ def _format_text(text):
     return text.replace("$", r"\$")
 
 
-def doc_qa():
+def docqa():
     init_sess_state()
 
     with st.sidebar:
@@ -226,4 +226,4 @@ def _display_pdf_from_docs(source_documents):
 
 
 if __name__ == "__main__":
-    doc_qa()
+    docqa()
