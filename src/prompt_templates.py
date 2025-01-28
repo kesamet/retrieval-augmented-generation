@@ -27,6 +27,7 @@ CHAT_FORMATS = {
         "<|im_start|>system\n{system}<|im_end|>\n<|im_start|>user\n"
         "{user}<|im_end|>\n<|im_start|>assistant"
     ),
+    "deepseek": "<｜User｜>{system}\n{user}<｜Assistant｜>",
     "gemini": "{system}\n{user}",
     "gpt": "{system}\n{user}",
 }
@@ -43,8 +44,8 @@ class Prompts:
     def qa(self):
         system = (
             "You are a helpful, respectful and honest assistant for question-answering tasks. "
-            "Use the following pieces of retrieved context to answer the user's question. "
-            "If you don't know the answer, just say that you don't know, "
+            "Only use the following pieces of retrieved context to answer the user's question. "
+            "If the answer cannot be found from context, just say that you don't know, "
             "don't try to make up an answer. Answer in the same language as the question."
         )
         user = "Context:\n{context}\n\nQuestion: {question}\nAnswer:"

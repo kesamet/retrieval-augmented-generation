@@ -3,6 +3,7 @@ LLM
 """
 
 import os
+from typing import Dict
 
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
 
@@ -35,12 +36,12 @@ def build_llm():
             },
         )
     elif CFG.LLM_PROVIDER == "ollama":
-        return ollama(
+        return chatollama(
             CFG.LLM_PATH,
             config={
-                "num_predict": DEFAULT_MAX_NEW_TOKENS,
-                "temperature": DEFAULT_TEMPERATURE,
-                "repeat_penalty": DEFAULT_REPETITION_PENALTY,
+                "num_predict": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
+                "temperature": CFG.LLM_CONFIG.TEMPERATURE,
+                "repeat_penalty": CFG.LLM_CONFIG.REPETITION_PENALTY,
             },
         )
     elif CFG.LLM_PROVIDER == "openai":
@@ -129,7 +130,7 @@ def chatgroq(model_name: str = "mixtral-8x7b-32768", config: dict | None = None,
     return llm
 
 
-def ollama(model: str, config: dict | None = None, debug: bool = False, **kwargs):
+def chatollama(model: str, config: dict | None = None, debug: bool = False, **kwargs):
     """For LLM deployed as an API."""
     from langchain_ollama import ChatOllama
 
