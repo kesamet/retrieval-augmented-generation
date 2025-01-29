@@ -6,13 +6,13 @@ from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 from src import CFG
 from src.embeddings import build_hyde_embeddings
 from src.query_expansion import build_multiple_queries_expansion_chain
-from src.retrieval_qa import (
+from src.retrievers import (
     build_base_retriever,
     build_rerank_retriever,
     build_compression_retriever,
-    build_question_answer_chain,
 )
-from src.vectordb import build_vectordb, delete_vectordb, load_faiss, load_chroma
+from src.chains import build_question_answer_chain
+from src.vectordbs import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
 
@@ -74,7 +74,7 @@ def _format_text(text):
     return text.replace("$", r"\$")
 
 
-def doc_qa():
+def docqa():
     init_sess_state()
 
     with st.sidebar:
@@ -226,4 +226,4 @@ def _display_pdf_from_docs(source_documents):
 
 
 if __name__ == "__main__":
-    doc_qa()
+    docqa()

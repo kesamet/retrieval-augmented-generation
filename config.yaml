@@ -7,9 +7,7 @@ TEXT_SPLIT_MODE: default  # default or propositionize
 
 MODELS_DIR: ./models
 
-EMBEDDINGS_PATH: bge-small-en-v1.5
-# EMBEDDINGS_PATH: all-mpnet-base-v2
-# EMBEDDINGS_PATH: all-MiniLM-L6-v2
+MAX_MEMORY_TOKENS: 10000
 
 VECTORDB_TYPE: faiss
 VECTORDB:
@@ -17,6 +15,10 @@ VECTORDB:
     NAME: document
     DESCRIPTION: A tool useful for when you need to answer questions about the source document. Always use this first.
 
+EMBEDDINGS_PROVIDER: huggingface
+EMBEDDINGS_PATH: bge-small-en-v1.5
+# EMBEDDINGS_PATH: all-mpnet-base-v2
+# EMBEDDINGS_PATH: all-MiniLM-L6-v2
 
 # TODO: OLMoE does not seem to work on ollama
 # LLM_PROVIDER: llamacpp
@@ -28,15 +30,19 @@ VECTORDB:
 # PROMPT_TYPE: mistral
 
 LLM_PROVIDER: ollama
-LLM_PATH: qwen
-PROMPT_TYPE: qwen
+LLM_PATH: deepseek-qwen
+PROMPT_TYPE: deepseek
+
+# LLM_PROVIDER: ollama
+# LLM_PATH: qwen
+# PROMPT_TYPE: qwen
 
 # LLM_PROVIDER: gemini
 # LLM_PATH: gemini-1.5-flash
 # PROMPT_TYPE: gemini
 
 LLM_CONFIG:
-  MAX_NEW_TOKENS: 1024
+  MAX_NEW_TOKENS: 4096
   TEMPERATURE: 0.2
   REPETITION_PENALTY: 1.1
   CONTEXT_LENGTH: 4000

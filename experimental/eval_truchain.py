@@ -1,6 +1,5 @@
 """
 Evaluate and track LLM experiments in langchain with trulens-eval
-LLM used here is gemini-pro
 """
 
 import numpy as np
@@ -17,9 +16,9 @@ from trulens_eval.utils.serial import all_queries
 from trulens_eval.utils.json import jsonify
 
 from src.embeddings import build_base_embeddings
-from src.vectordb import load_chroma
-from src.reranker import build_reranker
-from src.retrieval_qa import build_rerank_retriever
+from src.vectordbs import load_chroma
+from src.rerankers import build_reranker
+from src.retrievers import build_rerank_retriever
 from src.llms import build_llm
 from src.prompt_templates import QA_TEMPLATE
 
@@ -47,7 +46,7 @@ rag_chain = (
 # Evaluate with trulens-eval
 
 # Define provider and database
-_llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
+_llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
 provider = Langchain(chain=_llm)
 
 database_url = "sqlite:///data/trulens.db"
