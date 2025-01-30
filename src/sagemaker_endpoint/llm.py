@@ -7,7 +7,11 @@ from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from langchain_core.messages import BaseMessage
 from langchain_core.language_models import LanguageModelInput
-from langchain_community.llms.sagemaker_endpoint import SagemakerEndpoint, LLMContentHandler, LineIterator
+from langchain_community.llms.sagemaker_endpoint import (
+    SagemakerEndpoint,
+    LLMContentHandler,
+    LineIterator,
+)
 from langchain_community.llms.utils import enforce_stop_tokens
 
 
@@ -18,11 +22,11 @@ class ContentHandler(LLMContentHandler):
     def transform_input(self, prompt: str, model_kwargs: dict, stream: bool = False) -> bytes:
         input_str = json.dumps({"inputs": prompt, "parameters": model_kwargs, "stream": stream})
         return input_str.encode("utf-8")
-    
+
     def transform_output(self, output: bytes) -> str:
         response_json = json.loads(output.read().decode("utf-8"))
         return response_json["generated_text"]
-    
+
 
 class SagemakerEndpointLLM(SagemakerEndpoint):
     """Adapted from SagemakerEndpoint to fix streaming."""
@@ -55,7 +59,9 @@ class SagemakerEndpointLLM(SagemakerEndpoint):
                 start_json = b"{"
                 for line in iterator:
                     if line != b"" and start_json in line:
-                        resp_output = json.loads(line[line.find(start_json):].decode("utf-8"))["token"]["text"]
+                        resp_output = json.loads(line[line.find(start_json) :].decode("utf-8"))[
+                            "token"
+                        ]["text"]
                         if stop is not None:
                             # Uses same approach as below
                             resp_output = enforce_stop_tokens(resp_output, stop)
@@ -83,7 +89,7 @@ class SagemakerEndpointLLM(SagemakerEndpoint):
                 text = enforce_stop_tokens(text, stop)
 
             return text
-        
+
     def bind_tools(
         self,
         tools: Sequence[Union[Dict[str, Any], Type, Callable, BaseTool]],
@@ -92,7 +98,7 @@ class SagemakerEndpointLLM(SagemakerEndpoint):
         **kwargs: Any,
     ) -> Runnable[LanguageModelInput, BaseMessage]:
         """Bind tools for use in model generation.
-        
+
         Assumes model is compatible with OpenAI tool-calling API.
 
         Args:

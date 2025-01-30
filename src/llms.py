@@ -191,7 +191,7 @@ def sagemaker_endpoint(model_kwargs: Dict | None = None, **kwargs):
             "temperature": CFG.LLM_CONFIG.TEMPERATURE,
             "max_new_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
         }
-    
+
     runtime_client = boto3.client("sagemaker-runtime", region_name=CFG.REGION_NAME)
     return SagemakerEndpointLLM(
         endpoint_name=CFG.LLM_ENDPOINT,

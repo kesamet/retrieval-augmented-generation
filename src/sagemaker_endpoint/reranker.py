@@ -25,6 +25,7 @@ class CrossEncoderContentHandler:
 
 class SagemakerEndpointCrossEncoder(BaseModel):
     """SageMaker Inference CrossEncoder endpoint."""
+
     client: Any = None  #: :meta private:
 
     endpoint_name: str = ""
@@ -118,7 +119,9 @@ class SagemakerRerank(BaseDocumentCompressor):
 
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
-    def compress_documents(self, documents: Sequence[Document], query: str, callbacks: Optional[Callbacks] = None) -> Sequence[Document]:
+    def compress_documents(
+        self, documents: Sequence[Document], query: str, callbacks: Optional[Callbacks] = None
+    ) -> Sequence[Document]:
         """
         Compress documents.
 

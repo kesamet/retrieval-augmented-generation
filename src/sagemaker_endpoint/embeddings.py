@@ -11,7 +11,7 @@ class ContentHandler(EmbeddingsContentHandler):
         body = {"inputs": inputs, "parameters": model_kwargs}
         input_str = json.dumps(body)
         return input_str.encode("utf-8")
-    
+
     def transform_output(self, output: bytes) -> str:
         model_output = json.loads(output.read().decode("utf-8"))
         return [sublist[0][0] for sublist in model_output]
