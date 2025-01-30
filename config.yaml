@@ -5,7 +5,8 @@ DEVICE: cpu  # used only by embeddings and propositionizer
 TEXT_SPLIT_MODE: default  # default or propositionize
 # propositionize uses propositionizer model
 
-MODELS_DIR: ./models
+# MODELS_DIR: ./models
+MODELS_DIR: /Users/user/Desktop/Dvorak/Work/models
 
 MAX_MEMORY_TOKENS: 10000
 

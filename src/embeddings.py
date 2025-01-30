@@ -28,3 +28,16 @@ def build_hyde_embeddings(llm, base_embeddings):
 
     embeddings = HypotheticalDocumentEmbedder(llm_chain=llm_chain, base_embeddings=base_embeddings)
     return embeddings
+
+
+def sagemaker_endpoint():
+    import boto3
+    from langchain_community.embeddings import SagemakerEndpointEmbeddings
+    from src.sagemaker_endpoint.embeddings import ContentHandler
+
+    runtime_client = boto3.client("sagemaker-runtime", region_name=CFG.REGION_NAME)
+    return SagemakerEndpointEmbeddings(
+        endpoint_name=CFG.EMBEDDINGS_ENDPOINT,
+        client=runtime_client,
+        content_handler=ContentHandler(),
+    )

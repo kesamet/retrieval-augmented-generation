@@ -9,7 +9,7 @@ from langchain_core.callbacks import StreamingStdOutCallbackHandler
 
 from src import CFG
 
-DEFAULT_MAX_NEW_TOKENS = 512
+DEFAULT_MAX_NEW_TOKENS = 4096
 DEFAULT_TEMPERATURE = 0.2
 DEFAULT_REPETITION_PENALTY = 1.1
 DEFAULT_CONTEXT_LENGTH = 4000
@@ -180,3 +180,23 @@ def googlegenerativeai(model: str = "gemini-1.5-flash", config: dict | None = No
 
     llm = GoogleGenerativeAI(model=model, **config, **kwargs)
     return llm
+
+
+def sagemaker_endpoint(model_kwargs: Dict | None = None, **kwargs):
+    import boto3
+    from src.sagemaker_endpoint.llm import SagemakerEndpointLLM, ContentHandler
+
+    if model_kwargs is None:
+        model_kwargs = {
+            "temperature": CFG.LLM_CONFIG.TEMPERATURE,
+            "max_new_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
+        }
+    
+    runtime_client = boto3.client("sagemaker-runtime", region_name=CFG.REGION_NAME)
+    return SagemakerEndpointLLM(
+        endpoint_name=CFG.LLM_ENDPOINT,
+        client=runtime_client,
+        content_handler=ContentHandler(),
+        model_kwargs=model_kwargs,
+        **kwargs,
+    )

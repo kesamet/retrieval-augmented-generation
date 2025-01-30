@@ -37,15 +37,16 @@ def init_chat_history():
         st.session_state["display_history"] = [("", "Hello! How can I help you?", None)]
 
 
+def _format_output(text: str) -> str:
+    """Clean up output answer."""
+    return text.replace("$", r"\$")
+
+
 def print_docs(source_documents):
     for row in source_documents:
         if row.metadata.get("page_number"):
             st.write(f"**Page {row.metadata['page_number']}**")
-        st.info(_format_text(row.page_content))
-
-
-def _format_text(text):
-    return text.replace("$", r"\$")
+        st.info(_format_output(row.page_content))
 
 
 def convqa():
@@ -99,7 +100,7 @@ def convqa():
             with st.chat_message("user"):
                 st.markdown(question)
         with st.chat_message("assistant"):
-            st.markdown(answer)
+            st.markdown(_format_output(answer))
 
             if source_documents is not None:
                 with st.expander("Sources"):
@@ -133,7 +134,7 @@ def convqa():
                 config={"callbacks": [st_callback]},
             )
 
-            st.success(_format_text(answer))
+            st.success(_format_output(answer))
             with st.expander("Sources"):
                 print_docs(source_documents)
 

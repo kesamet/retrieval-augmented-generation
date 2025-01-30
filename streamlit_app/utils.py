@@ -5,7 +5,7 @@ import streamlit as st
 
 from src.embeddings import build_base_embeddings
 from src.llms import build_llm
-from src.reranker import build_reranker
+from src.rerankers import build_reranker
 
 
 @st.cache_resource

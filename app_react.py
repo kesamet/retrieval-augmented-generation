@@ -53,14 +53,14 @@ def init_chat_history():
         st.session_state["display_history"] = [("", "Hello! How can I help you?", None)]
 
 
+def _format_output(text: str) -> str:
+    """Clean up output answer."""
+    return text.replace("$", r"\$")
+
+
 def print_docs(source_documents):
     for row in source_documents:
-        # st.info(_format_text(row.page_content))
-        st.info(row)
-
-
-def _format_text(text):
-    return text.replace("$", r"\$")
+        st.info(_format_output(row))
 
 
 def convqa_react():
@@ -121,7 +121,7 @@ def convqa_react():
                 {"input": question},
                 config={"callbacks": [st_callback]},
             )
-            answer = _format_text(response["output"])
+            answer = _format_output(response["output"])
             if answer == "Agent stopped due to iteration limit or time limit.":
                 answer = (
                     "I am unable to find an answer from the context. Try rephrasing your question."
