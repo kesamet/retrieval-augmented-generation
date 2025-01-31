@@ -1,3 +1,12 @@
-Quantized models can be downloaded from [TheBloke](https://huggingface.co/TheBloke).
+## Models
 
-Download [facebook/tart-full-flan-t5-xl"](https://huggingface.co/facebook/tart-full-flan-t5-xl) and store them in `./tart-full-flan-t5-xl`.
+Models downloaded can be saved here.
+
+### Ollama
+
+Deploy model with Ollama from a Modelfile
+```
+ollama create mymodel -f ./Modelfile
+```
+
+Refer to [)llama GitHub]([text](https://github.com/ollama/ollama)) for more details.

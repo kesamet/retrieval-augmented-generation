@@ -10,7 +10,7 @@ from langchain.schema import Document
 
 from src.embeddings import build_base_embeddings
 from src.llms import googlegenerativeai
-from src.vectordb import load_pdf, text_split, save_faiss
+from src.vectordbs import load_pdf, text_split, save_faiss
 from src.parser import get_title
 from src.elements.raptor import Raptorizer
 
