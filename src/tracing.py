@@ -1,15 +1,11 @@
-import requests
-from loguru import logger
+from phoenix.otel import register
+from openinference.instrumentation.langchain import LangChainInstrumentor
+
+tracer_provider = register(
+    project_name="my-llm-app",  # Default is 'default'
+    endpoint="http://localhost:6006/v1/traces",
+)
 
 
 def tracing():
-    url = "http://localhost:6006"
-    try:
-        _ = requests.get(url)
-        logger.info("Phoenix UI: http://localhost:6006\nLog traces: /v1/traces over HTTP")
-    except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
-        logger.error("Phoenix server not started. Skipped tracing.")
-    else:
-        from phoenix.trace.langchain import LangChainInstrumentor
-
-        LangChainInstrumentor().instrument()
+    LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
