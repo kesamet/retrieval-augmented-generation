@@ -27,7 +27,7 @@ CHAT_FORMATS = {
         "<|im_start|>system\n{system}<|im_end|>\n<|im_start|>user\n"
         "{user}<|im_end|>\n<|im_start|>assistant"
     ),
-    "deepseek": "<｜User｜>{system}\n{user}<｜Assistant｜>",
+    "deepseek": "{system}\n<｜User｜>{user}<｜Assistant｜>",
     "gemini": "{system}\n{user}",
     "gpt": "{system}\n{user}",
 }
@@ -37,7 +37,7 @@ class Prompts:
     def __init__(self, prompt_type: str):
         self.chat_format = CHAT_FORMATS.get(prompt_type)
         if self.chat_format is None:
-            logger.warning("Chat prompt format not implemented. Using generic format.")
+            logger.warning("Chat prompt format not implemented. Using no format.")
             self.chat_format = "{system}\n{user}"
 
     @property
