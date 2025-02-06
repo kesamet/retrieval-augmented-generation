@@ -5,11 +5,11 @@ import tempfile
 from difflib import SequenceMatcher
 from typing import List, Tuple
 
-import fitz
 import streamlit as st
+from pymupdf import Document, Rect
 
 
-def get_doc_highlighted(filename: str, phrase: str) -> Tuple[fitz.Document, list]:
+def get_doc_highlighted(filename: str, phrase: str) -> Tuple[Document, list]:
     """Gets the highlighted document and the page numbers.
 
     Args:
@@ -17,35 +17,32 @@ def get_doc_highlighted(filename: str, phrase: str) -> Tuple[fitz.Document, list
         phrase (str): The phrase to search for.
 
     Returns:
-        Tuple[fitz.Document, list]
+        Tuple[pymupdf.Document, list]
     """
-    doc = fitz.Document(filename)
+    doc = Document(filename)
 
     all_instances = search_for_phrase(doc, phrase)
 
     if all_instances:
-        doc_highlighted = highlight_phrase(filename, all_instances)
+        doc_highlighted = highlight_phrase(doc, all_instances)
         page_nums = list(all_instances.keys())
         return doc_highlighted, page_nums
     return None, None
 
 
 def search_for_phrase(
-    doc: fitz.Document,
-    phrase: str,
-    page_nums: list = None,
-    cutoff: float = 0.8,
-) -> List[fitz.Rect]:
+    doc: Document, phrase: str, page_nums: list = None, cutoff: float = 0.8
+) -> List[Rect]:
     """Search for a phrase in a PDF document.
 
     Args:
-        doc (fitz.Document): The PDF document to search.
+        doc (Document): The PDF document to search.
         phrase (str): The phrase to search for.
         page_nums (list): A list of page numbers to search. If None, all pages are searched.
         cutoff (float): The minimum similarity score required to return a match.
 
     Returns:
-        A list of rectangles representing the bounding boxes of the matches.
+        List[Rect]: Representing the bounding boxes of the matches.
     """
     if page_nums is None:
         page_nums = range(len(doc))
@@ -64,36 +61,35 @@ def search_for_phrase(
                 continue
             slen = SequenceMatcher(None, cleaned_phrase, cleaned_text).find_longest_match().size
             if slen / len(cleaned_phrase) > cutoff or slen / len(cleaned_text) > cutoff:
-                instances.append(fitz.Rect(x0, x1, y0, y1))
+                instances.append(Rect(x0, x1, y0, y1))
 
         if instances:
             all_instances[i] = instances
     return all_instances
 
 
-def highlight_phrase(filename: str, all_instances: List[fitz.Rect]) -> fitz.Document:
+def highlight_phrase(doc: Document, all_instances: List[Rect]) -> Document:
     """Highlights a phrase in a PDF document.
 
     Args:
-        filename (str): The path to the PDF document.
-        all_instances (List[fitz.Rect]): A list of rectangles that represent the
+        doc (Document): The PDF document.
+        all_instances (List[pymupdf.Rect]): A list of rectangles that represent the
             locations of the phrase in the document.
 
     Returns:
-        fitz.Document: The highlighted PDF document.
+        pymupdf.Document: The highlighted PDF document.
     """
-    doc = fitz.Document(filename)
     for page_num, rects in all_instances.items():
         for rect in rects:
             doc[page_num].add_highlight_annot(rect)
     return doc
 
 
-def display_pdf(extracted_doc: fitz.Document, page_num: int = 1) -> None:
+def display_pdf(extracted_doc: Document, page_num: int = 1) -> None:
     """Displays a PDF page in a new window.
 
     Args:
-        extracted_doc (fitz.Document): The PDF document to display.
+        extracted_doc (pymupdf.Document): The PDF document to display.
         page_num (int): The page number to display.
     """
     fh, temp_filename = tempfile.mkstemp()
