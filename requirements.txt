@@ -13,7 +13,7 @@ langchain-openai==0.2.1
 llama-cpp-python==0.3.1 --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
 loguru==0.7.2
 omegaconf==2.3.0
-openinference-instrumentation-langchain==0.1.29
+openinference-instrumentation-langchain==0.1.41
 PyMuPDF==1.25.5
 python-dotenv==1.0.1
 rank-bm25==0.2.2
