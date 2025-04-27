@@ -64,32 +64,6 @@ def build_llm():
         raise NotImplementedError(f"{CFG.LLM_PATH} not implemented")
 
 
-def build_ctransformers(
-    model_path: str, config: dict | None = None, debug: bool = False, **kwargs
-):
-    """Builds LLM using CTransformers.
-
-    Supports models like llama2 and mistral. See https://github.com/marella/ctransformers
-    """
-    from langchain_community.llms.ctransformers import CTransformers
-
-    if config is None:
-        config = {
-            "max_new_tokens": DEFAULT_MAX_NEW_TOKENS,
-            "temperature": DEFAULT_TEMPERATURE,
-            "repetition_penalty": DEFAULT_REPETITION_PENALTY,
-            "context_length": DEFAULT_CONTEXT_LENGTH,
-        }
-
-    llm = CTransformers(
-        model=model_path,
-        config=config,
-        callbacks=[StreamingStdOutCallbackHandler()] if debug else None,
-        **kwargs,
-    )
-    return llm
-
-
 def build_llamacpp(model_path: str, config: dict | None = None, debug: bool = False, **kwargs):
     """Builds LLM using LlamaCpp."""
     from langchain_community.llms.llamacpp import LlamaCpp

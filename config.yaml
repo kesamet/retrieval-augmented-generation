@@ -5,7 +5,8 @@ DEVICE: cpu  # used only by embeddings and propositionizer
 TEXT_SPLIT_MODE: default  # default or propositionize
 # propositionize uses propositionizer model
 
-MODELS_DIR: ./models
+# MODELS_DIR: ./models
+MODELS_DIR: /home/kokmeng/Desktop/Dvorak/expts/models
 
 MAX_MEMORY_TOKENS: 10000
 
@@ -31,7 +32,7 @@ EMBEDDINGS_PATH: bge-small-en-v1.5
 
 LLM_PROVIDER: ollama
 LLM_PATH: deepseek-qwen
-PROMPT_TYPE: deepseek
+PROMPT_TYPE: None
 
 # LLM_PROVIDER: ollama
 # LLM_PATH: qwen

@@ -1,3 +1,4 @@
+import torch
 import streamlit as st
 from langchain_core.tools.retriever import create_retriever_tool
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
@@ -9,6 +10,11 @@ from src.chains import build_condense_question_chain
 from src.vectordbs import load_faiss, load_chroma
 from src.tools import tavily_tool
 from streamlit_app.utils import load_base_embeddings, load_llm, load_reranker
+
+# Fixing the issue:
+# Examining the path of torch.classes raised: Tried to instantiate class 'path.path’,
+# but it does not exist! Ensure that it is registered via torch::class
+torch.classes.__path__ = []
 
 TITLE = "Conversational QA using ReAct"
 st.set_page_config(page_title=TITLE)

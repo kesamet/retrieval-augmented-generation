@@ -17,12 +17,12 @@ The demos also allow user to
 You will need to set up your development environment using conda, which you can install [directly](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
 ```bash
-conda env create --name rag python=3.11
+conda env create --name rag python=3.12
 conda activate rag
 pip install -r requirements.txt
 ```
 
-We shall use `unstructured` to process PDFs. Refer to [nstallation Instructions for Local Development](https://github.com/Unstructured-IO/unstructured?tab=readme-ov-file#installation-instructions-for-local-development).
+We shall use `unstructured` to process PDFs. Refer to [Installation Instructions for Local Development](https://github.com/Unstructured-IO/unstructured?tab=readme-ov-file#installation-instructions-for-local-development).
 
 You would also need to download `punkt_tab` and `averaged_perceptron_tagger_eng` from nltk.
 
