@@ -22,7 +22,7 @@ conda activate rag
 pip install -r requirements.txt
 ```
 
-We shall use `unstructured` to process PDFs. Refer to [nstallation Instructions for Local Development](https://github.com/Unstructured-IO/unstructured?tab=readme-ov-file#installation-instructions-for-local-development).
+We shall use `unstructured` to process PDFs. Refer to [Installation Instructions for Local Development](https://github.com/Unstructured-IO/unstructured?tab=readme-ov-file#installation-instructions-for-local-development).
 
 You would also need to download `punkt_tab` and `averaged_perceptron_tagger_eng` from nltk.
 
