@@ -113,7 +113,8 @@ Respond to the user query only using the provided context.
 - If you don't know the answer, clearly state that.
 - If uncertain, ask the user for clarification.
 - Respond in the same language as the user's query.
-- If the context is unreadable or of poor quality, inform the user and provide the best possible answer.
+- If the context is unreadable or of poor quality, inform the user
+and provide the best possible answer.
 </instructions>
 """
 )
