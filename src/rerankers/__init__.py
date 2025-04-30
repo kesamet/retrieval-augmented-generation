@@ -6,7 +6,7 @@ from langchain_community.cross_encoders.huggingface import HuggingFaceCrossEncod
 from src import CFG
 
 
-def build_reranker():
+def load_reranker():
     model = HuggingFaceCrossEncoder(
         model_name=os.path.join(CFG.MODELS_DIR, CFG.RERANKER_PATH),
         model_kwargs={"device": CFG.DEVICE},

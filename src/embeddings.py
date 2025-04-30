@@ -12,8 +12,8 @@ from src import CFG
 from src.prompt_templates import HYDE_TEMPLATE
 
 
-def build_base_embeddings():
-    """Builds base embeddings defined in config."""
+def load_base_embeddings():
+    """Loads base embeddings defined in config."""
     base_embeddings = HuggingFaceEmbeddings(
         model_name=os.path.join(CFG.MODELS_DIR, CFG.EMBEDDINGS_PATH),
         model_kwargs={"device": CFG.DEVICE},
@@ -21,8 +21,8 @@ def build_base_embeddings():
     return base_embeddings
 
 
-def build_hyde_embeddings(llm, base_embeddings):
-    """Builds hypothetical document embeddings."""
+def create_hyde_embeddings(llm, base_embeddings):
+    """Create hypothetical document embeddings."""
     prompt = PromptTemplate.from_template(HYDE_TEMPLATE)
     llm_chain = prompt | llm
 
@@ -30,7 +30,7 @@ def build_hyde_embeddings(llm, base_embeddings):
     return embeddings
 
 
-def sagemaker_endpoint():
+def load_sagemaker_endpoint_embeddings():
     import boto3
     from langchain_community.embeddings import SagemakerEndpointEmbeddings
     from src.sagemaker_endpoint.embeddings import ContentHandler

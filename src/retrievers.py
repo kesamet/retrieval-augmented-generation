@@ -47,13 +47,13 @@ class VectorStoreRetrieverWithScores(VectorStoreRetriever):
         return docs
 
 
-def build_base_retriever(vectordb: VectorStore) -> VectorStoreRetriever:
+def create_base_retriever(vectordb: VectorStore) -> VectorStoreRetriever:
     return VectorStoreRetriever(
         vectorstore=vectordb, search_kwargs={"k": CFG.BASE_RETRIEVER_CONFIG.SEARCH_K}
     )
 
 
-def build_multivector_retriever(vectorstore: VectorStore, docstore) -> VectorStoreRetriever:
+def create_multivector_retriever(vectorstore: VectorStore, docstore) -> VectorStoreRetriever:
     from langchain.retrievers.multi_vector import MultiVectorRetriever, SearchType
 
     return MultiVectorRetriever(
@@ -64,7 +64,7 @@ def build_multivector_retriever(vectorstore: VectorStore, docstore) -> VectorSto
     )
 
 
-def build_rerank_retriever(
+def create_rerank_retriever(
     vectordb: VectorStore, reranker: BaseDocumentCompressor
 ) -> ContextualCompressionRetriever:
     base_retriever = VectorStoreRetriever(
@@ -73,7 +73,7 @@ def build_rerank_retriever(
     return ContextualCompressionRetriever(base_compressor=reranker, base_retriever=base_retriever)
 
 
-def build_compression_retriever(
+def create_compression_retriever(
     vectordb: VectorStore, embeddings: Embeddings
 ) -> ContextualCompressionRetriever:
     base_retriever = VectorStoreRetriever(

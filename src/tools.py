@@ -1,3 +1,4 @@
+from langchain_core.tools import tool
 from langchain_community.tools import TavilySearchResults
 
 
@@ -16,3 +17,16 @@ tavily_tool = TavilySearchResults(
     include_raw_content=True,
     include_images=True,
 )
+
+
+@tool
+def think(thought: str):
+    """
+    Use the tool to think about something. It will not obtain new information,
+    but just append the thought to the log.
+    Use it when complex reasoning or some cache memory is needed.
+
+    Args:
+        thought (str): A thought to think about.
+    """
+    pass

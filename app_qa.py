@@ -8,14 +8,14 @@ from src import CFG
 from src.embeddings import build_hyde_embeddings
 from src.query_expansion import build_multiple_queries_expansion_chain
 from src.retrievers import (
-    build_base_retriever,
-    build_rerank_retriever,
-    build_compression_retriever,
+    create_base_retriever,
+    create_rerank_retriever,
+    create_compression_retriever,
 )
-from src.chains import build_question_answer_chain
+from src.chains import create_question_answer_chain
 from src.vectordbs import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
-from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
+from streamlit_app.utils import perform, cache_base_embeddings, cache_llm, cache_reranker
 
 # Fixing the issue:
 # Examining the path of torch.classes raised: Tried to instantiate class 'path.path’,
@@ -25,10 +25,10 @@ torch.classes.__path__ = []
 TITLE = "Retrieval QA"
 st.set_page_config(page_title=TITLE, layout="wide")
 
-EMBEDDING_FUNCTION = load_base_embeddings()
-RERANKER = load_reranker()
-LLM = load_llm()
-QA_CHAIN = build_question_answer_chain(LLM)
+EMBEDDING_FUNCTION = cache_base_embeddings()
+RERANKER = cache_reranker()
+LLM = cache_llm()
+QA_CHAIN = create_question_answer_chain(LLM)
 VECTORDB_PATH = CFG.VECTORDB[0].PATH
 
 
@@ -54,11 +54,11 @@ def load_vectordb_hyde():
 
 def load_retriever(_vectordb, retrieval_mode):
     if retrieval_mode == "Base":
-        return build_base_retriever(_vectordb)
+        return create_base_retriever(_vectordb)
     if retrieval_mode == "Rerank":
-        return build_rerank_retriever(_vectordb, RERANKER)
+        return create_rerank_retriever(_vectordb, RERANKER)
     if retrieval_mode == "Contextual compression":
-        return build_compression_retriever(_vectordb, EMBEDDING_FUNCTION)
+        return create_compression_retriever(_vectordb, EMBEDDING_FUNCTION)
     raise NotImplementedError
 
 

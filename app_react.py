@@ -1,15 +1,20 @@
+from collections import deque
+
 import torch
 import streamlit as st
+from langchain_core.prompts import PromptTemplate
 from langchain_core.tools.retriever import create_retriever_tool
-from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
+from langgraph.prebuilt import create_react_agent
 
 from src import CFG, logger
-from src.agents import build_agent_executor
-from src.retrievers import build_rerank_retriever
-from src.chains import build_condense_question_chain
+from src.chains import create_condense_question_chain
+from src.memory import trim_memory
+from src.prompt_templates import REACT_SYSTEM_MESSAGE
+from src.retrievers import create_rerank_retriever
+from src.tools import think
 from src.vectordbs import load_faiss, load_chroma
-from src.tools import tavily_tool
-from streamlit_app.utils import load_base_embeddings, load_llm, load_reranker
+from streamlit_app.streamlit_callback import get_streamlit_callback
+from streamlit_app.utils import cache_base_embeddings, cache_llm, cache_reranker
 
 # Fixing the issue:
 # Examining the path of torch.classes raised: Tried to instantiate class 'path.path’,
@@ -19,11 +24,11 @@ torch.classes.__path__ = []
 TITLE = "Conversational QA using ReAct"
 st.set_page_config(page_title=TITLE)
 
-EMBEDDING_FUNCTION = load_base_embeddings()
-RERANKER = load_reranker()
-LLM = load_llm()
-CONDENSE_QUESTION_CHAIN = build_condense_question_chain(LLM)
-
+EMBEDDING_FUNCTION = cache_base_embeddings()
+RERANKER = cache_reranker()
+LLM = cache_llm()
+CONDENSE_QUESTION_CHAIN = create_condense_question_chain(LLM)
+RECURSION_LIMIT = 6
 
 @st.cache_resource
 def load_vectordb(vectordb_config: dict):
@@ -35,19 +40,20 @@ def load_vectordb(vectordb_config: dict):
 
 
 def get_tools():
-    tools = []
+    tools = [think]
     for vectordb in CFG.VECTORDB:
         db = load_vectordb(dict(vectordb))
-        retriever = build_rerank_retriever(db, RERANKER)
+        retriever = create_rerank_retriever(db, RERANKER)
 
         tool = create_retriever_tool(
             retriever=retriever,
             name=vectordb.NAME,
             description=vectordb.DESCRIPTION,
+            document_prompt=PromptTemplate.from_template(
+                "{page_content}"
+            ),
         )
         tools.append(tool)
-
-    tools.extend([tavily_tool])  # add default tools
     return tools
 
 
@@ -55,18 +61,14 @@ def init_chat_history():
     """Initialise chat history."""
     clear_button = st.sidebar.button("Clear Chat", key="clear")
     if clear_button or "chat_history" not in st.session_state:
-        st.session_state["chat_history"] = list()
-        st.session_state["display_history"] = [("", "Hello! How can I help you?", None)]
+        st.session_state["chat_history"] = deque([])
+        st.session_state["num_tokens"] = deque([])
+        st.session_state["display_history"] = [("", "Hello! How can I help you?")]
 
 
 def _format_output(text: str) -> str:
     """Clean up output answer."""
     return text.replace("$", r"\$")
-
-
-def print_docs(source_documents):
-    for row in source_documents:
-        st.info(_format_output(row))
 
 
 def convqa_react():
@@ -82,7 +84,7 @@ def convqa_react():
             with st.status("Load agent", expanded=False) as status:
                 st.write("Loading agent...")
                 tools = get_tools()
-                agent_executor = build_agent_executor(LLM, tools, max_iterations=4)
+                agent_executor = create_react_agent(LLM, tools, prompt=REACT_SYSTEM_MESSAGE)
                 status.update(label="Loading complete!", state="complete", expanded=False)
             st.success("Reading from existing VectorDB")
         except Exception as e:
@@ -93,16 +95,12 @@ def convqa_react():
     init_chat_history()
 
     # Display chat history
-    for question, answer, source_documents in st.session_state.display_history:
+    for question, answer in st.session_state.display_history:
         if question != "":
             with st.chat_message("user"):
                 st.markdown(question)
         with st.chat_message("assistant"):
             st.markdown(answer)
-
-            if source_documents is not None:
-                with st.expander("Sources"):
-                    print_docs(source_documents)
 
     if user_query := st.chat_input("Your query"):
         with st.chat_message("user"):
@@ -110,11 +108,7 @@ def convqa_react():
 
     if user_query is not None:
         with st.chat_message("assistant"):
-            st_callback = StreamlitCallbackHandler(
-                parent_container=st.container(),
-                expand_new_thoughts=True,
-                collapse_completed_thoughts=True,
-            )
+            st_callback = get_streamlit_callback(st.empty())
 
             question = CONDENSE_QUESTION_CHAIN.invoke(
                 {
@@ -123,23 +117,20 @@ def convqa_react():
                 },
             )
             logger.info(question)
+
+            messages = []
+            for (human, ai) in st.session_state.chat_history:
+                messages.extend([("human", human), ("ai", ai)])
+            messages.append(("human", question))
             response = agent_executor.invoke(
-                {"input": question},
-                config={"callbacks": [st_callback]},
+                {"messages": messages},
+                config={"callbacks": [st_callback], "recursion_limit": RECURSION_LIMIT},
             )
-            answer = _format_output(response["output"])
-            if answer == "Agent stopped due to iteration limit or time limit.":
-                answer = (
-                    "I am unable to find an answer from the context. Try rephrasing your question."
-                )
-
+            answer = _format_output(response["messages"][-1].content[0]["text"])
             st.success(answer)
-            source_documents = [r[1] for r in response["intermediate_steps"]]
-            with st.expander("Sources"):
-                print_docs(source_documents)
 
-            st.session_state.chat_history.append((user_query, answer))
-            st.session_state.display_history.append((user_query, answer, source_documents))
+            trim_memory((user_query, answer), st.session_state.chat_history, st.session_state.num_tokens)
+            st.session_state.display_history.append((user_query, answer))
 
 
 if __name__ == "__main__":
