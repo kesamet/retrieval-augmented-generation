@@ -3,7 +3,8 @@ import re
 
 def extract_xml(text: str, tag: str) -> str:
     """
-    Extracts the content of the specified XML tag from the given text. Used for parsing structured responses
+    Extracts the content of the specified XML tag from the given text.
+    Used for parsing structured responses
 
     Args:
         text (str): The text containing the XML.
