@@ -4,7 +4,7 @@ import torch
 import streamlit as st
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools.retriever import create_retriever_tool
-from langgraph.prebuilt import create_react_agent
+from langgraph.prebuilt import create_react_agent 
 
 from src import CFG, logger
 from src.chains import create_condense_question_chain
@@ -15,6 +15,7 @@ from src.tools import think
 from src.vectordbs import load_faiss, load_chroma
 from streamlit_app.streamlit_callback import get_streamlit_callback
 from streamlit_app.utils import cache_base_embeddings, cache_llm, cache_reranker
+from streamlit_app.output_formatter import replace_special
 
 # Fixing the issue:
 # Examining the path of torch.classes raised: Tried to instantiate class 'path.path’,
@@ -64,11 +65,6 @@ def init_chat_history():
         st.session_state["chat_history"] = deque([])
         st.session_state["num_tokens"] = deque([])
         st.session_state["display_history"] = [("", "Hello! How can I help you?")]
-
-
-def _format_output(text: str) -> str:
-    """Clean up output answer."""
-    return text.replace("$", r"\$")
 
 
 def convqa_react():
@@ -126,7 +122,7 @@ def convqa_react():
                 {"messages": messages},
                 config={"callbacks": [st_callback], "recursion_limit": RECURSION_LIMIT},
             )
-            answer = _format_output(response["messages"][-1].content[0]["text"])
+            answer = replace_special(response["messages"][-1].content[0]["text"])
             st.success(answer)
 
             trim_memory((user_query, answer), st.session_state.chat_history, st.session_state.num_tokens)

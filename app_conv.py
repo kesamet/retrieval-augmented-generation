@@ -11,6 +11,7 @@ from src.memory import trim_memory
 from src.retrievers import create_rerank_retriever
 from src.vectordbs import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.utils import perform, cache_base_embeddings, cache_llm, cache_reranker
+from streamlit_app.output_formatter import replace_special
 
 # Fixing the issue:
 # Examining the path of torch.classes raised: Tried to instantiate class 'path.path’,
@@ -46,16 +47,11 @@ def init_chat_history():
         st.session_state["display_history"] = [("", "Hello! How can I help you?", None)]
 
 
-def _format_output(text: str) -> str:
-    """Clean up output answer."""
-    return text.replace("$", r"\$")
-
-
 def print_docs(source_documents):
     for row in source_documents:
         if row.metadata.get("page_number"):
             st.write(f"**Page {row.metadata['page_number']}**")
-        st.info(_format_output(row.page_content))
+        st.info(replace_special(row.page_content))
 
 
 def convqa():
@@ -109,7 +105,7 @@ def convqa():
             with st.chat_message("user"):
                 st.markdown(question)
         with st.chat_message("assistant"):
-            st.markdown(_format_output(answer))
+            st.markdown(replace_special(answer))
 
             if source_documents is not None:
                 with st.expander("Sources"):
@@ -143,7 +139,7 @@ def convqa():
                 config={"callbacks": [st_callback]},
             )
 
-            st.success(_format_output(answer))
+            st.success(replace_special(answer))
             with st.expander("Sources"):
                 print_docs(source_documents)
 

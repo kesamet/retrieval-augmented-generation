@@ -16,6 +16,7 @@ from src.chains import create_question_answer_chain
 from src.vectordbs import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 from streamlit_app.utils import perform, cache_base_embeddings, cache_llm, cache_reranker
+from streamlit_app.output_formatter import replace_special
 
 # Fixing the issue:
 # Examining the path of torch.classes raised: Tried to instantiate class 'path.path’,
@@ -74,10 +75,6 @@ def init_sess_state():
 
     if "last_related" not in st.session_state:
         st.session_state["last_related"] = list()
-
-
-def _format_text(text):
-    return text.replace("$", r"\$")
 
 
 def docqa():
@@ -199,7 +196,7 @@ def docqa():
         with c0:
             st.warning(f"##### {st.session_state.last_query}")
             if st.session_state.last_response.get("answer") is not None:
-                st.success(_format_text(st.session_state.last_response["answer"]))
+                st.success(replace_special(st.session_state.last_response["answer"]))
 
             if st.session_state.last_related:
                 st.write("#### Related")
@@ -210,7 +207,7 @@ def docqa():
             st.write("#### Sources")
             for row in st.session_state.last_response["source_documents"]:
                 st.write(f"**Page {row.metadata['page_number']}**")
-                st.info(_format_text(row.page_content))
+                st.info(replace_special(row.page_content))
 
             # Display PDF
             st.write("---")
