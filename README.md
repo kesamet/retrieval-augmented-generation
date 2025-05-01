@@ -28,8 +28,8 @@ You would also need to download `punkt_tab` and `averaged_perceptron_tagger_eng`
 
 ```python
 import nltk
-nltk.download('punkt_tab')
-nltk.download('averaged_perceptron_tagger_eng')
+nltk.download("punkt_tab")
+nltk.download("averaged_perceptron_tagger_eng")
 ```
 
 Note that we shall only use `strategy="fast"` in this demo. WIP for extraction of tables from PDFs.

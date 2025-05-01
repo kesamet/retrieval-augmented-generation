@@ -9,11 +9,11 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 
-from src.embeddings import build_base_embeddings
+from src.embeddings import load_base_embeddings
 from src.vectordbs import load_chroma
-from src.rerankers import build_reranker
-from src.retrievers import build_rerank_retriever
-from src.llms import build_llm
+from src.rerankers import load_reranker
+from src.retrievers import create_rerank_retriever
+from src.llms import load_llm
 from src.prompt_templates import QA_TEMPLATE
 
 # Launch phoenix
@@ -28,11 +28,11 @@ tracer_provider = register(
 tracer = LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
 
 # Setup RAG
-embedding_function = build_base_embeddings()
+embedding_function = load_base_embeddings()
 vectordb = load_chroma(embedding_function)
-reranker = build_reranker()
-retriever = build_rerank_retriever(vectordb, reranker)
-llm = build_llm()
+reranker = load_reranker()
+retriever = create_rerank_retriever(vectordb, reranker)
+llm = load_llm()
 
 
 def format_docs(docs):

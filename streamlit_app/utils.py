@@ -3,24 +3,24 @@ import tempfile
 
 import streamlit as st
 
-from src.embeddings import build_base_embeddings
-from src.llms import build_llm
-from src.rerankers import build_reranker
+from src.embeddings import load_base_embeddings
+from src.llms import load_llm
+from src.rerankers import load_reranker
 
 
 @st.cache_resource
-def load_base_embeddings():
-    return build_base_embeddings()
+def cache_base_embeddings():
+    return load_base_embeddings()
 
 
 @st.cache_resource
-def load_llm():
-    return build_llm()
+def cache_llm():
+    return load_llm()
 
 
 @st.cache_resource
-def load_reranker():
-    return build_reranker()
+def cache_reranker():
+    return load_reranker()
 
 
 def perform(func, filebytes, **kwargs):

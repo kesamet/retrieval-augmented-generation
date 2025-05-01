@@ -15,19 +15,19 @@ from trulens_eval.schema import Select
 from trulens_eval.utils.serial import all_queries
 from trulens_eval.utils.json import jsonify
 
-from src.embeddings import build_base_embeddings
+from src.embeddings import load_base_embeddings
 from src.vectordbs import load_chroma
-from src.rerankers import build_reranker
-from src.retrievers import build_rerank_retriever
-from src.llms import build_llm
+from src.rerankers import load_reranker
+from src.retrievers import create_rerank_retriever
+from src.llms import load_llm
 from src.prompt_templates import QA_TEMPLATE
 
 # Setup RAG
-embedding_function = build_base_embeddings()
+embedding_function = load_base_embeddings()
 vectordb = load_chroma(embedding_function)
-reranker = build_reranker()
-retriever = build_rerank_retriever(vectordb, reranker)
-llm = build_llm()
+reranker = load_reranker()
+retriever = create_rerank_retriever(vectordb, reranker)
+llm = load_llm()
 prompt = PromptTemplate.from_template(QA_TEMPLATE)
 
 

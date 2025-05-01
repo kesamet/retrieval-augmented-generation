@@ -5,8 +5,7 @@ DEVICE: cpu  # used only by embeddings and propositionizer
 TEXT_SPLIT_MODE: default  # default or propositionize
 # propositionize uses propositionizer model
 
-# MODELS_DIR: ./models
-MODELS_DIR: /home/kokmeng/Desktop/Dvorak/expts/models
+MODELS_DIR: ./models
 
 MAX_MEMORY_TOKENS: 10000
 
@@ -14,7 +13,7 @@ VECTORDB_TYPE: faiss
 VECTORDB:
   - PATH: ./vectordb/faiss
     NAME: document
-    DESCRIPTION: A tool useful for when you need to answer questions about the source document. Always use this first.
+    DESCRIPTION: Useful for when you need to answer questions about the document.
 
 EMBEDDINGS_PROVIDER: huggingface
 EMBEDDINGS_PATH: bge-small-en-v1.5

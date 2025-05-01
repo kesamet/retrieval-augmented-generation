@@ -1,14 +1,17 @@
 import os
+from collections import deque
 
 import torch
 import streamlit as st
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 
 from src import CFG, logger
-from src.retrievers import build_rerank_retriever
-from src.chains import build_condense_question_chain, build_question_answer_chain
+from src.chains import create_condense_question_chain, create_question_answer_chain
+from src.memory import trim_memory
+from src.retrievers import create_rerank_retriever
 from src.vectordbs import build_vectordb, delete_vectordb, load_faiss, load_chroma
-from streamlit_app.utils import perform, load_base_embeddings, load_llm, load_reranker
+from streamlit_app.utils import perform, cache_base_embeddings, cache_llm, cache_reranker
+from streamlit_app.output_formatter import replace_special
 
 # Fixing the issue:
 # Examining the path of torch.classes raised: Tried to instantiate class 'path.path’,
@@ -18,11 +21,11 @@ torch.classes.__path__ = []
 TITLE = "Conversational QA"
 st.set_page_config(page_title=TITLE)
 
-EMBEDDING_FUNCTION = load_base_embeddings()
-RERANKER = load_reranker()
-LLM = load_llm()
-CONDENSE_QUESTION_CHAIN = build_condense_question_chain(LLM)
-QA_CHAIN = build_question_answer_chain(LLM)
+EMBEDDING_FUNCTION = cache_base_embeddings()
+RERANKER = cache_reranker()
+LLM = cache_llm()
+CONDENSE_QUESTION_CHAIN = create_condense_question_chain(LLM)
+QA_CHAIN = create_question_answer_chain(LLM)
 VECTORDB_PATH = CFG.VECTORDB[0].PATH
 
 
@@ -39,20 +42,16 @@ def init_chat_history():
     """Initialise chat history."""
     clear_button = st.sidebar.button("Clear Chat", key="clear")
     if clear_button or "chat_history" not in st.session_state:
-        st.session_state["chat_history"] = list()
+        st.session_state["chat_history"] = deque([])
+        st.session_state["num_tokens"] = deque([])
         st.session_state["display_history"] = [("", "Hello! How can I help you?", None)]
-
-
-def _format_output(text: str) -> str:
-    """Clean up output answer."""
-    return text.replace("$", r"\$")
 
 
 def print_docs(source_documents):
     for row in source_documents:
         if row.metadata.get("page_number"):
             st.write(f"**Page {row.metadata['page_number']}**")
-        st.info(_format_output(row.page_content))
+        st.info(replace_special(row.page_content))
 
 
 def convqa():
@@ -90,7 +89,7 @@ def convqa():
             with st.status("Load retrieval chain", expanded=False) as status:
                 st.write("Loading retrieval chain...")
                 vectordb = load_vectordb()
-                RETRIEVER = build_rerank_retriever(vectordb, RERANKER)
+                RETRIEVER = create_rerank_retriever(vectordb, RERANKER)
                 status.update(label="Loading complete!", state="complete", expanded=False)
             st.success("Reading from existing VectorDB")
         except Exception as e:
@@ -106,7 +105,7 @@ def convqa():
             with st.chat_message("user"):
                 st.markdown(question)
         with st.chat_message("assistant"):
-            st.markdown(_format_output(answer))
+            st.markdown(replace_special(answer))
 
             if source_documents is not None:
                 with st.expander("Sources"):
@@ -140,11 +139,11 @@ def convqa():
                 config={"callbacks": [st_callback]},
             )
 
-            st.success(_format_output(answer))
+            st.success(replace_special(answer))
             with st.expander("Sources"):
                 print_docs(source_documents)
 
-            st.session_state.chat_history.append((user_query, answer))
+            trim_memory((user_query, answer), st.session_state.chat_history, st.session_state.num_tokens)
             st.session_state.display_history.append((user_query, answer, source_documents))
 
 

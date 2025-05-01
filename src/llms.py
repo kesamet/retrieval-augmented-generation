@@ -15,10 +15,10 @@ DEFAULT_REPETITION_PENALTY = 1.1
 DEFAULT_CONTEXT_LENGTH = 4000
 
 
-def build_llm():
-    """Builds LLM defined in config."""
+def load_llm():
+    """Loads LLM defined in config."""
     if CFG.LLM_PROVIDER == "llamacpp":
-        return build_llamacpp(
+        return load_llamacpp(
             os.path.join(CFG.MODELS_DIR, CFG.LLM_PATH),
             config={
                 "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
@@ -28,7 +28,7 @@ def build_llm():
             },
         )
     elif CFG.LLM_PROVIDER == "groq":
-        return chatgroq(
+        return load_chatgroq(
             model_name=CFG.LLM_PATH,
             config={
                 "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
@@ -36,7 +36,7 @@ def build_llm():
             },
         )
     elif CFG.LLM_PROVIDER == "ollama":
-        return chatollama(
+        return load_chatollama(
             CFG.LLM_PATH,
             config={
                 "num_predict": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
@@ -45,7 +45,7 @@ def build_llm():
             },
         )
     elif CFG.LLM_PROVIDER == "openai":
-        return chatopenai(
+        return load_chatopenai(
             CFG.LLM_PATH,
             config={
                 "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
@@ -53,7 +53,7 @@ def build_llm():
             },
         )
     elif CFG.LLM_PROVIDER == "gemini":
-        return googlegenerativeai(
+        return load_chatgooglegenerativeai(
             CFG.LLM_PATH,
             config={
                 "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
@@ -64,7 +64,7 @@ def build_llm():
         raise NotImplementedError(f"{CFG.LLM_PATH} not implemented")
 
 
-def build_llamacpp(model_path: str, config: dict | None = None, debug: bool = False, **kwargs):
+def load_llamacpp(model_path: str, config: dict | None = None, debug: bool = False, **kwargs):
     """Builds LLM using LlamaCpp."""
     from langchain_community.llms.llamacpp import LlamaCpp
 
@@ -85,7 +85,7 @@ def build_llamacpp(model_path: str, config: dict | None = None, debug: bool = Fa
     return llm
 
 
-def chatgroq(model_name: str = "mixtral-8x7b-32768", config: dict | None = None, **kwargs):
+def load_chatgroq(model_name: str = "mixtral-8x7b-32768", config: dict | None = None, **kwargs):
     """For Groq LLM."""
     from langchain_groq import ChatGroq
 
@@ -104,7 +104,7 @@ def chatgroq(model_name: str = "mixtral-8x7b-32768", config: dict | None = None,
     return llm
 
 
-def chatollama(model: str, config: dict | None = None, debug: bool = False, **kwargs):
+def load_chatollama(model: str, config: dict | None = None, debug: bool = False, **kwargs):
     """For LLM deployed as an API."""
     from langchain_ollama import ChatOllama
 
@@ -124,7 +124,7 @@ def chatollama(model: str, config: dict | None = None, debug: bool = False, **kw
     return llm
 
 
-def chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
+def load_chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
     """For LLM deployed as an OpenAI compatible API."""
     from langchain_openai import ChatOpenAI
 
@@ -144,19 +144,21 @@ def chatopenai(openai_api_base: str, config: dict | None = None, **kwargs):
     return llm
 
 
-def googlegenerativeai(model: str = "gemini-1.5-flash", config: dict | None = None, **kwargs):
-    from langchain_google_genai import GoogleGenerativeAI
+def load_chatgooglegenerativeai(
+    model: str = "gemini-1.5-flash", config: dict | None = None, **kwargs
+):
+    from langchain_google_genai import ChatGoogleGenerativeAI
 
     if config is None:
         config = {
             "temperature": DEFAULT_TEMPERATURE,
         }
 
-    llm = GoogleGenerativeAI(model=model, **config, **kwargs)
+    llm = ChatGoogleGenerativeAI(model=model, **config, **kwargs)
     return llm
 
 
-def sagemaker_endpoint(model_kwargs: Dict | None = None, **kwargs):
+def load_sagemaker_endpoint_llm(model_kwargs: Dict | None = None, **kwargs):
     import boto3
     from src.sagemaker_endpoint.llm import SagemakerEndpointLLM, ContentHandler
 

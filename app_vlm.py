@@ -4,13 +4,13 @@ from langchain_community.callbacks import StreamlitCallbackHandler
 from langchain_ollama import ChatOllama
 from loguru import logger
 
-from src.chains import build_condense_question_chain
+from src.chains import create_condense_question_chain
 
 TITLE = "Conversational QA with VLM"
 st.set_page_config(page_title=TITLE)
 
 LLM = ChatOllama(model="vision")
-CONDENSE_QUESTION_CHAIN = build_condense_question_chain(LLM)
+CONDENSE_QUESTION_CHAIN = create_condense_question_chain(LLM)
 
 
 def get_response(question, images=[]):

@@ -12,20 +12,20 @@ from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_google_genai import GoogleGenerativeAI
 
-from src.embeddings import build_base_embeddings
+from src.embeddings import load_base_embeddings
 from src.vectordbs import load_chroma
-from src.rerankers import build_reranker
-from src.retrievers import build_rerank_retriever
+from src.rerankers import load_reranker
+from src.retrievers import create_rerank_retriever
 from src.prompt_templates import CHAT_FORMATS, QA_TEMPLATE
 
 MODEL = GoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.0, streaming=False)
 chat_format = CHAT_FORMATS["gemini"]
 
 # Setup RAG
-embedding_function = build_base_embeddings()
+embedding_function = load_base_embeddings()
 vectordb = load_chroma(embedding_function, "./vectordb/faiss")
-reranker = build_reranker()
-RETRIEVER = build_rerank_retriever(vectordb, reranker)
+reranker = load_reranker()
+RETRIEVER = create_rerank_retriever(vectordb, reranker)
 
 prompt = PromptTemplate.from_template(QA_TEMPLATE)
 RAG_CHAIN = prompt | MODEL | StrOutputParser()

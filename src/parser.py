@@ -107,12 +107,12 @@ def propositionize(docs: Sequence[Document]) -> Sequence[Document]:
 
 
 def raptorize(docs: Sequence[Document], title: str) -> Sequence[Document]:
-    from src.embeddings import build_base_embeddings
-    from src.llms import googlegenerativeai
+    from src.embeddings import load_base_embeddings
+    from src.llms import load_chatgooglegenerativeai
     from src.elements.raptor import Raptorizer
 
-    base_embeddings = build_base_embeddings()
-    llm = googlegenerativeai("gemini-1.5-flash")
+    base_embeddings = load_base_embeddings()
+    llm = load_chatgooglegenerativeai("gemini-1.5-flash")
     raptorizer = Raptorizer(base_embeddings, llm, "gemini")
 
     leaf_texts = [doc.page_content for doc in docs]

@@ -8,13 +8,13 @@ import os
 from tqdm import tqdm
 from langchain.schema import Document
 
-from src.embeddings import build_base_embeddings
+from src.embeddings import load_base_embeddings
 from src.llms import googlegenerativeai
 from src.vectordbs import load_pdf, text_split, save_faiss
 from src.parser import get_title
 from src.elements.raptor import Raptorizer
 
-EMBEDDING_FUNCTION = build_base_embeddings()
+EMBEDDING_FUNCTION = load_base_embeddings()
 LLM = googlegenerativeai("gemini-1.5-flash")
 RAPTORIZER = Raptorizer(EMBEDDING_FUNCTION, LLM, "gemini")
 
