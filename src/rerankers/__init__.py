@@ -8,7 +8,7 @@ from src import CFG
 
 def load_reranker():
     model = HuggingFaceCrossEncoder(
-        model_name=os.path.join(CFG.MODELS_DIR, CFG.RERANKER_PATH),
+        model_name=os.path.join(CFG.MODELS_DIR, CFG.RERANKER),
         model_kwargs={"device": CFG.DEVICE},
     )
     compressor = CrossEncoderReranker(model=model, top_n=4)

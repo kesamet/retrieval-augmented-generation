@@ -4,7 +4,7 @@ import torch
 import streamlit as st
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools.retriever import create_retriever_tool
-from langgraph.prebuilt import create_react_agent 
+from langgraph.prebuilt import create_react_agent
 
 from src import CFG, logger
 from src.chains import create_condense_question_chain
@@ -63,7 +63,7 @@ def init_chat_history():
     clear_button = st.sidebar.button("Clear Chat", key="clear")
     if clear_button or "chat_history" not in st.session_state:
         st.session_state["chat_history"] = deque([])
-        st.session_state["num_tokens"] = deque([])
+        st.session_state["num_words"] = deque([])
         st.session_state["display_history"] = [("", "Hello! How can I help you?")]
 
 
@@ -72,9 +72,9 @@ def convqa_react():
         st.title(TITLE)
 
         with st.expander("Models used"):
-            st.info(f"LLM: `{CFG.LLM_PATH}`")
-            st.info(f"Embeddings: `{CFG.EMBEDDINGS_PATH}`")
-            st.info(f"Reranker: `{CFG.RERANKER_PATH}`")
+            st.info(f"LLM: `{CFG.LLM}`")
+            st.info(f"Embeddings: `{CFG.EMBEDDINGS}`")
+            st.info(f"Reranker: `{CFG.RERANKER}`")
 
         try:
             with st.status("Load agent", expanded=False) as status:
@@ -122,10 +122,11 @@ def convqa_react():
                 {"messages": messages},
                 config={"callbacks": [st_callback], "recursion_limit": RECURSION_LIMIT},
             )
-            answer = replace_special(response["messages"][-1].content[0]["text"])
+            # answer = replace_special(response["messages"][-1].content[0]["text"])
+            answer = replace_special(response["messages"][-1].content)
             st.success(answer)
 
-            trim_memory((user_query, answer), st.session_state.chat_history, st.session_state.num_tokens)
+            trim_memory((user_query, answer), st.session_state.chat_history, st.session_state.num_words)
             st.session_state.display_history.append((user_query, answer))
 
 

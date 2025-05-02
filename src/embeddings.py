@@ -14,11 +14,14 @@ from src.prompt_templates import HYDE_TEMPLATE
 
 def load_base_embeddings():
     """Loads base embeddings defined in config."""
-    base_embeddings = HuggingFaceEmbeddings(
-        model_name=os.path.join(CFG.MODELS_DIR, CFG.EMBEDDINGS_PATH),
-        model_kwargs={"device": CFG.DEVICE},
-    )
-    return base_embeddings
+    match CFG.EMBEDDINGS_PROVIDER:
+        case "huggingface":
+            return HuggingFaceEmbeddings(
+                model_name=os.path.join(CFG.MODELS_DIR, CFG.EMBEDDINGS),
+                model_kwargs={"device": CFG.DEVICE},
+            )
+        case _:
+            raise NotImplementedError(f"{CFG.EMBEDDINGS} not implemented")
 
 
 def create_hyde_embeddings(llm, base_embeddings):

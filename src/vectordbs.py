@@ -6,7 +6,6 @@ import shutil
 import os
 from typing import Literal, Sequence
 
-from chromadb.config import Settings
 from langchain_core.embeddings import Embeddings
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
@@ -55,6 +54,8 @@ def save_vectordb(
 
 def delete_vectordb(persist_directory: str, vectordb_type: _VECTORDB_TYPE) -> None:
     """Deletes vector database."""
+    from chromadb.config import Settings
+
     logger.info(f"Delete vectordb in '{persist_directory}'")
     if vectordb_type == "faiss":
         shutil.rmtree(persist_directory)
@@ -95,6 +96,8 @@ def save_chroma(
     persist_directory: str,
 ) -> VectorStore:
     """Saves a Chroma index to disk."""
+    from chromadb.config import Settings
+
     vectorstore = Chroma(
         collection_name="langchain",
         embedding_function=embedding_function,
@@ -108,6 +111,8 @@ def save_chroma(
 
 def load_chroma(embedding_function: Embeddings, persist_directory: str) -> VectorStore:
     """Loads a Chroma index from disk."""
+    from chromadb.config import Settings
+
     logger.info(f"persist_directory = {persist_directory}")
 
     return Chroma(

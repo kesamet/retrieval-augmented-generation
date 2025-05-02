@@ -17,51 +17,52 @@ DEFAULT_CONTEXT_LENGTH = 4000
 
 def load_llm():
     """Loads LLM defined in config."""
-    if CFG.LLM_PROVIDER == "llamacpp":
-        return load_llamacpp(
-            os.path.join(CFG.MODELS_DIR, CFG.LLM_PATH),
-            config={
-                "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
-                "temperature": CFG.LLM_CONFIG.TEMPERATURE,
-                "repeat_penalty": CFG.LLM_CONFIG.REPETITION_PENALTY,
-                "n_ctx": CFG.LLM_CONFIG.CONTEXT_LENGTH,
-            },
-        )
-    elif CFG.LLM_PROVIDER == "groq":
-        return load_chatgroq(
-            model_name=CFG.LLM_PATH,
-            config={
-                "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
-                "temperature": CFG.LLM_CONFIG.TEMPERATURE,
-            },
-        )
-    elif CFG.LLM_PROVIDER == "ollama":
-        return load_chatollama(
-            CFG.LLM_PATH,
-            config={
-                "num_predict": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
-                "temperature": CFG.LLM_CONFIG.TEMPERATURE,
-                "repeat_penalty": CFG.LLM_CONFIG.REPETITION_PENALTY,
-            },
-        )
-    elif CFG.LLM_PROVIDER == "openai":
-        return load_chatopenai(
-            CFG.LLM_PATH,
-            config={
-                "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
-                "temperature": CFG.LLM_CONFIG.TEMPERATURE,
-            },
-        )
-    elif CFG.LLM_PROVIDER == "gemini":
-        return load_chatgooglegenerativeai(
-            CFG.LLM_PATH,
-            config={
-                "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
-                "temperature": CFG.LLM_CONFIG.TEMPERATURE,
-            },
-        )
-    else:
-        raise NotImplementedError(f"{CFG.LLM_PATH} not implemented")
+    match CFG.LLM_PROVIDER:
+        case "llamacpp":
+            return load_llamacpp(
+                os.path.join(CFG.MODELS_DIR, CFG.LLM),
+                config={
+                    "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
+                    "temperature": CFG.LLM_CONFIG.TEMPERATURE,
+                    "repeat_penalty": CFG.LLM_CONFIG.REPETITION_PENALTY,
+                    "n_ctx": CFG.LLM_CONFIG.CONTEXT_LENGTH,
+                },
+            )
+        case "groq":
+            return load_chatgroq(
+                model_name=CFG.LLM,
+                config={
+                    "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
+                    "temperature": CFG.LLM_CONFIG.TEMPERATURE,
+                },
+            )
+        case "ollama":
+            return load_chatollama(
+                CFG.LLM,
+                config={
+                    "num_predict": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
+                    "temperature": CFG.LLM_CONFIG.TEMPERATURE,
+                    "repeat_penalty": CFG.LLM_CONFIG.REPETITION_PENALTY,
+                },
+            )
+        case "openai":
+            return load_chatopenai(
+                CFG.LLM,
+                config={
+                    "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
+                    "temperature": CFG.LLM_CONFIG.TEMPERATURE,
+                },
+            )
+        case "google":
+            return load_chatgooglegenerativeai(
+                CFG.LLM,
+                config={
+                    "max_tokens": CFG.LLM_CONFIG.MAX_NEW_TOKENS,
+                    "temperature": CFG.LLM_CONFIG.TEMPERATURE,
+                },
+            )
+        case _:
+            raise NotImplementedError(f"{CFG.LLM} not implemented")
 
 
 def load_llamacpp(model_path: str, config: dict | None = None, debug: bool = False, **kwargs):

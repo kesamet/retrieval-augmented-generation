@@ -84,9 +84,9 @@ def docqa():
         st.header(TITLE)
 
         with st.expander("Models used"):
-            st.info(f"LLM: `{CFG.LLM_PATH}`")
-            st.info(f"Embeddings: `{CFG.EMBEDDINGS_PATH}`")
-            st.info(f"Reranker: `{CFG.RERANKER_PATH}`")
+            st.info(f"LLM: `{CFG.LLM}`")
+            st.info(f"Embeddings: `{CFG.EMBEDDINGS}`")
+            st.info(f"Reranker: `{CFG.RERANKER}`")
 
         uploaded_file = st.file_uploader("Upload a PDF and build VectorDB", type=["pdf"])
         if st.button("Build VectorDB"):

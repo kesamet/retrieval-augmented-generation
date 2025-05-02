@@ -16,7 +16,7 @@ from .tokenization_enc_t5 import EncT5Tokenizer
 class TARTRerank(BaseDocumentCompressor):
     """Document compressor based on TART (https://github.com/facebookresearch/tart)."""
 
-    model_path: str = os.path.join(CFG.MODELS_DIR, CFG.RERANKER_PATH)
+    model_path: str = os.path.join(CFG.MODELS_DIR, CFG.RERANKER)
     tokenizer = EncT5Tokenizer.from_pretrained(model_path)
     model = EncT5ForSequenceClassification.from_pretrained(model_path)
     """Model to use for reranking."""
