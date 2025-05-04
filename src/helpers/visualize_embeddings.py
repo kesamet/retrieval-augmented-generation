@@ -50,7 +50,7 @@ def visualize_embeddings(
 
 
 embedding_function = SentenceTransformerEmbeddingFunction(
-    model_name=os.path.join(CFG.MODELS_DIR, CFG.EMBEDDINGS_PATH)
+    model_name=os.path.join(CFG.MODELS_DIR, CFG.EMBEDDINGS)
 )
 
 reducer = UMAP(random_state=0, transform_seed=0)

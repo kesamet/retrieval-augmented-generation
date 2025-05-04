@@ -43,7 +43,7 @@ def init_chat_history():
     clear_button = st.sidebar.button("Clear Chat", key="clear")
     if clear_button or "chat_history" not in st.session_state:
         st.session_state["chat_history"] = deque([])
-        st.session_state["num_tokens"] = deque([])
+        st.session_state["num_words"] = deque([])
         st.session_state["display_history"] = [("", "Hello! How can I help you?", None)]
 
 
@@ -59,9 +59,9 @@ def convqa():
         st.title(TITLE)
 
         with st.expander("Models used"):
-            st.info(f"LLM: `{CFG.LLM_PATH}`")
-            st.info(f"Embeddings: `{CFG.EMBEDDINGS_PATH}`")
-            st.info(f"Reranker: `{CFG.RERANKER_PATH}`")
+            st.info(f"LLM: `{CFG.LLM}`")
+            st.info(f"Embeddings: `{CFG.EMBEDDINGS}`")
+            st.info(f"Reranker: `{CFG.RERANKER}`")
 
         uploaded_file = st.file_uploader("Upload a PDF and build VectorDB", type=["pdf"])
         if st.button("Build VectorDB"):
@@ -143,7 +143,7 @@ def convqa():
             with st.expander("Sources"):
                 print_docs(source_documents)
 
-            trim_memory((user_query, answer), st.session_state.chat_history, st.session_state.num_tokens)
+            trim_memory((user_query, answer), st.session_state.chat_history, st.session_state.num_words)
             st.session_state.display_history.append((user_query, answer, source_documents))
 
 

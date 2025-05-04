@@ -13,7 +13,7 @@ from src import CFG
 class BGERerank(BaseDocumentCompressor):
     """Document compressor based on BGE-reranker."""
 
-    model_path: str = os.path.join(CFG.MODELS_DIR, CFG.RERANKER_PATH)
+    model_path: str = os.path.join(CFG.MODELS_DIR, CFG.RERANKER)
     top_n: int = 4
     """Number of documents to return."""
     model: CrossEncoder = CrossEncoder(model_path, device=CFG.DEVICE)
