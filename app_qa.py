@@ -13,44 +13,40 @@ from src.retrievers import (
     create_compression_retriever,
 )
 from src.chains import create_question_answer_chain
-from src.vectordbs import build_vectordb, delete_vectordb, load_faiss, load_chroma
+from src.llms import load_llm
+from src.vectordbs import build_vectordb, delete_vectordb, load_vectordb
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 from streamlit_app.utils import perform, cache_base_embeddings, cache_llm, cache_reranker
 from streamlit_app.output_formatter import replace_special
 
 # Fixing the issue:
-# Examining the path of torch.classes raised: Tried to instantiate class 'path.path’,
+# Examining the path of torch.classes raised: Tried to instantiate class 'path.path',
 # but it does not exist! Ensure that it is registered via torch::class
 torch.classes.__path__ = []
 
 TITLE = "Retrieval QA"
 st.set_page_config(page_title=TITLE, layout="wide")
 
+if CFG.LLM_PROVIDER == "llamacpp":
+    LLM = cache_llm()
+else:
+    LLM = load_llm()
+
 EMBEDDING_FUNCTION = cache_base_embeddings()
 RERANKER = cache_reranker()
-LLM = cache_llm()
 QA_CHAIN = create_question_answer_chain(LLM)
 VECTORDB_PATH = CFG.VECTORDB[0].PATH
 
 
 @st.cache_resource
-def load_vectordb():
-    if CFG.VECTORDB_TYPE == "faiss":
-        return load_faiss(EMBEDDING_FUNCTION, VECTORDB_PATH)
-    if CFG.VECTORDB_TYPE == "chroma":
-        return load_chroma(EMBEDDING_FUNCTION, VECTORDB_PATH)
-    raise NotImplementedError
+def cache_vectordb():
+    return load_vectordb(EMBEDDING_FUNCTION, VECTORDB_PATH)
 
 
 @st.cache_resource
-def load_vectordb_hyde():
+def cache_vectordb_hyde():
     hyde_embeddings = build_hyde_embeddings(LLM, EMBEDDING_FUNCTION)
-
-    if CFG.VECTORDB_TYPE == "faiss":
-        return load_faiss(hyde_embeddings, VECTORDB_PATH)
-    if CFG.VECTORDB_TYPE == "chroma":
-        return load_chroma(hyde_embeddings, VECTORDB_PATH)
-    raise NotImplementedError
+    return load_vectordb(hyde_embeddings, VECTORDB_PATH)
 
 
 def load_retriever(_vectordb, retrieval_mode):
@@ -104,7 +100,7 @@ def docqa():
                     uploaded_file.read(),
                     embedding_function=EMBEDDING_FUNCTION,
                 )
-                load_vectordb.clear()
+                cache_vectordb.clear()
 
         if not os.path.exists(VECTORDB_PATH):
             st.info("Please build VectorDB first.")
@@ -113,9 +109,9 @@ def docqa():
         try:
             with st.status("Load VectorDB", expanded=False) as status:
                 st.write("Loading VectorDB ...")
-                vectordb = load_vectordb()
+                vectordb = cache_vectordb()
                 st.write("Loading HyDE VectorDB ...")
-                vectordb_hyde = load_vectordb_hyde()
+                vectordb_hyde = cache_vectordb_hyde()
                 status.update(label="Loading complete!", state="complete", expanded=False)
             st.success("Reading from existing VectorDB")
         except Exception as e:
