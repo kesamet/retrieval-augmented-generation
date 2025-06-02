@@ -42,9 +42,7 @@ async def retrieve(query: str) -> str:
 
     docs = retriever.invoke(query)
     document_prompt = PromptTemplate.from_template(DOCUMENT_TEMPLATE)
-    return "\n\n".join(
-        [format_document(doc, document_prompt) for doc in docs]
-    )
+    return "\n\n".join([format_document(doc, document_prompt) for doc in docs])
 
 
 @mcp.tool()

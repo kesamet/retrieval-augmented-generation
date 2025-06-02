@@ -95,7 +95,7 @@ def convqa_react():
             logger.info(question)
 
             inputs = []
-            for (human, ai) in st.session_state.chat_history:
+            for human, ai in st.session_state.chat_history:
                 inputs.extend([("human", human), ("ai", ai)])
             inputs.append(("human", question))
             messages = async_wrapper(inputs, callbacks=[st_callback])
@@ -107,7 +107,9 @@ def convqa_react():
                     st.write(f"**{message.type}**")
                     st.warning(message)
 
-            trim_memory((user_query, answer), st.session_state.chat_history, st.session_state.num_words)
+            trim_memory(
+                (user_query, answer), st.session_state.chat_history, st.session_state.num_words
+            )
             st.session_state.display_history.append((user_query, answer))
 
 

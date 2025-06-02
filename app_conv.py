@@ -148,7 +148,9 @@ def convqa():
             with st.expander("Sources"):
                 print_docs(source_documents)
 
-            trim_memory((user_query, answer), st.session_state.chat_history, st.session_state.num_words)
+            trim_memory(
+                (user_query, answer), st.session_state.chat_history, st.session_state.num_words
+            )
             st.session_state.display_history.append((user_query, answer, source_documents))
 
 
