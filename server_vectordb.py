@@ -5,7 +5,7 @@ from mcp.server.fastmcp import FastMCP
 from src import CFG
 from src.retrievers import create_rerank_retriever
 from src.tools import create_retriever_tool, think
-from src.vectordbs import load_faiss, load_chroma
+from src.vectordbs import load_vectordb
 from streamlit_app.utils import cache_base_embeddings, cache_reranker
 
 EMBEDDING_FUNCTION = cache_base_embeddings()
@@ -14,11 +14,7 @@ RERANKER = cache_reranker()
 
 @st.cache_resource
 def cache_vectordb(vectordb_config: dict):
-    if CFG.VECTORDB_TYPE == "faiss":
-        return load_faiss(EMBEDDING_FUNCTION, vectordb_config["PATH"])
-    if CFG.VECTORDB_TYPE == "chroma":
-        return load_chroma(EMBEDDING_FUNCTION, vectordb_config["PATH"])
-    raise NotImplementedError
+    return load_vectordb(EMBEDDING_FUNCTION, vectordb_config["PATH"])
 
 
 tools = [to_fastmcp(think)]

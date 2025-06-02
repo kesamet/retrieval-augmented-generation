@@ -10,7 +10,7 @@ from src.chains import create_condense_question_chain, create_question_answer_ch
 from src.llms import load_llm
 from src.memory import trim_memory
 from src.retrievers import create_rerank_retriever
-from src.vectordbs import build_vectordb, delete_vectordb, load_faiss, load_chroma
+from src.vectordbs import build_vectordb, delete_vectordb, load_vectordb
 from streamlit_app.utils import perform, cache_base_embeddings, cache_llm, cache_reranker
 from streamlit_app.output_formatter import replace_special
 
@@ -35,12 +35,8 @@ VECTORDB_PATH = CFG.VECTORDB[0].PATH
 
 
 @st.cache_resource
-def load_vectordb():
-    if CFG.VECTORDB_TYPE == "faiss":
-        return load_faiss(EMBEDDING_FUNCTION, VECTORDB_PATH)
-    if CFG.VECTORDB_TYPE == "chroma":
-        return load_chroma(EMBEDDING_FUNCTION, VECTORDB_PATH)
-    raise NotImplementedError
+def cache_vectordb(vectordb_config: dict):
+    return load_vectordb(EMBEDDING_FUNCTION, vectordb_config["PATH"])
 
 
 def init_chat_history():
@@ -84,7 +80,7 @@ def convqa():
                     uploaded_file.read(),
                     embedding_function=EMBEDDING_FUNCTION,
                 )
-                load_vectordb.clear()
+                cache_vectordb.clear()
 
         if not os.path.exists(VECTORDB_PATH):
             st.info("Please build VectorDB first.")
@@ -93,7 +89,7 @@ def convqa():
         try:
             with st.status("Load retrieval chain", expanded=False) as status:
                 st.write("Loading retrieval chain...")
-                vectordb = load_vectordb()
+                vectordb = cache_vectordb()
                 RETRIEVER = create_rerank_retriever(vectordb, RERANKER)
                 status.update(label="Loading complete!", state="complete", expanded=False)
             st.success("Reading from existing VectorDB")

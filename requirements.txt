@@ -21,7 +21,7 @@ PyMuPDF==1.25.5
 python-dotenv==1.0.1
 rank-bm25==0.2.2
 sentence-transformers==4.1.0
-streamlit==1.44.1
+streamlit==1.45.1
 tiktoken==0.8.0
 transformers==4.51.3
 umap-learn==0.5.7

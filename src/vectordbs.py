@@ -35,6 +35,14 @@ def build_vectordb(filename: str, embedding_function: Embeddings) -> None:
         raise NotImplementedError
 
 
+def load_vectordb(embedding_function: Embeddings, persist_directory: str):
+    if CFG.VECTORDB_TYPE == "faiss":
+        return load_faiss(embedding_function, persist_directory)
+    if CFG.VECTORDB_TYPE == "chroma":
+        return load_chroma(embedding_function, persist_directory)
+    raise NotImplementedError
+
+
 def save_vectordb(
     docs: Sequence[Document],
     embedding_function: Embeddings,
