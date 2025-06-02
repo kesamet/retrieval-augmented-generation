@@ -13,22 +13,27 @@ from src.retrievers import (
     create_compression_retriever,
 )
 from src.chains import create_question_answer_chain
+from src.llms import load_llm
 from src.vectordbs import build_vectordb, delete_vectordb, load_faiss, load_chroma
 from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
 from streamlit_app.utils import perform, cache_base_embeddings, cache_llm, cache_reranker
 from streamlit_app.output_formatter import replace_special
 
 # Fixing the issue:
-# Examining the path of torch.classes raised: Tried to instantiate class 'path.path’,
+# Examining the path of torch.classes raised: Tried to instantiate class 'path.path',
 # but it does not exist! Ensure that it is registered via torch::class
 torch.classes.__path__ = []
 
 TITLE = "Retrieval QA"
 st.set_page_config(page_title=TITLE, layout="wide")
 
+if CFG.LLM_PROVIDER == "llamacpp":
+    LLM = cache_llm()
+else:
+    LLM = load_llm()
+
 EMBEDDING_FUNCTION = cache_base_embeddings()
 RERANKER = cache_reranker()
-LLM = cache_llm()
 QA_CHAIN = create_question_answer_chain(LLM)
 VECTORDB_PATH = CFG.VECTORDB[0].PATH
 

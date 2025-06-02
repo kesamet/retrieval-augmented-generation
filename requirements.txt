@@ -1,17 +1,19 @@
 torch --index-url https://download.pytorch.org/whl/cpu
 torchvision --index-url https://download.pytorch.org/whl/cpu
+llama-cpp-python==0.3.1 --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+
 arize-phoenix[evals]==8.26.2
 chromadb==1.0.7
 faiss-cpu==1.10.0
-langchain==0.3.24
+langchain==0.3.25
 langchain-community==0.3.22
 langchain-google-genai==2.1.4
 langchain-groq==0.3.2
 langchain-huggingface==0.1.2
+langchain-mcp-adapters==0.1.4
 langchain-ollama==0.3.2
 langchain-openai==0.2.1
 langgraph==0.4.1
-llama-cpp-python==0.3.1 --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
 loguru==0.7.2
 omegaconf==2.3.0
 openinference-instrumentation-langchain==0.1.41
