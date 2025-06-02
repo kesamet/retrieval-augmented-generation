@@ -110,21 +110,6 @@ def convqa_react():
             trim_memory((user_query, answer), st.session_state.chat_history, st.session_state.num_words)
             st.session_state.display_history.append((user_query, answer))
 
-    st.markdown(
-        """
-        ### Example Questions:
-        ```           
-        What's direct preference optimization?
-        ```
-        ```           
-        What's (3 + 5) x 12?
-        ```
-        ```
-        What's the weather in New York City?
-        ```
-        """
-    )
-
 
 if __name__ == "__main__":
     convqa_react()
