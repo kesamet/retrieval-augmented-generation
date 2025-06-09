@@ -14,44 +14,44 @@ from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 
 
 # Define available LLM event types for filtering
-LLM_EVENT_TYPES = {
+AVAILABLE_EVENT_TYPES = [
     # LLM-specific events
-    "on_llm_start": "Called when LLM starts generating",
-    "on_llm_new_token": "Called for each new token generated (streaming)",
-    "on_llm_end": "Called when LLM finishes generating",
-    "on_llm_error": "Called when LLM encounters an error",
+    "on_llm_start",  # "Called when LLM starts generating"
+    "on_llm_new_token",  # "Called for each new token generated (streaming)"
+    "on_llm_end",  # "Called when LLM finishes generating"
+    "on_llm_error",  # "Called when LLM encounters an error"
     # Chain events
-    "on_chain_start": "Called when a chain starts",
-    "on_chain_end": "Called when a chain ends",
-    "on_chain_error": "Called when a chain encounters an error",
+    "on_chain_start",  # "Called when a chain starts"
+    "on_chain_end",  # "Called when a chain ends"
+    "on_chain_error",  # "Called when a chain encounters an error"
     # Tool events
-    "on_tool_start": "Called when a tool starts",
-    "on_tool_end": "Called when a tool ends",
-    "on_tool_error": "Called when a tool encounters an error",
+    "on_tool_start",  # "Called when a tool starts"
+    "on_tool_end",  # "Called when a tool ends"
+    "on_tool_error",  # "Called when a tool encounters an error"
     # Agent events
-    "on_agent_action": "Called when an agent takes an action",
-    "on_agent_finish": "Called when an agent finishes",
+    "on_agent_action",  # "Called when an agent takes an action"
+    "on_agent_finish",  # "Called when an agent finishes"
     # Text events
-    "on_text": "Called for text output",
+    "on_text",  # "Called for text output"
     # Retriever events
-    "on_retriever_start": "Called when a retriever starts",
-    "on_retriever_end": "Called when a retriever ends",
-    "on_retriever_error": "Called when a retriever encounters an error",
+    "on_retriever_start",  # "Called when a retriever starts"
+    "on_retriever_end",  # "Called when a retriever ends"
+    "on_retriever_error",  # "Called when a retriever encounters an error"
     # Embedding events
-    "on_embedding_start": "Called when embeddings start",
-    "on_embedding_end": "Called when embeddings end",
-    "on_embedding_error": "Called when embeddings encounter an error",
+    "on_embedding_start",  # "Called when embeddings start"
+    "on_embedding_end",  # "Called when embeddings end"
+    "on_embedding_error",  # "Called when embeddings encounter an error"
     # Chat model events
-    "on_chat_model_start": "Called when a chat model starts",
-    "on_chat_model_end": "Called when a chat model ends",
-    "on_chat_model_error": "Called when a chat model encounters an error",
+    "on_chat_model_start",  # "Called when a chat model starts"
+    "on_chat_model_end",  # "Called when a chat model ends"
+    "on_chat_model_error",  # "Called when a chat model encounters an error"
     # Retry events
-    "on_retry": "Called when a retry occurs",
+    "on_retry",  # "Called when a retry occurs"
     # Run events
-    "on_run_start": "Called when a run starts",
-    "on_run_end": "Called when a run ends",
-    "on_run_error": "Called when a run encounters an error",
-}
+    "on_run_start",  # "Called when a run starts"
+    "on_run_end",  # "Called when a run ends"
+    "on_run_error",  # "Called when a run encounters an error"
+]
 
 
 class FilteredStreamlitCallbackHandler(StreamlitCallbackHandler):
@@ -245,17 +245,15 @@ def get_streamlit_callback(
     )
 
     # Determine which event types to process
-    available_event_types = set(LLM_EVENT_TYPES.keys())
-
     if exclude_event_types:
         # If exclude list is provided, remove those events
-        event_types_to_process = available_event_types - set(exclude_event_types)
+        event_types_to_process = AVAILABLE_EVENT_TYPES - set(exclude_event_types)
     elif event_types:
         # If include list is provided, only process those events
-        event_types_to_process = set(event_types) & available_event_types
+        event_types_to_process = set(event_types) & AVAILABLE_EVENT_TYPES
     else:
         # If neither is provided, process all events
-        event_types_to_process = available_event_types
+        event_types_to_process = AVAILABLE_EVENT_TYPES
 
     # Iterate over all methods of the StreamlitCallbackHandler instance
     for method_name, method_func in inspect.getmembers(st_cb, predicate=inspect.ismethod):
@@ -268,42 +266,6 @@ def get_streamlit_callback(
     # Return the fully configured StreamlitCallbackHandler instance, now context-aware
     # and integrated with any ChatLLM
     return st_cb
-
-
-def get_available_event_types() -> dict:
-    """
-    Returns a dictionary of all available LLM event types with their descriptions.
-
-    Returns:
-        dict: Dictionary mapping event type names to their descriptions.
-    """
-    return LLM_EVENT_TYPES.copy()
-
-
-def get_event_types_by_category() -> dict:
-    """
-    Returns available event types organized by category.
-
-    Returns:
-        dict: Dictionary organizing event types by category.
-    """
-    categories = {
-        "LLM Events": ["on_llm_start", "on_llm_new_token", "on_llm_end", "on_llm_error"],
-        "Chain Events": ["on_chain_start", "on_chain_end", "on_chain_error"],
-        "Tool Events": ["on_tool_start", "on_tool_end", "on_tool_error"],
-        "Agent Events": ["on_agent_action", "on_agent_finish"],
-        "Text Events": ["on_text"],
-        "Retriever Events": ["on_retriever_start", "on_retriever_end", "on_retriever_error"],
-        "Embedding Events": ["on_embedding_start", "on_embedding_end", "on_embedding_error"],
-        "Chat Model Events": ["on_chat_model_start", "on_chat_model_end", "on_chat_model_error"],
-        "Retry Events": ["on_retry"],
-        "Run Events": ["on_run_start", "on_run_end", "on_run_error"],
-    }
-
-    return {
-        category: {event: LLM_EVENT_TYPES[event] for event in events if event in LLM_EVENT_TYPES}
-        for category, events in categories.items()
-    }
 
 
 # Predefined tool response filters
