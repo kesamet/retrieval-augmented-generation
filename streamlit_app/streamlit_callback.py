@@ -3,7 +3,7 @@ Adapted from
 https://github.com/shiv248/Streamlit-x-LangGraph-Cookbooks/blob/master/StreamlitCallbackHandler_example/st_callable_util.py
 """
 
-from typing import Callable, TypeVar, List, Optional, Set
+from typing import Callable, TypeVar, List, Optional, Any, Dict
 import inspect
 
 from streamlit.runtime.scriptrunner import add_script_run_ctx, get_script_run_ctx
@@ -54,10 +54,61 @@ LLM_EVENT_TYPES = {
 }
 
 
+class FilteredStreamlitCallbackHandler(StreamlitCallbackHandler):
+    """
+    Enhanced StreamlitCallbackHandler that supports filtering tool responses.
+    """
+
+    def __init__(
+        self,
+        parent_container: DeltaGenerator,
+        show_tool_responses: bool = True,
+        tool_response_filter: Optional[Callable[[str, Any], bool]] = None,
+        **kwargs,
+    ):
+        super().__init__(parent_container, **kwargs)
+        self.show_tool_responses = show_tool_responses
+        self.tool_response_filter = tool_response_filter
+
+    def on_tool_end(self, output: str, **kwargs: Any) -> None:
+        """
+        Override to filter tool responses based on configuration.
+        """
+        if not self.show_tool_responses:
+            return
+
+        # Apply custom filter if provided
+        if self.tool_response_filter is not None:
+            tool_name = kwargs.get("name", "unknown_tool")
+            if not self.tool_response_filter(tool_name, output):
+                return
+
+        # Call the original method
+        super().on_tool_end(output, **kwargs)
+
+    def on_tool_start(self, serialized: Dict[str, Any], input_str: str, **kwargs: Any) -> None:
+        """
+        Override to filter tool start events based on configuration.
+        """
+        if not self.show_tool_responses:
+            return
+
+        # Apply custom filter if provided
+        if self.tool_response_filter is not None:
+            tool_name = serialized.get("name", "unknown_tool")
+            if not self.tool_response_filter(tool_name, input_str):
+                return
+
+        # Call the original method
+        super().on_tool_start(serialized, input_str, **kwargs)
+
+
 def get_streamlit_callback(
     parent_container: DeltaGenerator,
     event_types: Optional[List[str]] = None,
     exclude_event_types: Optional[List[str]] = None,
+    show_tool_responses: bool = True,
+    tool_response_filter: Optional[Callable[[str, Any], bool]] = None,
 ) -> BaseCallbackHandler:
     """
     Creates a Streamlit callback handler that integrates fully with any LangChain ChatLLM
@@ -83,6 +134,10 @@ def get_streamlit_callback(
             - Run events: on_run_start, on_run_end, on_run_error
         exclude_event_types (Optional[List[str]]): List of specific event types to exclude.
             Takes precedence over event_types if both are provided.
+        show_tool_responses (bool): Whether to show tool calling responses. Default is True.
+        tool_response_filter (Optional[Callable[[str, Any], bool]]): Custom filter function
+            for tool responses. Takes tool name and response/output as arguments and returns
+            True if the response should be shown, False otherwise.
 
     Returns:
         BaseCallbackHandler: An instance of StreamlitCallbackHandler configured for full
@@ -105,6 +160,37 @@ def get_streamlit_callback(
         callback = get_streamlit_callback(
             st.empty(),
             event_types=["on_llm_new_token"]
+        )
+
+        # Hide all tool responses
+        callback = get_streamlit_callback(
+            st.empty(),
+            show_tool_responses=False
+        )
+
+        # Filter tool responses by tool name
+        def filter_tools(tool_name: str, response: Any) -> bool:
+            # Only show responses from specific tools
+            allowed_tools = ["search", "calculator"]
+            return tool_name in allowed_tools
+
+        callback = get_streamlit_callback(
+            st.empty(),
+            tool_response_filter=filter_tools
+        )
+
+        # Filter tool responses by content
+        def filter_by_content(tool_name: str, response: Any) -> bool:
+            # Hide responses that are too long or contain sensitive info
+            if isinstance(response, str) and len(response) > 1000:
+                return False
+            if isinstance(response, str) and "error" in response.lower():
+                return False
+            return True
+
+        callback = get_streamlit_callback(
+            st.empty(),
+            tool_response_filter=filter_by_content
         )
     """
 
@@ -151,8 +237,12 @@ def get_streamlit_callback(
 
         return wrapper
 
-    # Create an instance of Streamlit's StreamlitCallbackHandler with the provided container
-    st_cb = StreamlitCallbackHandler(parent_container)
+    # Create an instance of our enhanced StreamlitCallbackHandler with the provided container
+    st_cb = FilteredStreamlitCallbackHandler(
+        parent_container,
+        show_tool_responses=show_tool_responses,
+        tool_response_filter=tool_response_filter,
+    )
 
     # Determine which event types to process
     available_event_types = set(LLM_EVENT_TYPES.keys())
@@ -214,3 +304,87 @@ def get_event_types_by_category() -> dict:
         category: {event: LLM_EVENT_TYPES[event] for event in events if event in LLM_EVENT_TYPES}
         for category, events in categories.items()
     }
+
+
+# Predefined tool response filters
+def create_tool_name_filter(allowed_tools: List[str]) -> Callable[[str, Any], bool]:
+    """
+    Create a filter that only shows responses from specific tools.
+
+    Args:
+        allowed_tools: List of tool names that should show responses
+
+    Returns:
+        Callable: Filter function that can be passed to get_streamlit_callback
+    """
+
+    def filter_func(tool_name: str, response: Any) -> bool:
+        return tool_name in allowed_tools
+
+    return filter_func
+
+
+def create_tool_content_filter(
+    max_length: Optional[int] = None,
+    exclude_keywords: Optional[List[str]] = None,
+    include_keywords: Optional[List[str]] = None,
+) -> Callable[[str, Any], bool]:
+    """
+    Create a filter based on tool response content.
+
+    Args:
+        max_length: Maximum length of response to show (None for no limit)
+        exclude_keywords: Keywords that cause response to be hidden
+        include_keywords: Keywords that must be present to show response
+
+    Returns:
+        Callable: Filter function that can be passed to get_streamlit_callback
+    """
+
+    def filter_func(tool_name: str, response: Any) -> bool:
+        if not isinstance(response, str):
+            return True
+
+        # Check length
+        if max_length is not None and len(response) > max_length:
+            return False
+
+        # Check exclude keywords
+        if exclude_keywords:
+            response_lower = response.lower()
+            for keyword in exclude_keywords:
+                if keyword.lower() in response_lower:
+                    return False
+
+        # Check include keywords
+        if include_keywords:
+            response_lower = response.lower()
+            for keyword in include_keywords:
+                if keyword.lower() not in response_lower:
+                    return False
+
+        return True
+
+    return filter_func
+
+
+def create_tool_type_filter(tool_types: List[str]) -> Callable[[str, Any], bool]:
+    """
+    Create a filter based on tool types (e.g., 'search', 'calculator', 'database').
+
+    Args:
+        tool_types: List of tool types to show responses for
+
+    Returns:
+        Callable: Filter function that can be passed to get_streamlit_callback
+    """
+
+    def filter_func(tool_name: str, response: Any) -> bool:
+        # Simple heuristic to determine tool type from name
+        tool_name_lower = tool_name.lower()
+        for tool_type in tool_types:
+            if tool_type.lower() in tool_name_lower:
+                return True
+        return False
+
+    return filter_func
