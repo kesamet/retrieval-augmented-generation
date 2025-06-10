@@ -3,7 +3,7 @@ Adapted from
 https://github.com/shiv248/Streamlit-x-LangGraph-Cookbooks/blob/master/StreamlitCallbackHandler_example/st_callable_util.py
 """
 
-from typing import Callable, TypeVar, List, Optional, Any, Dict
+from typing import Any, Callable, TypeVar, List, Optional
 import inspect
 
 from langchain_core.callbacks.base import BaseCallbackHandler

@@ -11,7 +11,7 @@ from src.llms import load_llm
 from src.memory import trim_memory
 from src.retrievers import create_rerank_retriever
 from src.vectordbs import build_vectordb, delete_vectordb, load_vectordb
-from streamlit_app.utils import perform, cache_base_embeddings, cache_llm, cache_reranker
+from streamlit_app.utils import process, cache_base_embeddings, cache_llm, cache_reranker
 from streamlit_app.output_formatter import replace_special
 
 # Fixing the issue:
@@ -75,7 +75,7 @@ def convqa():
                 delete_vectordb(VECTORDB_PATH, CFG.VECTORDB_TYPE)
 
             with st.spinner("Building VectorDB..."):
-                perform(
+                process(
                     build_vectordb,
                     uploaded_file.read(),
                     embedding_function=EMBEDDING_FUNCTION,
