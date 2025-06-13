@@ -24,7 +24,7 @@ def cache_reranker():
     return load_reranker()
 
 
-def perform(func: Callable, filebytes: bytes, **kwargs: Any) -> Any:
+def process(func: Callable, filebytes: bytes, **kwargs: Any) -> Any:
     """
     Helper function to perform a function on a file-like object.
 
