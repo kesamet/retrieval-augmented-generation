@@ -1,3 +1,4 @@
+# flake8: noqa: E501
 """
 Adapted from
 https://github.com/langchain-ai/langgraph/blob/main/libs/prebuilt/langgraph/prebuilt/chat_agent_executor.py
