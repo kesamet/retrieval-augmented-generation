@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Literal, Optional
 
-from langchain_core.callbacks import Callbacks
+from langchain_core.callbacks.base import Callbacks
 from langchain_core.documents import Document
 from langchain_core.prompts import (
     BasePromptTemplate,

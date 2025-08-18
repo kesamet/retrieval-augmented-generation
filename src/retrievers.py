@@ -5,14 +5,13 @@ Retrievers
 from typing import List
 
 from langchain_core.documents import Document
+from langchain_core.documents.compressor import BaseDocumentCompressor
 from langchain_core.embeddings import Embeddings
+from langchain_core.retrievers import BaseRetriever
 from langchain_core.vectorstores import VectorStore, VectorStoreRetriever
 from langchain.retrievers import ContextualCompressionRetriever
-from langchain.retrievers.document_compressors import (
-    DocumentCompressorPipeline,
-    EmbeddingsFilter,
-)
-from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
+from langchain.retrievers.document_compressors.base import DocumentCompressorPipeline
+from langchain.retrievers.document_compressors.embeddings_filter import EmbeddingsFilter
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.document_transformers import EmbeddingsRedundantFilter
 
@@ -47,13 +46,13 @@ class VectorStoreRetrieverWithScores(VectorStoreRetriever):
         return docs
 
 
-def create_base_retriever(vectordb: VectorStore) -> VectorStoreRetriever:
+def create_base_retriever(vectordb: VectorStore) -> BaseRetriever:
     return VectorStoreRetriever(
         vectorstore=vectordb, search_kwargs={"k": CFG.BASE_RETRIEVER_CONFIG.SEARCH_K}
     )
 
 
-def create_multivector_retriever(vectorstore: VectorStore, docstore) -> VectorStoreRetriever:
+def create_multivector_retriever(vectorstore: VectorStore, docstore) -> BaseRetriever:
     from langchain.retrievers.multi_vector import MultiVectorRetriever, SearchType
 
     return MultiVectorRetriever(
@@ -66,16 +65,14 @@ def create_multivector_retriever(vectorstore: VectorStore, docstore) -> VectorSt
 
 def create_rerank_retriever(
     vectordb: VectorStore, reranker: BaseDocumentCompressor
-) -> ContextualCompressionRetriever:
+) -> BaseRetriever:
     base_retriever = VectorStoreRetriever(
         vectorstore=vectordb, search_kwargs={"k": CFG.RERANK_RETRIEVER_CONFIG.SEARCH_K}
     )
     return ContextualCompressionRetriever(base_compressor=reranker, base_retriever=base_retriever)
 
 
-def create_compression_retriever(
-    vectordb: VectorStore, embeddings: Embeddings
-) -> ContextualCompressionRetriever:
+def create_compression_retriever(vectordb: VectorStore, embeddings: Embeddings) -> BaseRetriever:
     base_retriever = VectorStoreRetriever(
         vectorstore=vectordb,
         search_kwargs={"k": CFG.COMPRESSION_RETRIEVER_CONFIG.SEARCH_K},
