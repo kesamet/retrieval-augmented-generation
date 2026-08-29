@@ -1,18 +1,19 @@
 import json
-from typing import Any, Callable, Dict, Literal, List, Optional, Sequence, Type, Union
+from collections.abc import Callable, Sequence
+from typing import Any, Literal
 
+from langchain_community.llms.sagemaker_endpoint import (
+    LineIterator,
+    LLMContentHandler,
+    SagemakerEndpoint,
+)
+from langchain_community.llms.utils import enforce_stop_tokens
 from langchain_core.callbacks import CallbackManagerForLLMRun
+from langchain_core.language_models import LanguageModelInput
+from langchain_core.messages import BaseMessage
 from langchain_core.runnables import Runnable
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
-from langchain_core.messages import BaseMessage
-from langchain_core.language_models import LanguageModelInput
-from langchain_community.llms.sagemaker_endpoint import (
-    SagemakerEndpoint,
-    LLMContentHandler,
-    LineIterator,
-)
-from langchain_community.llms.utils import enforce_stop_tokens
 
 
 class ContentHandler(LLMContentHandler):
@@ -34,8 +35,8 @@ class SagemakerEndpointLLM(SagemakerEndpoint):
     def _call(
         self,
         prompt: str,
-        stop: Optional[List[str]] = None,
-        run_manager: Optional[CallbackManagerForLLMRun] = None,
+        stop: list[str] | None = None,
+        run_manager: CallbackManagerForLLMRun | None = None,
         **kwargs: Any,
     ) -> str:
         _model_kwargs = self.model_kwargs or {}
@@ -92,9 +93,9 @@ class SagemakerEndpointLLM(SagemakerEndpoint):
 
     def bind_tools(
         self,
-        tools: Sequence[Union[Dict[str, Any], Type, Callable, BaseTool]],
+        tools: Sequence[dict[str, Any] | type | Callable | BaseTool],
         *,
-        tool_choice: Optional[Union[dict, str, Literal["auto", "any"], bool]] = None,
+        tool_choice: dict | str | Literal["auto", "any"] | bool | None = None,
         **kwargs: Any,
     ) -> Runnable[LanguageModelInput, BaseMessage]:
         """Bind tools for use in model generation.

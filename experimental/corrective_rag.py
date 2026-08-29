@@ -3,20 +3,20 @@ Sample implementation of Corrective RAG (https://github.com/HuskyInSalt/CRAG)
 with langgraph
 """
 
-from typing import List, TypedDict
+from typing import TypedDict
 
-from langgraph.graph import END, StateGraph
-from langchain_core.prompts import PromptTemplate
-from langchain_core.documents import Document
-from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_core.documents import Document
+from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
+from langchain_core.prompts import PromptTemplate
 from langchain_google_genai import GoogleGenerativeAI
+from langgraph.graph import END, StateGraph
 
 from src.embeddings import load_base_embeddings
-from src.vectordbs import load_chroma
+from src.prompt_templates import CHAT_FORMATS, QA_TEMPLATE
 from src.rerankers import load_reranker
 from src.retrievers import create_rerank_retriever
-from src.prompt_templates import CHAT_FORMATS, QA_TEMPLATE
+from src.vectordbs import load_chroma
 
 MODEL = GoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.0, streaming=False)
 chat_format = CHAT_FORMATS["gemini"]
@@ -33,7 +33,7 @@ RAG_CHAIN = prompt | MODEL | StrOutputParser()
 
 class GraphState(TypedDict):
     question: str
-    documents: List[Document]
+    documents: list[Document]
     generation: str
     run_web_search: str
     # groundedness: bool

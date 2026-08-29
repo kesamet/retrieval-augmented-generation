@@ -3,7 +3,6 @@ Adpated from
 https://github.com/langchain-ai/langchain/blob/master/cookbook/RAPTOR.ipynb
 """
 
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -21,7 +20,7 @@ RANDOM_SEED = 224  # Fixed seed for reproducibility
 def global_cluster_embeddings(
     embeddings: np.ndarray,
     dim: int,
-    n_neighbors: Optional[int] = None,
+    n_neighbors: int | None = None,
     metric: str = "cosine",
 ) -> np.ndarray:
     """
@@ -114,7 +113,7 @@ def perform_clustering(
     embeddings: np.ndarray,
     dim: int,
     threshold: float,
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """
     Perform clustering on the embeddings by first reducing their dimensionality globally,
     then clustering using a Gaussian Mixture Model, and finally performing local clustering
@@ -192,7 +191,7 @@ class Raptorizer:
         text_embeddings_np = np.array(text_embeddings)
         return text_embeddings_np
 
-    def embed_cluster_texts(self, texts: List[str]) -> pd.DataFrame:
+    def embed_cluster_texts(self, texts: list[str]) -> pd.DataFrame:
         """
         Embeds a list of texts and clusters them, returning a DataFrame with texts,
         their embeddings, and cluster labels.
@@ -231,7 +230,7 @@ class Raptorizer:
         Returns:
         - A single string where all text documents are joined by a specific delimiter.
         """
-        unique_txt = df["text"].tolist()
+        unique_txt = df["text"].to[]
         return "--- --- \n --- --- ".join(unique_txt)
 
     def summarize_chain(self, title: str) -> Runnable:
@@ -246,8 +245,8 @@ class Raptorizer:
         return chain
 
     def embed_cluster_summarize_texts(
-        self, texts: List[str], title: str, level: int
-    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        self, texts: list[str], title: str, level: int
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """
         Embeds, clusters, and summarizes a list of texts. This function first generates embeddings
         for the texts, clusters them based on similarity, expands the cluster assignments
@@ -305,8 +304,8 @@ class Raptorizer:
         return df_clusters, df_summary
 
     def recursive_embed_cluster_summarize(
-        self, texts: List[str], title: str, level: int = 1, n_levels: int = 3
-    ) -> Dict[int, Tuple[pd.DataFrame, pd.DataFrame]]:
+        self, texts: list[str], title: str, level: int = 1, n_levels: int = 3
+    ) -> dict[int, tuple[pd.DataFrame, pd.DataFrame]]:
         """
         Recursively embeds, clusters, and summarizes texts up to a specified level or until
         the number of unique clusters becomes 1, storing the results at each level.
@@ -333,7 +332,7 @@ class Raptorizer:
         unique_clusters = df_summary["cluster"].nunique()
         if level < n_levels and unique_clusters > 1:
             # Use summaries as the input texts for the next level of recursion
-            new_texts = df_summary["summaries"].tolist()
+            new_texts = df_summary["summaries"].to[]
             next_level_results = self.recursive_embed_cluster_summarize(
                 new_texts, title, level + 1, n_levels
             )

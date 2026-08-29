@@ -8,19 +8,19 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.runnables import RunnablePassthrough
 from langchain_google_genai import ChatGoogleGenerativeAI
-from trulens_eval.feedback.provider.langchain import Langchain
-from trulens_eval import Tru, Feedback, TruChain
+from trulens_eval import Feedback, Tru, TruChain
 from trulens_eval.feedback import Groundedness
+from trulens_eval.feedback.provider.langchain import Langchain
 from trulens_eval.schema import Select
-from trulens_eval.utils.serial import all_queries
 from trulens_eval.utils.json import jsonify
+from trulens_eval.utils.serial import all_queries
 
 from src.embeddings import load_base_embeddings
-from src.vectordbs import load_chroma
-from src.rerankers import load_reranker
-from src.retrievers import create_rerank_retriever
 from src.llms import load_llm
 from src.prompt_templates import QA_TEMPLATE
+from src.rerankers import load_reranker
+from src.retrievers import create_rerank_retriever
+from src.vectordbs import load_chroma
 
 # Setup RAG
 embedding_function = load_base_embeddings()

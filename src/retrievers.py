@@ -2,25 +2,24 @@
 Retrievers
 """
 
-from typing import List
 
-from langchain_core.documents import Document
-from langchain_core.documents.compressor import BaseDocumentCompressor
-from langchain_core.embeddings import Embeddings
-from langchain_core.retrievers import BaseRetriever
-from langchain_core.vectorstores import VectorStore, VectorStoreRetriever
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors.base import DocumentCompressorPipeline
 from langchain.retrievers.document_compressors.embeddings_filter import EmbeddingsFilter
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.document_transformers import EmbeddingsRedundantFilter
+from langchain_core.documents import Document
+from langchain_core.documents.compressor import BaseDocumentCompressor
+from langchain_core.embeddings import Embeddings
+from langchain_core.retrievers import BaseRetriever
+from langchain_core.vectorstores import VectorStore, VectorStoreRetriever
 
 from src import CFG
 
 
 # FIXME
 class VectorStoreRetrieverWithScores(VectorStoreRetriever):
-    def get_relevant_documents(self, query: str) -> List[Document]:
+    def get_relevant_documents(self, query: str) -> list[Document]:
         """
         Adapted from https://github.com/langchain-ai/langchain/blob/2f8dd1a1619f25daa4737df4d378b1acd6ff83c4/
         libs/core/langchain_core/vectorstores.py#L692

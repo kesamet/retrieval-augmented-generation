@@ -1,12 +1,11 @@
-from typing import Optional, Sequence, Tuple
-
-from rank_bm25 import BM25Okapi
-from transformers import AutoTokenizer
-from langchain.schema import Document
-from pydantic import ConfigDict
+from collections.abc import Sequence
 
 from langchain.callbacks.manager import Callbacks
 from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
+from langchain.schema import Document
+from pydantic import ConfigDict
+from rank_bm25 import BM25Okapi
+from transformers import AutoTokenizer
 
 
 class BM25Rerank(BaseDocumentCompressor):
@@ -21,7 +20,7 @@ class BM25Rerank(BaseDocumentCompressor):
         self,
         documents: Sequence[Document],
         query: str,
-        callbacks: Optional[Callbacks] = None,
+        callbacks: Callbacks | None = None,
     ) -> Sequence[Document]:
         """
         Compress documents using gpt2 and BM25.
@@ -46,7 +45,7 @@ class BM25Rerank(BaseDocumentCompressor):
             final_results.append(doc)
         return final_results
 
-    def rerank(self, query: str, docs: Sequence[str]) -> Sequence[Tuple[int, float]]:
+    def rerank(self, query: str, docs: Sequence[str]) -> Sequence[tuple[int, float]]:
         """
         Reranks a list of documents based on a given query using a pre-trained model.
 

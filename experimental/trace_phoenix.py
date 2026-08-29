@@ -3,18 +3,18 @@ Tracing with arize-phoenix (https://github.com/Arize-ai/phoenix)
 """
 
 import phoenix as px
-from phoenix.otel import register
-from openinference.instrumentation.langchain import LangChainInstrumentor
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
+from openinference.instrumentation.langchain import LangChainInstrumentor
+from phoenix.otel import register
 
 from src.embeddings import load_base_embeddings
-from src.vectordbs import load_chroma
-from src.rerankers import load_reranker
-from src.retrievers import create_rerank_retriever
 from src.llms import load_llm
 from src.prompt_templates import QA_TEMPLATE
+from src.rerankers import load_reranker
+from src.retrievers import create_rerank_retriever
+from src.vectordbs import load_chroma
 
 # Launch phoenix
 session = px.launch_app()

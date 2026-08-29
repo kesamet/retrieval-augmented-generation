@@ -1,14 +1,15 @@
 import os
-from typing import Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 import torch
 import torch.nn.functional as F
-from langchain.schema import Document
 from langchain.callbacks.manager import Callbacks
 from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
+from langchain.schema import Document
 from pydantic import ConfigDict
 
 from src import CFG
+
 from .modeling_enc_t5 import EncT5ForSequenceClassification
 from .tokenization_enc_t5 import EncT5Tokenizer
 
@@ -31,7 +32,7 @@ class TARTRerank(BaseDocumentCompressor):
         self,
         documents: Sequence[Document],
         query: str,
-        callbacks: Optional[Callbacks] = None,
+        callbacks: Callbacks | None = None,
     ) -> Sequence[Document]:
         """
         Compress documents using TART model.
@@ -56,7 +57,7 @@ class TARTRerank(BaseDocumentCompressor):
             final_results.append(doc)
         return final_results
 
-    def rerank(self, query: str, docs: Sequence[str]) -> Sequence[Tuple[int, float]]:
+    def rerank(self, query: str, docs: Sequence[str]) -> Sequence[tuple[int, float]]:
         """
         Reranks a list of documents based on a given query using a pre-trained model.
 

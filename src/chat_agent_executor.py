@@ -5,13 +5,11 @@ https://github.com/langchain-ai/langgraph/blob/main/libs/prebuilt/langgraph/preb
 """
 
 import inspect
+from collections.abc import Callable, Sequence
 from typing import (
+    Annotated,
     Any,
-    Callable,
     Literal,
-    Optional,
-    Sequence,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -37,9 +35,6 @@ from langchain_core.runnables import (
     RunnableSequence,
 )
 from langchain_core.tools import BaseTool
-from pydantic import BaseModel
-from typing_extensions import Annotated, TypedDict
-
 from langgraph.errors import ErrorCode, create_error_message
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
@@ -49,6 +44,8 @@ from langgraph.prebuilt.tool_node import ToolNode
 from langgraph.store.base import BaseStore
 from langgraph.types import Checkpointer, Send
 from langgraph.utils.runnable import RunnableCallable, RunnableLike
+from pydantic import BaseModel
+from typing_extensions import TypedDict
 
 StructuredResponse = Union[dict, BaseModel]
 StructuredResponseSchema = Union[dict, type[BaseModel]]
@@ -89,8 +86,8 @@ class AgentStateWithStructuredResponsePydantic(AgentStatePydantic):
     structured_response: StructuredResponse
 
 
-StateSchema = TypeVar("StateSchema", bound=Union[AgentState, AgentStatePydantic])
-StateSchemaType = Type[StateSchema]
+StateSchema = TypeVar("StateSchema", bound=AgentState | AgentStatePydantic)
+StateSchemaType = type[StateSchema]
 
 PROMPT_RUNNABLE_NAME = "Prompt"
 
@@ -106,7 +103,7 @@ def _get_state_value(state: StateSchema, key: str, default: Any = None) -> Any:
     return state.get(key, default) if isinstance(state, dict) else getattr(state, key, default)
 
 
-def _get_prompt_runnable(prompt: Optional[Prompt]) -> Runnable:
+def _get_prompt_runnable(prompt: Prompt | None) -> Runnable:
     prompt_runnable: Runnable
     if prompt is None:
         prompt_runnable = RunnableCallable(
@@ -236,25 +233,23 @@ def _validate_chat_history(
 
 
 def create_react_agent(
-    model: Union[str, LanguageModelLike],
-    tools: Union[Sequence[Union[BaseTool, Callable, dict[str, Any]]], ToolNode],
+    model: str | LanguageModelLike,
+    tools: Sequence[BaseTool | Callable | dict[str, Any]] | ToolNode,
     *,
-    prompt: Optional[Prompt] = None,
-    response_format: Optional[
-        Union[StructuredResponseSchema, tuple[str, StructuredResponseSchema]]
-    ] = None,
-    pre_model_hook: Optional[RunnableLike] = None,
-    post_model_hook: Optional[RunnableLike] = None,
-    state_schema: Optional[StateSchemaType] = None,
-    config_schema: Optional[Type[Any]] = None,
-    checkpointer: Optional[Checkpointer] = None,
-    store: Optional[BaseStore] = None,
-    interrupt_before: Optional[list[str]] = None,
-    interrupt_after: Optional[list[str]] = None,
+    prompt: Prompt | None = None,
+    response_format: StructuredResponseSchema | tuple[str, StructuredResponseSchema] | None = None,
+    pre_model_hook: RunnableLike | None = None,
+    post_model_hook: RunnableLike | None = None,
+    state_schema: StateSchemaType | None = None,
+    config_schema: type[Any] | None = None,
+    checkpointer: Checkpointer | None = None,
+    store: BaseStore | None = None,
+    interrupt_before: list[str] | None = None,
+    interrupt_after: list[str] | None = None,
     debug: bool = False,
     version: Literal["v1", "v2"] = "v2",
-    name: Optional[str] = None,
-    add_retry: Optional[Callable] = None,
+    name: str | None = None,
+    add_retry: Callable | None = None,
 ) -> CompiledStateGraph:
     """Creates an agent graph that calls tools in a loop until a stopping condition is met.
 
@@ -619,7 +614,7 @@ def create_react_agent(
         )
 
     # Define the function that determines whether to continue or not
-    def should_continue(state: StateSchema) -> Union[str, list[Send]]:
+    def should_continue(state: StateSchema) -> str | list[Send]:
         messages = _get_state_value(state, "messages")
         last_message = messages[-1]
         # If there is no function call, then we finish
@@ -699,7 +694,7 @@ def create_react_agent(
 
     if post_model_hook is not None:
 
-        def post_model_hook_router(state: StateSchema) -> Union[str, list[Send]]:
+        def post_model_hook_router(state: StateSchema) -> str | list[Send]:
             """Route to the next node after post_model_hook.
 
             Routes to one of:
@@ -777,10 +772,10 @@ def create_react_agent(
 create_tool_calling_executor = create_react_agent
 
 __all__ = [
-    "create_react_agent",
-    "create_tool_calling_executor",
     "AgentState",
     "AgentStatePydantic",
     "AgentStateWithStructuredResponse",
     "AgentStateWithStructuredResponsePydantic",
+    "create_react_agent",
+    "create_tool_calling_executor",
 ]

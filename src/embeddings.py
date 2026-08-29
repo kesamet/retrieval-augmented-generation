@@ -36,6 +36,7 @@ def create_hyde_embeddings(llm, base_embeddings):
 def load_sagemaker_endpoint_embeddings():
     import boto3
     from langchain_community.embeddings import SagemakerEndpointEmbeddings
+
     from src.sagemaker_endpoint.embeddings import ContentHandler
 
     runtime_client = boto3.client("sagemaker-runtime", region_name=CFG.REGION_NAME)

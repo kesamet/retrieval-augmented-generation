@@ -1,6 +1,7 @@
 from functools import partial
-from typing import Literal, Optional
+from typing import Literal
 
+from langchain_community.tools import TavilySearchResults
 from langchain_core.callbacks.base import Callbacks
 from langchain_core.documents import Document
 from langchain_core.prompts import (
@@ -11,7 +12,6 @@ from langchain_core.prompts import (
 )
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.tools import RetrieverInput, Tool, tool
-from langchain_community.tools import TavilySearchResults
 
 # Web Search Tool
 tavily_tool = TavilySearchResults(
@@ -40,7 +40,6 @@ def think(thought: str):
     Args:
         thought (str): A thought to think about.
     """
-    pass
 
 
 def create_retriever_tool(
@@ -48,7 +47,7 @@ def create_retriever_tool(
     name: str,
     description: str,
     *,
-    document_prompt: Optional[BasePromptTemplate] = None,
+    document_prompt: BasePromptTemplate | None = None,
     document_separator: str = "\n\n",
     response_format: Literal["content", "content_and_artifact"] = "content",
 ) -> Tool:

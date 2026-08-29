@@ -1,10 +1,10 @@
 import os
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 from tqdm import tqdm
 from umap import UMAP
-from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 
 from src import CFG
 

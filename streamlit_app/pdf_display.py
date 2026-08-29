@@ -49,12 +49,12 @@ def search_for_phrase(
 
     cleaned_phrase = re.sub(r"\W+", "", phrase)
 
-    all_instances = dict()
+    all_instances = {}
     for i in page_nums:
         if cleaned_phrase not in re.sub(r"\W+", "", doc[i].get_text("text")):
             continue
 
-        instances = list()
+        instances = []
         for x0, x1, y0, y1, text, _, _ in doc[i].get_text("blocks"):
             cleaned_text = re.sub(r"\W+", "", text)
             if len(cleaned_text) == 0:

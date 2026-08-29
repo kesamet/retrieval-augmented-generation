@@ -1,23 +1,23 @@
 import os
 
-import torch
 import streamlit as st
+import torch
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 
 from src import CFG
+from src.chains import create_question_answer_chain
 from src.embeddings import build_hyde_embeddings
+from src.llms import load_llm
 from src.query_expansion import build_multiple_queries_expansion_chain
 from src.retrievers import (
     create_base_retriever,
-    create_rerank_retriever,
     create_compression_retriever,
+    create_rerank_retriever,
 )
-from src.chains import create_question_answer_chain
-from src.llms import load_llm
 from src.vectordbs import build_vectordb, delete_vectordb, load_vectordb
-from streamlit_app.pdf_display import get_doc_highlighted, display_pdf
-from streamlit_app.utils import perform, cache_base_embeddings, cache_llm, cache_reranker
 from streamlit_app.output_formatter import replace_special
+from streamlit_app.pdf_display import display_pdf, get_doc_highlighted
+from streamlit_app.utils import cache_base_embeddings, cache_llm, cache_reranker, perform
 
 # Fixing the issue:
 # Examining the path of torch.classes raised: Tried to instantiate class 'path.path',
@@ -61,16 +61,16 @@ def load_retriever(_vectordb, retrieval_mode):
 
 def init_sess_state():
     if "last_form" not in st.session_state:
-        st.session_state["last_form"] = list()
+        st.session_state["last_form"] = []
 
     if "last_query" not in st.session_state:
         st.session_state["last_query"] = ""
 
     if "last_response" not in st.session_state:
-        st.session_state["last_response"] = dict()
+        st.session_state["last_response"] = {}
 
     if "last_related" not in st.session_state:
-        st.session_state["last_related"] = list()
+        st.session_state["last_related"] = []
 
 
 def docqa():
@@ -155,9 +155,8 @@ def docqa():
         )
 
         if mode == "Retrieval only":
-            with c0:
-                with st.spinner("Retrieving ..."):
-                    source_documents = retriever.invoke(user_query)
+            with c0, st.spinner("Retrieving ..."):
+                source_documents = retriever.invoke(user_query)
 
             st.session_state.last_response = {
                 "query": user_query,

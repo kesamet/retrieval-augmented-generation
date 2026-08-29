@@ -1,14 +1,14 @@
-import time
 import functools
-from typing import Callable, Type, Union, Tuple, Optional
+import time
+from collections.abc import Callable
 
 
 def retry(
     max_attempts: int = 3,
     delay: float = 1.0,
     backoff: float = 2.0,
-    exceptions: Union[Type[Exception], Tuple[Type[Exception], ...]] = Exception,
-    on_retry: Optional[Callable[[Exception, int], None]] = None,
+    exceptions: type[Exception] | tuple[type[Exception], ...] = Exception,
+    on_retry: Callable[[Exception, int], None] | None = None,
 ) -> Callable:
     """
     A decorator that retries a function call when it raises specified exceptions.

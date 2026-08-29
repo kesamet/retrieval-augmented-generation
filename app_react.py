@@ -1,8 +1,8 @@
 import asyncio
 from collections import deque
 
-import torch
 import streamlit as st
+import torch
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
 
@@ -10,9 +10,9 @@ from src import CFG, logger
 from src.chains import create_condense_question_chain
 from src.llms import load_llm
 from src.memory import trim_memory
+from streamlit_app.output_formatter import replace_special
 from streamlit_app.streamlit_callback import get_streamlit_callback
 from streamlit_app.utils import cache_llm
-from streamlit_app.output_formatter import replace_special
 
 # Fixing the issue:
 # Examining the path of torch.classes raised: Tried to instantiate class 'path.path',

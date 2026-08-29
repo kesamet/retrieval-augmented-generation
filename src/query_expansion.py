@@ -1,9 +1,9 @@
 from langchain_core.language_models import LLM
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import RunnablePassthrough, Runnable
+from langchain_core.runnables import Runnable, RunnablePassthrough
 
-from src.prompt_templates import MULTI_QUERIES_TEMPLATE, GENERATED_RESULT_TEMPLATE
+from src.prompt_templates import GENERATED_RESULT_TEMPLATE, MULTI_QUERIES_TEMPLATE
 
 
 def _create_llm_chain(llm: LLM, template: str) -> Runnable:
