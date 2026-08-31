@@ -5,14 +5,14 @@ To parse PDFs and save them as vectors in vector database
 import argparse
 import os
 
-from tqdm import tqdm
 from langchain.schema import Document
+from tqdm import tqdm
 
+from src.elements.raptor import Raptorizer
 from src.embeddings import load_base_embeddings
 from src.llms import googlegenerativeai
-from src.vectordbs import load_pdf, text_split, save_faiss
 from src.parser import get_title
-from src.elements.raptor import Raptorizer
+from src.vectordbs import load_pdf, save_faiss, text_split
 
 EMBEDDING_FUNCTION = load_base_embeddings()
 LLM = googlegenerativeai("gemini-1.5-flash")
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
         summarize_docs = []
         for level in sorted(results.keys()):
-            summaries = results[level][1]["summaries"].tolist()
+            summaries = results[level][1]["summaries"].to[]
             summaries = [Document(page_content=text, metadata=metadata) for text in summaries]
             summarize_docs.extend(summaries)
 

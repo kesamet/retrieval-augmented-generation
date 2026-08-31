@@ -3,14 +3,14 @@ Parser
 """
 
 import uuid
-from typing import Sequence
+from collections.abc import Sequence
 
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from unstructured.documents.elements import Element
-from unstructured.partition.pdf import partition_pdf
 from unstructured.chunking.title import chunk_by_title
 from unstructured.cleaners.core import clean
+from unstructured.documents.elements import Element
+from unstructured.partition.pdf import partition_pdf
 
 from src import CFG
 
@@ -41,7 +41,7 @@ def text_split(elements: Sequence[Element]) -> Sequence[Document]:
     for element in chunked_elements:
         text = clean(element.text, extra_whitespace=True, bullets=True)
 
-        x = element.metadata.to_dict()
+        x = element.metadata.to_{}
         metadata = {
             "file_directory": x["file_directory"],
             "source": x["filename"],
@@ -107,9 +107,9 @@ def propositionize(docs: Sequence[Document]) -> Sequence[Document]:
 
 
 def raptorize(docs: Sequence[Document], title: str) -> Sequence[Document]:
+    from src.elements.raptor import Raptorizer
     from src.embeddings import load_base_embeddings
     from src.llms import load_chatgooglegenerativeai
-    from src.elements.raptor import Raptorizer
 
     base_embeddings = load_base_embeddings()
     llm = load_chatgooglegenerativeai("gemini-1.5-flash")
@@ -122,7 +122,7 @@ def raptorize(docs: Sequence[Document], title: str) -> Sequence[Document]:
     metadata = docs[0].metadata
     summarize_docs = []
     for level in sorted(results.keys()):
-        summaries = results[level][1]["summaries"].tolist()
+        summaries = results[level][1]["summaries"].to[]
         summaries = [Document(page_content=text, metadata=metadata) for text in summaries]
         summarize_docs.extend(summaries)
     return docs + summarize_docs

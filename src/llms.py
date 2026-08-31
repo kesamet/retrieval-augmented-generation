@@ -3,7 +3,6 @@ LLM
 """
 
 import os
-from typing import Dict
 
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
 
@@ -159,9 +158,10 @@ def load_chatgooglegenerativeai(
     return llm
 
 
-def load_sagemaker_endpoint_llm(model_kwargs: Dict | None = None, **kwargs):
+def load_sagemaker_endpoint_llm(model_kwargs: dict | None = None, **kwargs):
     import boto3
-    from src.sagemaker_endpoint.llm import SagemakerEndpointLLM, ContentHandler
+
+    from src.sagemaker_endpoint.llm import ContentHandler, SagemakerEndpointLLM
 
     if model_kwargs is None:
         model_kwargs = {

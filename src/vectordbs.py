@@ -2,18 +2,19 @@
 VectorDB
 """
 
-import shutil
 import os
-from typing import Literal, Sequence
+import shutil
+from collections.abc import Sequence
+from typing import Literal
 
-from langchain_core.embeddings import Embeddings
+from langchain_community.vectorstores import FAISS, Chroma
 from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
 from langchain_core.vectorstores import VectorStore
-from langchain_community.vectorstores import Chroma, FAISS
 from loguru import logger
 
 from src import CFG
-from src.parser import load_pdf, text_split, propositionize
+from src.parser import load_pdf, propositionize, text_split
 
 _VECTORDB_TYPE = Literal["faiss", "chroma"]
 
@@ -134,8 +135,8 @@ def load_chroma(embedding_function: Embeddings, persist_directory: str) -> Vecto
 def load_milvus(
     embedding_function: Embeddings, host: str, port: str, database: str, collection: str
 ) -> VectorStore:
-    from pymilvus import connections, db, Collection
     from langchain_community.vectorstores import Milvus
+    from pymilvus import Collection, connections, db
 
     alias = "milvusdb"
     connections.connect(

@@ -1,11 +1,10 @@
 import io
 import os
-from typing import List
 
 import fitz
-from PIL import Image
 from langchain.schema import Document
 from loguru import logger
+from PIL import Image
 
 
 def extract_images(filename: str, image_output_dir_path: str) -> None:
@@ -39,10 +38,10 @@ def save_pages_as_images(filename: str, image_output_dir_path: str) -> None:
         pix.save(os.path.join(image_output_dir_path, f"page-{page.number}.png"))
 
 
-def extract_tables(filename: str) -> List[Document]:
+def extract_tables(filename: str) -> list[Document]:
     """Extract tables from PDF."""
     pdf_file = fitz.open(filename)
-    table_docs = list()
+    table_docs = []
     for page in pdf_file:
         tabs = page.find_tables()
         logger.info(f"[+] Found {len(tabs.tables)} table(s) on page {page.number}")

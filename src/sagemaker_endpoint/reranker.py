@@ -1,10 +1,11 @@
 import json
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from collections.abc import Sequence
+from typing import Any
 
-from langchain_core.utils import pre_init
-from langchain.schema import Document
 from langchain.callbacks.manager import Callbacks
 from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
+from langchain.schema import Document
+from langchain_core.utils import pre_init
 from pydantic import BaseModel, ConfigDict
 
 
@@ -14,11 +15,11 @@ class CrossEncoderContentHandler:
     content_type = "application/json"
     accepts = "application/json"
 
-    def transform_input(self, text_pairs: List[Tuple[str, str]]) -> bytes:
+    def transform_input(self, text_pairs: list[tuple[str, str]]) -> bytes:
         input_str = json.dumps({"text_pairs": text_pairs})
         return input_str.encode("utf-8")
 
-    def transform_output(self, output: bytes) -> List[float]:
+    def transform_output(self, output: bytes) -> list[float]:
         response_json = json.loads(output.read().decode("utf-8"))
         return response_json["scores"]
 
@@ -35,7 +36,7 @@ class SagemakerEndpointCrossEncoder(BaseModel):
     region_name: str = ""
     """The aws region where the Sagemaker model is deployed, eg. `us-west-2`."""
 
-    credentials_profile_name: Optional[str] = None
+    credentials_profile_name: str | None = None
     """The name of the profile in the ~/.aws/credentials or ~/.aws/config files, which
     has either access keys or role information specified.
     If not specified, the default credential profile or, if on an EC2 instance,
@@ -45,10 +46,10 @@ class SagemakerEndpointCrossEncoder(BaseModel):
 
     content_handler: CrossEncoderContentHandler = CrossEncoderContentHandler()
 
-    model_kwargs: Optional[Dict] = None
+    model_kwargs: dict | None = None
     """Keyword arguments to pass to the model."""
 
-    endpoint_kwargs: Optional[Dict] = None
+    endpoint_kwargs: dict | None = None
     """Optional attributes passed to the invoke_endpoint
     function. See `boto3`_. docs for more info.
     .. _boto3: <https://boto3.amazonaws.com/v1/documentation/api/latest/index.html>
@@ -59,7 +60,7 @@ class SagemakerEndpointCrossEncoder(BaseModel):
     )
 
     @pre_init
-    def validate_environment(cls, values: Dict) -> Any:
+    def validate_environment(cls, values: dict) -> Any:
         """Validate that AWS credentials to and python package exists in environment."""
         try:
             import boto3
@@ -89,7 +90,7 @@ class SagemakerEndpointCrossEncoder(BaseModel):
             )
         return values
 
-    def score(self, text_pairs: List[List[str]]) -> List[float]:
+    def score(self, text_pairs: list[list[str]]) -> list[float]:
         """Call out to SageMaker Inference CrossEncoder endpoint."""
         _endpoint_kwargs = self.endpoint_kwargs or {}
 
@@ -120,7 +121,7 @@ class SagemakerRerank(BaseDocumentCompressor):
     model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
 
     def compress_documents(
-        self, documents: Sequence[Document], query: str, callbacks: Optional[Callbacks] = None
+        self, documents: Sequence[Document], query: str, callbacks: Callbacks | None = None
     ) -> Sequence[Document]:
         """
         Compress documents.
@@ -145,7 +146,7 @@ class SagemakerRerank(BaseDocumentCompressor):
             final_results.append(doc)
         return final_results
 
-    def rerank(self, query: str, docs: Sequence[str]) -> Sequence[Tuple[int, float]]:
+    def rerank(self, query: str, docs: Sequence[str]) -> Sequence[tuple[int, float]]:
         """
         Reranks a list of documents based on a given query using a pre-trained model.
 

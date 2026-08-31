@@ -1,6 +1,6 @@
 import phoenix as px
-from phoenix.otel import register
 from openinference.instrumentation.langchain import LangChainInstrumentor
+from phoenix.otel import register
 
 px.launch_app()  # TODO
 

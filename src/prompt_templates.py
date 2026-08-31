@@ -1,6 +1,5 @@
-from loguru import logger
-
 from langchain_core.messages import SystemMessage
+from loguru import logger
 
 from src import CFG
 
@@ -106,7 +105,7 @@ MULTI_QUERIES_TEMPLATE = prompts.multiple_queries
 GENERATED_RESULT_TEMPLATE = prompts.generated_result
 
 REACT_SYSTEM_MESSAGE = SystemMessage(
-    content="""Y\ou are a helpful, respectful and honest assistant for question-answering tasks.
+    content=r"""Y\ou are a helpful, respectful and honest assistant for question-answering tasks.
 Respond to the user query only using the provided context.
 
 <instructions>

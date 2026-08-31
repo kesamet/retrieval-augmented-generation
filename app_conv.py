@@ -1,8 +1,8 @@
 import os
 from collections import deque
 
-import torch
 import streamlit as st
+import torch
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 
 from src import CFG, logger
@@ -11,8 +11,8 @@ from src.llms import load_llm
 from src.memory import trim_memory
 from src.retrievers import create_rerank_retriever
 from src.vectordbs import build_vectordb, delete_vectordb, load_vectordb
-from streamlit_app.utils import process, cache_base_embeddings, cache_llm, cache_reranker
 from streamlit_app.output_formatter import replace_special
+from streamlit_app.utils import cache_base_embeddings, cache_llm, cache_reranker, process
 
 # Fixing the issue:
 # Examining the path of torch.classes raised: Tried to instantiate class 'path.path',

@@ -1,6 +1,6 @@
+from dotenv import load_dotenv
 from loguru import logger
 from omegaconf import OmegaConf
-from dotenv import load_dotenv
 
 load_dotenv()
 

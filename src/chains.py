@@ -2,15 +2,15 @@
 Chains
 """
 
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from langchain_core.language_models import BaseLanguageModel
-from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import (
     Runnable,
-    RunnablePassthrough,
     RunnableBranch,
+    RunnablePassthrough,
 )
 from pydantic import BaseModel, Field
 
@@ -61,7 +61,7 @@ def create_question_answer_chain(llm: BaseLanguageModel) -> Runnable:
 
 
 def create_guardrail_chain(
-    llm: BaseLanguageModel, template: str, retry_func: Optional[Callable] = None
+    llm: BaseLanguageModel, template: str, retry_func: Callable | None = None
 ) -> Runnable:
     class grade(BaseModel):
         """Binary score for relevance check."""

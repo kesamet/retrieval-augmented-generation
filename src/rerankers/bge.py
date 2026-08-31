@@ -1,9 +1,9 @@
 import os
-from typing import Optional, Sequence, Tuple
+from collections.abc import Sequence
 
-from langchain.schema import Document
 from langchain.callbacks.manager import Callbacks
 from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
+from langchain.schema import Document
 from pydantic import ConfigDict
 from sentence_transformers import CrossEncoder
 
@@ -25,7 +25,7 @@ class BGERerank(BaseDocumentCompressor):
         self,
         documents: Sequence[Document],
         query: str,
-        callbacks: Optional[Callbacks] = None,
+        callbacks: Callbacks | None = None,
     ) -> Sequence[Document]:
         """
         Compress documents using BAAI/bge-reranker models.
@@ -50,7 +50,7 @@ class BGERerank(BaseDocumentCompressor):
             final_results.append(doc)
         return final_results
 
-    def rerank(self, query: str, docs: Sequence[str]) -> Sequence[Tuple[int, float]]:
+    def rerank(self, query: str, docs: Sequence[str]) -> Sequence[tuple[int, float]]:
         """
         Reranks a list of documents based on a given query using a pre-trained model.
 

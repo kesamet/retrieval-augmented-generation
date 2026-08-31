@@ -1,6 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from transformers import T5Tokenizer
 
@@ -15,7 +15,7 @@ class EncT5Tokenizer(T5Tokenizer):
         pad_token="<pad>",
         extra_ids=100,
         additional_special_tokens=None,
-        sp_model_kwargs: Optional[Dict[str, Any]] = None,
+        sp_model_kwargs: dict[str, Any] | None = None,
         **kwargs,
     ) -> None:
         sp_model_kwargs = {} if sp_model_kwargs is None else sp_model_kwargs
@@ -34,10 +34,10 @@ class EncT5Tokenizer(T5Tokenizer):
 
     def get_special_tokens_mask(
         self,
-        token_ids_0: List[int],
-        token_ids_1: Optional[List[int]] = None,
+        token_ids_0: list[int],
+        token_ids_1: list[int] | None = None,
         already_has_special_tokens: bool = False,
-    ) -> List[int]:
+    ) -> list[int]:
         """
         Retrieve sequence ids from a token list that has no special tokens added.
         This method is called when adding special tokens using the tokenizer
@@ -67,8 +67,8 @@ class EncT5Tokenizer(T5Tokenizer):
         return [1] + ([0] * len(token_ids_0)) + [1] + ([0] * len(token_ids_1)) + [1]
 
     def create_token_type_ids_from_sequences(
-        self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
-    ) -> List[int]:
+        self, token_ids_0: list[int], token_ids_1: list[int] | None = None
+    ) -> list[int]:
         """
         Create a mask from the two sequences passed to be used in a sequence-pair classification
         task. T5 does not make use of token type ids, therefore a list of zeros is returned.
@@ -88,8 +88,8 @@ class EncT5Tokenizer(T5Tokenizer):
         return len(bos + token_ids_0 + eos + token_ids_1 + eos) * [0]
 
     def build_inputs_with_special_tokens(
-        self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
-    ) -> List[int]:
+        self, token_ids_0: list[int], token_ids_1: list[int] | None = None
+    ) -> list[int]:
         """
         Build model inputs from a sequence or a pair of sequence for sequence classification tasks
         by concatenating and adding special tokens. A sequence has the following format:
